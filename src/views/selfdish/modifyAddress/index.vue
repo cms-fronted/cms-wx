@@ -21,6 +21,9 @@
 			<van-icon name="add-o" color="#1989fa" />
 			<h4 style="margin-left: 10px; font-size: 14px;">新增收货地址</h4>
 		</div>
+		<van-popup position="bottom" v-model="pop">
+			<van-address-list v-model="radio" :list="list" @add="addAddress" @edit="bindToEditAddress" />
+		</van-popup>
 	</div>
 </template>
 
@@ -34,7 +37,8 @@
 				//地址列表
 				list: [],
 				def: {}, //默认地址
-				radio: ''
+				radio: '',
+				pop:true,
 			}
 		},
 		methods: {
@@ -49,6 +53,9 @@
 			bindToEditAddress(address) {
 				console.log('选中编辑地址，地址id：', address);
 				this.$router.push({name:'editaddress',params:{detail:address}});
+			},
+			address(){
+				
 			}
 		},
 		async created() {

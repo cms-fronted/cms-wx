@@ -1,7 +1,7 @@
 <template>
 	<div id="app">
 		<!-- 饭堂选择下拉箭头 -->
-		<van-icon style="position: fixed;right: 10px;top: 40px;z-index: 10;" size="40px" name="arrow-down" @click="chooseCanteen" />
+		<van-icon style="position: fixed;right: 10px;top: 40px;z-index: 10;" size="40px" name="arrow-down" @click="showCanteen" />
 		<!-- 导航栏 -->
 		<mt-header title="哈哈哈哈" style="padding:0;">
 			<div @click="back" slot="left" v-show="isShow">
@@ -10,33 +10,48 @@
 		</mt-header>
 		<!-- 饭堂选择 -->
 		<div class="shadow" style="margin-bottom: 10px;" v-bind:hidden="show">
-			<van-radio-group v-model="radio" style="width: 100%;display: flex;flex-wrap: wrap;padding-top: 35px">
-				<van-radio class="flex-row flex-center" :name="index" icon-size="12px" v-for="(item,index) in 6" :key="index" style="width: 33%; margin: 10px 0">A饭堂</van-radio>
+			<van-radio-group v-model="radio" @change="chooseCanteen" style="width: 100%;display: flex;flex-wrap: wrap;padding-top: 35px">
+				<van-radio class="flex-row flex-center" :name="item.id" icon-size="12px" v-for="(item,index) in canteenList" :key="index" style="width: 33%; margin: 10px 0" >{{item.name}}</van-radio>
 			</van-radio-group>
 		</div>
 		<!-- <van-popup v-model="show" :overlay="false" position="top"  style="margin-top: 40px;" closeable :lock-scroll="false" >
 			
 		</van-popup> -->
-		<router-view />
+		<keep-alive>
+			<router-view v-if="!$route.meta.noCache" />
+		</keep-alive>
+		<router-view v-if="$route.meta.noCache" />
 	</div>
 </template>
 <script>
-	import {mapGetters} from 'vuex'
-	import {getUserToken} from './api/user.js'
+	import {
+		mapGetters
+	} from 'vuex';
+	import {
+		getUserToken,
+		canChooseCant
+	} from './api/user.js';
+	import {Toast} from 'vant';
+	
 	export default {
 		data() {
 			return {
 				isShow: false,
 				show: true,
-				radio: ''
+				radio: '',
 			}
 		},
 		methods: {
-			chooseCanteen() {
+			showCanteen() {
 				this.show = !this.show
 			},
 			back() {
 				this.$router.go(-1);
+			},
+			//用户选择饭堂
+			chooseCanteen(e){
+				console.log('1111',e);
+				this.$store.commit('user/setCanteen',e);
 			}
 		},
 		watch: {
@@ -52,24 +67,45 @@
 			// this.$store.commit('user/setToken');
 			//获取用户信息判断该用户是否绑定手机或饭堂
 			// const result = await getUserToken();
-			const result = {data:{"token":"35fd062c8b2c546c2a684f506ba21cb5","phone":1,"canteen_selected":2}}
+			const result = {
+				data: {
+					"token": "35fd062c8b2c546c2a684f506ba21cb5",
+					"phone": 1,
+					"canteen_selected": 2
+				}
+			}
 			console.log(result);
-			if(result.data.phone == 2){
+			if (result.data.phone == 2) {
 				//用户未绑定手机
 				this.$router.push('entry');
-			}else if(result.data.canteen_selected == 1){
+			} else if (result.data.canteen_selected == 1) {
 				//已选择饭堂跳至首页
-				
-			}else if(result.data.canteen_selected == 2){
-				//未选择饭堂调用接口获取可选择饭堂
+
+			} else if (result.data.canteen_selected == 2) {
+				//未选择饭堂进入饭堂选择页 调用接口获取可选择饭堂
 			}
+
+			//获取用户可进入饭堂
+			var canteens = new Array();
+			var i = 0;
+			const result2 = await canChooseCant();
+			if (result2.errorCode == 0) {
+				result2.data.forEach((items, index) => {
+					items.canteens.forEach((item, key) => {
+						canteens[i] = item.info;
+						i++;
+					});
+				});
+				this.$store.commit('user/setCanteenList', canteens);
+			};
 		},
-		computed:{
-			...mapGetters('user',{
-				token:'tokenGetters'
+		computed: {
+			...mapGetters('user', {
+				token: 'tokenGetters',
+				canteenList:'canteenListGetters'
 			})
 		}
-		
+
 	}
 </script>
 <style lang="scss">

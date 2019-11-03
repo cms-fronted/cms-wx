@@ -7,7 +7,7 @@
 		</div>
 		<van-address-edit :area-list="areaList" show-search-result area-columns-placeholder="['请选择', '请选择', '请选择']" @save="onSave"
 		 :is-saving="isSaving" :address-info="addressInfo">
-			<van-radio-group class="flex-row flex-center" style="justify-content: space-around;padding:10px 16px;" v-model="sex">
+			<van-radio-group class="flex-row flex-center" style="justify-content: space-around;padding:10px 16px;" v-model="addressInfo.sex">
 				<van-radio name="2">女士</van-radio>
 				<van-radio name="1">先生</van-radio>
 			</van-radio-group>
@@ -20,13 +20,12 @@
 		Toast
 	} from 'vant';
 	import {
-		addUserAddress
+		updateUserAddress
 	} from '@/api/user.js';
 	import area from '@/utils/area.js'
 	export default {
 		data() {
 			return {
-				sex: '', //性别
 				areaList: area, //地区选择列表
 				isSaving: false, //保存按钮加载动画
 				addressInfo: {
@@ -36,7 +35,9 @@
 					province: '',
 					city: '',
 					county: '',
-					addressDetail: ''
+					addressDetail: '',
+					areaCode: '',
+					sex: '', //性别
 				} //选中地址
 			}
 		},
@@ -45,42 +46,40 @@
 			bindToBack() {
 				this.$router.go(-1);
 			},
+			//保存修改地址
 			async onSave(content) {
-				if (this.sex == '') {
-					Toast('请选择性别');
-				} else {
-					this.isSaving = true;
-					const data = {
-						"province": content.province,
-						"city": content.city,
-						"area": content.county,
-						"address": content.addressDetail,
-						"name": content.name,
-						"phone": content.tel,
-						"sex": this.sex
-					}
-					const result = await updateUserAddress(data);
-					if (result.errorCode == 0) {
-						this.$router.go(-1);
-					}
-				}
+				console.log(content);
+				this.isSaving = true;
+				const data = {
+					"id": this.addressInfo.id,
+					"province": content.province,
+					"city": content.city,
+					"area": content.county,
+					"address": content.addressDetail,
+					"name": content.name,
+					"phone": content.tel,
+					"sex": this.addressInfo.sex
+				};
+				//调用修改地址接口
+				const result = await updateUserAddress(data);
+				console.log(result);
+				if (result.errorCode == 0) {
+					this.$router.go(-1);
+				};
+				this.isSaving = false;
 			}
 		},
 		created() {
-			console.log('页面传值接收：', this.$route.params.detail);
-			// this.addressInfo = this.$route.params.detail;
-			// addressInfo:{
-			// 	id:'',
-			// 	name:'',
-			// 	tel:'',
-			// 	province:'',
-			// 	city:'',
-			// 	county:'',
-			// 	addressDetail:''
-			// }//选中地址
-			console.log(area.county_list);
-			const det = this.$route.params.detail;
-			this.addressInfo = {
+			const det = this.$route.params.data;
+			console.log('编辑页面获取值：', det);
+			//遍历出地区编码
+			Object.keys(area.county_list).forEach((key) => {
+				if (area.county_list[key] == det.area) {
+					this.addressInfo.areaCode = key;
+				};
+			});
+			//初始化页面的值
+			this.addressInfo = Object.assign(this.addressInfo, {
 				id: det.id,
 				name: det.name,
 				tel: det.phone,
@@ -88,8 +87,8 @@
 				city: det.city,
 				county: det.area,
 				addressDetail: det.address,
-				areaCode:'130983',
-			};
+				sex: det.sex.toString()
+			});
 		}
 	}
 </script>

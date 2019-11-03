@@ -1,9 +1,14 @@
 import axios from 'axios'
-// import { Message } from 'element-ui'
 import { Dialog  } from 'vant'
 import store from '@/store'
+import {Toast} from 'vant'
 // import { getToken } from '@/utils/auth'
 
+Toast.loading({
+	message:'获取数据中...',
+	forbidClick:true,
+	duration:0
+});
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // api 的 base_url
@@ -88,5 +93,7 @@ service.interceptors.response.use(
     // return Promise.reject(error)
   }
 )
+
+Toast.clear();
 
 export default service

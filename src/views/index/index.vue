@@ -100,21 +100,32 @@
 					icon: require("../../assets/setting.png"),
 					type: 0,
 					url: 'setting'
-				}, ],
+				}, {
+					category: '9',
+					name: '小卖部',
+					icon: require("../../assets/canting.png"),
+					url: 'Store'
+				},],
 				mGrid: [{
 					category: '1',
-					name: '菜品管理',
+					name: '菜品管理(菜谱查询)',
 					icon: require("../../assets/manage.png"),
 					type: 0,
-					url: 'dish'
-				}, {
+					url: 'mealMenage'
+				},{
 					category: '2',
+					name: '菜品管理(个人选菜)',
+					icon: require("../../assets/manage.png"),
+					type: 0,
+					url: 'mealMenageSelf'
+				}, {
+					category: '3',
 					name: '总订餐查询',
 					icon: require("../../assets/search.png"),
 					type: 0,
 					url: 'totalorder'
 				}, {
-					category: '3',
+					category: '4',
 					name: '公告发布',
 					icon: require("../../assets/release.png"),
 					type: 0,

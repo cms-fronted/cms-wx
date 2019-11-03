@@ -41,44 +41,52 @@ export function getModules() {
 };
 
 //用户选择进入饭堂接口
-export function bindCanteen(data){
+export function bindCanteen(data) {
 	return request({
-		url:'/v1/user/bindCanteen',
-		method:'post',
+		url: '/v1/user/bindCanteen',
+		method: 'post',
 		data
 	});
 };
 
 //获取用户可选择饭堂
-export function canChooseCant(){
+export function canChooseCant() {
 	return request({
-		url:'/v1/user/canteens',
-		method:'get',
+		url: '/v1/user/canteens',
+		method: 'get',
 	});
 };
 
 //获取用户地址
-export function getUserAddress(){
+export function getUserAddress() {
 	return request({
-		url:'/v1/addresses',
-		method:'get',
+		url: '/v1/addresses',
+		method: 'get',
 	});
 };
 
 //新增用户地址
-export function addUserAddress(data){
+export function addUserAddress(data) {
 	return request({
-		url:'/v1/address/save',
-		method:'post',
+		url: '/v1/address/save',
+		method: 'post',
 		data
 	});
 };
 
 //更新用户地址
-export function updateUserAddress(data){
+export function updateUserAddress(data) {
 	return request({
-		url:'/v1/address/update',
-		method:'post',
+		url: '/v1/address/update',
+		method: 'post',
 		data
+	});
+};
+
+//用户所选饭堂可选餐次
+export function getChooseDinner() {
+	return request({
+		url: '/v1/canteen/dinners/user',
+		method: 'get'
 	});
 };

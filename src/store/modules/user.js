@@ -1,11 +1,14 @@
 import {
 	getcompanies,
-	getUserToken
-} from '@/api/user.js'
+	getUserToken,
+	bindCanteen
+} from '@/api/user.js';
+import {Toast} from 'vant';
 
 const state = {
-	token: '7fa25d9bfc7278c079126d013ba4e6e0',
-	canteen_id: ''
+	token: 'ec73a3dd88f7311909f4b0a9f878043f',
+	canteen_id: '6',
+	canteenList:[],
 }
 
 const mutations = {
@@ -19,8 +22,15 @@ const mutations = {
 		// state.token = '11111';
 	},
 
-	setCanteen(state, data) {
+	async setCanteen(state, data) {
 		state.canteen_id = data
+		const result = await bindCanteen({canteen_id:data});
+		console.log(data);
+		Toast.success('成功进入饭堂！');
+	},
+	
+	setCanteenList(state,data){
+		state.canteenList = data
 	}
 }
 
@@ -34,8 +44,12 @@ const getters = {
 		return '页面渲染：' + state.token;
 	},
 	canteenIdGetters(state) {
-		return '饭堂：' + state.canteen_id;
+		return state.canteen_id;
+	},
+	canteenListGetters(state){
+		return state.canteenList;
 	}
+	
 }
 
 export default {

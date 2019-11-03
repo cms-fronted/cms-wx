@@ -2,19 +2,19 @@
 	<!-- 菜品查询 -->
 	<div>
 		<!-- 顶部选择器 -->
-		<div class="flex-row" style="justify-content: space-around;padding:10px 60px 10px 10px ; width: auto;">
-			<van-button class="myBtn" @click="mealShow = true">{{meal}}
+		<div class="flex-row" style="justify-content: space-around;padding:10px ; width: auto;">
+			<van-button class="myBtn" @click="mealShow = true">{{dinner}}
 				<div class="mIcon" />
 			</van-button>
-			<van-button class="myBtn" @click="placeShow = true">{{place}}
+			<!-- 			<van-button class="myBtn" @click="placeShow = true">{{place}}
 				<div class="mIcon" />
-			</van-button>
+			</van-button> -->
 		</div>
 
 		<!-- 日期选择 -->
-		<div class="dateMenu">
+		<div class="dateMenu" v-if="this.currentDate.length>0">
 			<van-tabs color="#1989fa" @click="chooseDate">
-				<van-tab v-for="(item,index) in currentDate" :title="item" :key="index">
+				<van-tab v-for="(item,index) in currentDate" :title="$moment(item).format('MM-DD')" :key="index">
 					<!-- 内容 {{ index }} -->
 				</van-tab>
 			</van-tabs>
@@ -33,7 +33,8 @@
 				<ul>
 					<li v-for="(items,index) in list" :key="index" ref="rItem">{{items.category}}
 						<div class="flex-row footDetail" style="" v-for="(item,key) in items.foods" :key="key">
-							<img :src="item.img_url" />
+							<van-image width="40%" :src="'http://canteen.tonglingok.com/'+item.img_url" fit="contain" />
+							<!-- <img :src="'http://canteen.tonglingok.com/'+item.img_url" /> -->
 							<div class="flex-column" style="justify-content: center;width: 60%;font-size: 12px;">
 								<div class="flex-row" style="justify-content: space-between;align-items: center;">
 									<p style="font-size: 13px;">{{item.name}} </p>
@@ -51,7 +52,7 @@
 		<van-popup v-model="showComment" position="bottom" :style="{height:'70%'}">
 			<!-- 更多评论 -->
 			<div class="flex-row" style="justify-content: flex-end;padding: 10px;">
-				<van-button size="small" @click="closeComment">关闭</van-button>
+				<van-button size="small" @click="showComment = false">关闭</van-button>
 			</div>
 			<div v-for="(item,index) in comment.food.comments" :key="index" class="flex-row" style="border:1px solid #CCCCCC;">
 				<!-- 评论左侧 -->
@@ -78,107 +79,29 @@
 			</div>
 		</van-popup>
 		<van-popup v-model="mealShow" position="bottom">
-			<van-picker show-toolbar :columns="mealList" @cancel="mealShow = false" @confirm="mealEvent" />
+			<van-picker show-toolbar :columns="dinnerList" value-key="name" @cancel="mealShow = false" @confirm="dinnerEvent" />
 		</van-popup>
-		<van-popup v-model="placeShow" position="bottom">
+		<!-- 		<van-popup v-model="placeShow" position="bottom">
 			<van-picker show-toolbar :columns="placeList" @cancel="placeShow = false" @confirm="placeEvent" />
-		</van-popup>
+		</van-popup> -->
 	</div>
 </template>
 
 <script>
+	import {
+		getMenuQuery,
+		getComments
+	} from '@/api/shelfDish.js';
+	import {
+		getChooseDinner
+	} from '@/api/user.js';
 	import Bscroll from 'better-scroll';
 	export default {
 		data() {
 			return {
-				list: [{
-						"id": 1,
-						"category": "荤菜",
-						"status": 1,
-						"count": 3,
-						"foods": [{
-							"id": 3,
-							"day": "2019-09-07",
-							"f_id": 1,
-							"status": 1,
-							"default": 2,
-							"m_id": 1,
-							"d_id": 6,
-							"name": "红烧牛肉",
-							"price": 5,
-							"img_url": "/static/image/20190810/ab9ce8ff0e2c5adb40263641b24f36d4.png",
-							"f_type": 2,
-							"chef": "李大厨",
-							"des": "适合**人群，有利于***不适合***人群",
-							"materials": [{
-									"id": 1,
-									"f_id": 3,
-									"name": "牛肉",
-									"count": 15,
-									"unit": "kg"
-								},
-								{
-									"id": 2,
-									"f_id": 3,
-									"name": "土豆",
-									"count": 10,
-									"unit": "kg"
-								},
-								{
-									"id": 3,
-									"f_id": 3,
-									"name": "西红柿",
-									"count": 10,
-									"unit": "kg"
-								}
-							]
-						}]
-					},
-					{
-						"id": 2,
-						"category": "汤",
-						"status": 2,
-						"count": 0,
-						"foods": [{
-							"id": 3,
-							"day": "2019-09-07",
-							"f_id": 1,
-							"status": 1,
-							"default": 2,
-							"m_id": 1,
-							"d_id": 6,
-							"name": "红烧牛肉",
-							"price": 5,
-							"img_url": "/static/image/20190810/ab9ce8ff0e2c5adb40263641b24f36d4.png",
-							"f_type": 2,
-							"chef": "李大厨",
-							"des": "适合**人群，有利于***不适合***人群",
-							"materials": [{
-									"id": 1,
-									"f_id": 3,
-									"name": "牛肉",
-									"count": 15,
-									"unit": "kg"
-								},
-								{
-									"id": 2,
-									"f_id": 3,
-									"name": "土豆",
-									"count": 10,
-									"unit": "kg"
-								},
-								{
-									"id": 3,
-									"f_id": 3,
-									"name": "西红柿",
-									"count": 10,
-									"unit": "kg"
-								}
-							]
-						}]
-					}
-				],
-				currentDate: ['10-09', '10-10', '10-11', '10-12', '10-13'], //日期菜单
+				list: [], //菜品列表
+				currentDate: [], //日期菜单
+				dayMap: null,
 				scrollH: '',
 				scrollY: 0, //获取实时滚动位置
 				heightList: [], //获取每一个li的高度
@@ -220,19 +143,19 @@
 						"taste": 4.3,
 						"service": 4.3
 					}
-				},
-				placeShow: false,
+				}, //评论
+				// placeShow: false,
 				mealShow: false,
-				placeList: ['大饭堂', '小饭堂', '小卖部'],
-				mealList: ['早餐', '中餐', '晚餐'],
-				place: '大饭堂',
-				meal: '早餐',
+				// placeList: ['大饭堂', '小饭堂', '小卖部'],
+				dinnerList: [],
+				// place: '大饭堂',
+				dinner: '餐次',
 			}
 		},
 		methods: {
 			//日期选择
-			chooseDate(e) {
-				this.date = this.currentDate[e];
+			chooseDate(index, title) {
+				this.list = this.dayMap.get(this.currentDate[index]);
 				//调用日期选择接口（date为当前日期）
 			},
 			//初始化 better-scroll
@@ -260,42 +183,104 @@
 			//获取li高度
 			getHeight() {
 				//获取每一个li的高度
-				const lis = this.$refs.rItem
-				//heightList的第一个元素为0
-				let height = 0
-				this.heightList.push(height)
-				//之后的高度即为当前li的高度加上之前面li的高度和
-				lis.forEach(item => {
-					height += item.clientHeight
+				if (this.$refs.rItem) {
+					const lis = this.$refs.rItem
+					//heightList的第一个元素为0
+					let height = 0
 					this.heightList.push(height)
-				})
-			},
-			//关闭评论弹窗
-			closeComment() {
-				this.showComment = false;
+					//之后的高度即为当前li的高度加上之前面li的高度和
+					lis.forEach(item => {
+						height += item.clientHeight
+						this.heightList.push(height)
+					})
+				}
 			},
 			//打开评论弹窗
-			openComment(e) {
+			async openComment(e) {
 				this.showComment = true;
-				console.log(e.f_id);
+				//获取菜品评论信息
+				// console.log(e.f_id);
+				// const result = await getComments({
+				// 	food_id: e.f_id
+				// });
+				// if (result.errorCode) {
+				// 	this.comment = result.data
+				// }
 			},
 			//餐次选择
-			mealEvent(e) {
-				this.meal = e;
+			async dinnerEvent(e) {
+				this.dinner = e.name;
+				this.dinner_id = e.id
 				this.mealShow = false;
+
+				const result = await getMenuQuery({
+					dinner_id: this.dinner_id
+				});
+				console.log(result);
+				if (result.errorCode == 0) {
+					//将返回数据按照日期进行分类设置一个新的日期map
+					var dayMap = new Map();
+					result.data.forEach((items, index) => {
+						items.foods.forEach((item, key) => {
+							if (!dayMap.has(item.day)) {
+								//若日期map中不存在此日期 初始化该日期
+								dayMap.set(item.day, [{
+									category: items.category,
+									count: items.count,
+									id: items.id,
+									foods: [item]
+								}]);
+							} else {
+								//若存在，将菜品放置对菜类的菜品列表中
+								dayMap.get(item.day).forEach((e, i) => {
+									if (items.id != e.id) {
+										console.log('11111',dayMap.get(item.day));
+										dayMap.get(item.day).push({
+											category: items.category,
+											count: items.count,
+											id: items.id,
+											foods: [item]
+										})
+									}else{
+										dayMap.get(item.day)[i].foods.push(item);
+									}
+								});
+							};
+						});
+					});
+					this.dayMap = dayMap;
+					console.log('日期:', dayMap);
+					//将日期放入数组中
+					for (var [key, value] of dayMap) {
+						this.currentDate.push(key);
+					};
+					//将日期排序
+					this.currentDate.sort((a, b) => {
+						return a > b ? 1 : -1;
+					});
+					this.list = dayMap.get(this.currentDate[0]);
+				}
 			},
 			//地点选择
-			placeEvent(e) {
-				this.place = e;
-				this.placeShow = false;
-			}
+			// placeEvent(e) {
+			// 	this.place = e;
+			// 	this.placeShow = false;
+			// }
 		},
 		mounted() {
-			console.log(window.innerHeight);
-			console.log(this.$refs.category.getBoundingClientRect().top);
 			this.scrollH = window.innerHeight - this.$refs.category.getBoundingClientRect().top;
 		},
-		created() {
+		async created() {
+			// 获取用户可选餐次
+			const result = await getChooseDinner();
+			if (result.errorCode == 0) {
+				this.dinnerList = result.data
+			}
+			console.log(result);
+
+			console.log(this.comment, '11111111');
+
+
 			//因为 _scrollInit函数需要操作DOM，因此必须在DOM元素存在文档中才能获取DOM节点
 			//因此在 nextTick回调函数里面调用可以是实现此功能
 			this.$nextTick(() => {
@@ -312,7 +297,7 @@
 
 				return index > 0 ? index : 0
 			}
-		}
+		},
 	}
 </script>
 
@@ -365,9 +350,9 @@
 		text-align: left;
 	}
 
-	.footList img {
-		width: 40%;
-		background-color: #07C160;
+	.footList van-image {
+		width: 40px;
+		/* background-color: #07C160; */
 	}
 
 	.footDetail {

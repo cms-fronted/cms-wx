@@ -3,7 +3,8 @@ import Router from 'vue-router'
 import Entry from '@/views/entry'
 import Index from '../views/index'
 import Ecard from '../views/ecard'
-import Dish from '../views/dish'
+import MealMenage from '../views/mealMenage'
+import MealMenageSelf from '@/views/mealMenageSelf'
 import Store from '../views/store'
 import SelfDish from '../views/selfdish'
 import Menu from '../views/menu'
@@ -39,13 +40,28 @@ export default new Router({
 			name: 'ecard',
 			component: Ecard
 		},
-		{ //菜品管理页
-			path: '/dish',
-			name: 'dish',
-			component: Dish
-		}, { //小卖部
+		{ //菜品管理（菜谱查询）
+			path: '/mealMenage',
+			name: 'mealMenage',
+			component: MealMenage,
+			meta:{
+				noCache:true
+			}
+		},
+		{ //菜品管理（个人选菜）
+			path: '/mealMenageSelf',
+			name: 'mealMenageSelf',
+			component: MealMenageSelf,
+			meta:{
+				noCache:true
+			}
+		},
+		{ //小卖部
 			path: '/store',
 			name: "store",
+			meta: {
+				noCache: false
+			},
 			component: Store
 		}, { //个人选菜
 			path: '/selfdish',
@@ -54,6 +70,9 @@ export default new Router({
 		}, { //个人选菜下单
 			path: '/placeorder',
 			name: 'placeorder',
+			meta: {
+				noCache: false
+			},
 			component: PlaceOrder
 		}, { //个人选菜选择地址
 			path: '/modifyaddress',
@@ -65,17 +84,23 @@ export default new Router({
 			component: NewAddress
 		},
 		{ //个人选菜修改地址
-			path: '/editaddress/:detail',
+			path: '/editaddress',
 			name: 'editaddress',
 			component: EditAddress
 		},
 		{ //菜谱查看
 			path: '/menu',
 			name: 'menu',
+			meta:{
+				noCache:true
+			},
 			component: Menu
 		}, { //订单查询
 			path: '/order',
 			name: 'order',
+			meta: {
+				noCache: true
+			},
 			component: Order
 		}, { //消费查询
 			path: '/consume',
@@ -115,10 +140,10 @@ export default new Router({
 			name: 'orderingOnline',
 			component: OrderingOnline,
 		},
-		{//选择饭堂
-			path:'/selectcanteen',
-			name:'selectcanteen',
-			component:SelectCanteen
+		{ //选择饭堂
+			path: '/selectcanteen',
+			name: 'selectcanteen',
+			component: SelectCanteen
 		}
 		// {
 		// 	path: '/',
