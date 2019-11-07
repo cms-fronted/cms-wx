@@ -25,6 +25,14 @@ export function bindPhone(data) {
 	});
 };
 
+//获取用户该饭堂电子饭卡
+export function getCard(){
+	return request({
+		url:'/v1/user/card',
+		method:'get'
+	});
+};
+
 //获取所属企业列表
 export function getCompanies() {
 	return request({

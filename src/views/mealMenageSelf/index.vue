@@ -168,10 +168,17 @@
 						status: e.status ? 1 : 2,
 						default: e.default ? 1 : 2
 					}; //整理请求参数
+					Toast.loading({
+						message: '加载中...',
+						forbidClick: true,
+						duration: 0
+					});
 					changeType(data).then((e) => {
+						Toast.clear();
 						if (e.errorCode == 0) {
-							Toast.success('成功!');
+							Toast.success('上架成功!');
 						} else {
+							Toast.success('上架成功!');
 							this.foodList.data[index].status = !this.foodList.data[index].status;
 						};
 					}); //调用api
@@ -189,20 +196,31 @@
 					confirmButtonText: '是' //确认按钮文本
 				}).then(() => {
 					//调用改变商品状态接口
-					const data = {
-						food_id: e.id,
-						canteen_id: this.getCanteenId,
-						day: this.$moment(this.date).format("YYYY-MM-DD"),
-						status: e.status ? 1 : 2,
-						default: e.default ? 1 : 2
-					};
-					changeType(data).then((e) => {
-						if (e.errorCode == 0) {
-							Toast.success('成功!');
-						} else {
-							this.foodList.data[index].default = !this.foodList.data[index].default;
+					if (!e.status) {
+						Toast.fail('请先上架该菜品！');
+						this.foodList.data[index].default = !this.foodList.data[index].default;
+					} else {
+						const data = {
+							food_id: e.id,
+							canteen_id: this.getCanteenId,
+							day: this.$moment(this.date).format("YYYY-MM-DD"),
+							status: e.status ? 1 : 2,
+							default: e.default ? 1 : 2
 						};
-					});
+						Toast.loading({
+							message: '加载中...',
+							forbidClick: true,
+							duration: 0
+						});
+						changeType(data).then((e) => {
+							Toast.clear();
+							if (e.errorCode == 0) {
+								Toast.success('设置默认成功!');
+							} else {
+								this.foodList.data[index].default = !this.foodList.data[index].default;
+							};
+						});
+					}
 				}).catch(() => {
 					//confirm
 					this.foodList.data[index].default = !this.foodList.data[index].default;

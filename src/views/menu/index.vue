@@ -91,7 +91,7 @@
 	import {
 		getMenuQuery,
 		getComments
-	} from '@/api/shelfDish.js';
+	} from '@/api/selfDish.js';
 	import {
 		getChooseDinner
 	} from '@/api/user.js';

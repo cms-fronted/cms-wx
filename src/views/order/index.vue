@@ -155,11 +155,11 @@
 							this.addressId = items.company_id
 						};
 					});
-				} else if (this.type == 1 && this.type == 2) {
+				} else if (this.type == 1 || this.type == 2) {
 					this.place.forEach((items, index) => {
 						items.canteens.forEach((item, key) => {
 							if (item.info.name == e) {
-								this.addressId == item.canteen_id
+								this.addressId = item.canteen_id
 							};
 						});
 					});

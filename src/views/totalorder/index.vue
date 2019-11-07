@@ -3,7 +3,7 @@
 	<div id="totalorder">
 		<!-- 选择器 -->
 		<div class="flex-row picker shadow">
-			<van-button class="btn" type="default" @click="pickerEvent">{{$moment(date).format('YYYY-MM-DD')}}
+			<van-button class="btn" type="default" @click="show = true">{{$moment(date).format('YYYY-MM-DD')}}
 				<van-icon name="arrow-down" />
 			</van-button>
 			<van-button class="btn" type="default" @click="pickerEvent2">{{place}}
@@ -24,11 +24,11 @@
 		</div>
 
 		<!-- 弹出层&时间选择器 -->
-		<van-popup v-model="show" position="bottom" :style="{ height: '40%' }">
+		<van-popup v-model="show" position="bottom" style="width: 100%" :style="{ height: '40%' }">
 			<van-datetime-picker v-model="currentDate" @cancel="show = false" type="date" @confirm="timeEvent" />
 		</van-popup>
 		<!-- 弹出层&饭堂选择器 -->
-		<van-popup v-model="show1" position="bottom">
+		<van-popup v-model="show1" position="bottom" style="width: 100%">
 			<van-picker show-toolbar :columns="placeList" @cancel="show1 = false" @confirm="placeEvent" />
 		</van-popup>
 		<!-- 弹出层&菜品 -->
@@ -148,9 +148,6 @@
 			}
 		},
 		methods: {
-			pickerEvent() {
-				this.show = true;
-			},
 			pickerEvent2() {
 				this.show1 = true
 			},

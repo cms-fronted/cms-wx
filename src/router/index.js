@@ -59,8 +59,8 @@ export default new Router({
 		{ //小卖部
 			path: '/store',
 			name: "store",
-			meta: {
-				noCache: false
+			meta:{
+				noCache:true
 			},
 			component: Store
 		}, { //个人选菜
@@ -70,8 +70,8 @@ export default new Router({
 		}, { //个人选菜下单
 			path: '/placeorder',
 			name: 'placeorder',
-			meta: {
-				noCache: false
+			meta:{
+				noCache:true
 			},
 			component: PlaceOrder
 		}, { //个人选菜选择地址
@@ -86,6 +86,9 @@ export default new Router({
 		{ //个人选菜修改地址
 			path: '/editaddress',
 			name: 'editaddress',
+			meta:{
+				noCache:true
+			},
 			component: EditAddress
 		},
 		{ //菜谱查看

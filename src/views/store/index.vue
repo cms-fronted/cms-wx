@@ -36,7 +36,8 @@
 									<van-icon name="smile-o" size="25px" @click="openComment(item)" />
 								</div>
 								<p style="margin: 0 10px;">￥：{{item.price}}{{item.unit}}</p>
-								<van-stepper v-model="item.count" min="0" button-size="40px" @change="onChange(item.count,item)" @plus="addMealCount(item)" @minus="reduceMealCount(item)" />
+								<van-stepper v-model="item.count" min="0" button-size="40px" @change="onChange(item.count,item)" @plus="addMealCount(item)"
+								 @minus="reduceMealCount(item)" />
 							</div>
 						</div>
 					</li>
@@ -48,17 +49,17 @@
 			<!-- 商品评价 -->
 			<div class="flex-row" style="justify-content: space-around;align-items: center;border-bottom: 1px solid #F2F3F5;">
 				<div>
-					<p style="margin: 0;">4.5</p>
+					<p style="margin: 0;">{{productScore.taste}}</p>
 					<p style="margin: 0;">商品评分</p>
 				</div>
 				<div>
 					<div class="flex-row" style="align-items: center; margin: 5px;">
 						<h4>质量</h4>
-						<van-rate v-model="comment.data[0].taste" :size="23" allow-half void-icon="star" readonly void-color="#eee" />
+						<van-rate v-model="productScore.taste" :size="23" allow-half void-icon="star" readonly void-color="#eee" />
 					</div>
 					<div class="flex-row" style="align-items: center; margin: 5px;">
 						<h4>服务</h4>
-						<van-rate v-model="comment.data[0].service" :size="23" allow-half void-icon="star" readonly void-color="#eee" />
+						<van-rate v-model="productScore.service" :size="23" allow-half void-icon="star" readonly void-color="#eee" />
 					</div>
 				</div>
 				<div>
@@ -122,37 +123,8 @@
 				scrollH: '',
 				scrollY: 0, //获取实时滚动位置
 				heightList: [], //获取每一个li的高度
-				comment: {
-					"total": 2,
-					"per_page": "10",
-					"current_page": 1,
-					"last_page": 1,
-					"data": [{
-							"id": 4,
-							"u_id": 3,
-							"product_id": 1,
-							"taste": 3,
-							"service": 3,
-							"remark": "4"
-						},
-						{
-							"id": 3,
-							"u_id": 3,
-							"product_id": 1,
-							"taste": 4,
-							"service": 4,
-							"remark": "3"
-						},
-						{
-							"id": 2,
-							"u_id": 3,
-							"product_id": 1,
-							"taste": 5,
-							"service": 5,
-							"remark": "2"
-						}
-					]
-				},
+				comment: {},//商品评论
+				productScore: {},//饭堂评论
 				showComment: false, //显示评论
 				myComment: {
 					taste: 0,
@@ -214,6 +186,7 @@
 					service: this.myComment.service,
 					remark: this.myComment.remark
 				});
+				console.log(result);
 				this.showComment = false;
 				if (result.errorCode == 0) {
 					this.myComment = {
@@ -240,6 +213,10 @@
 					size: 6
 				});
 				console.log('获取的评论：', result);
+				if (result.errorCode == 0) {
+					this.comment = result.data.comments;
+					this.productScore = result.data.productScore;
+				}
 				this.showComment = true;
 				// const myComment = Object.assign(this.myComment, {
 				// 	product_id: e.id
@@ -260,7 +237,7 @@
 							count: this.ccc,
 							distribution: this.distribution,
 							products: this.products,
-							type: 3
+							orderType: 3
 						}
 					});
 				};

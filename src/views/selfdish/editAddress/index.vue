@@ -38,15 +38,31 @@
 					addressDetail: '',
 					areaCode: '',
 					sex: '', //性别
-				} //选中地址
+				}, //选中地址
+				shop: [],
+				selfDish: [],
 			}
 		},
 		methods: {
-			//取消返回上一级
+			/* 
+			取消返回上一级
+			 */
 			bindToBack() {
-				this.$router.go(-1);
+				if (this.shop.products.length > 0) {
+					this.$router.push({
+						name: 'placeorder',
+						params: this.shop
+					});
+				} else if (this.selfDish.detail.length > 0) {
+					this.$router.push({
+						name: 'placeorder',
+						params: this.selfDish
+					});
+				};
 			},
-			//保存修改地址
+			/*
+			 保存修改地址
+			 */
 			async onSave(content) {
 				console.log(content);
 				this.isSaving = true;
@@ -60,17 +76,35 @@
 					"phone": content.tel,
 					"sex": this.addressInfo.sex
 				};
-				//调用修改地址接口
+				/* 
+				调用修改地址接口
+				 */
 				const result = await updateUserAddress(data);
 				console.log(result);
 				if (result.errorCode == 0) {
-					this.$router.go(-1);
+					if (this.shop.products.length > 0) {
+						this.$router.push({
+							name: 'placeorder',
+							params: this.shop
+						});
+					} else if (this.selfDish.detail.length > 0) {
+						this.$router.push({
+							name: 'placeorder',
+							params: this.selfDish
+						});
+					};
 				};
 				this.isSaving = false;
 			}
 		},
 		created() {
 			const det = this.$route.params.data;
+			const data = this.$route.params;
+			if (data.shop) {
+				this.shop = data.shop;
+			} else if (data.selfDish) {
+				this.selfDish = data.selfDish
+			};
 			console.log('编辑页面获取值：', det);
 			//遍历出地区编码
 			Object.keys(area.county_list).forEach((key) => {

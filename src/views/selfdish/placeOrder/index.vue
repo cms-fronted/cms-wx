@@ -15,11 +15,11 @@
 		</div>
 		订餐清单
 		<table style="width: 100%;text-align: center;" border="1" cellspacing="0">
-			<tr v-for="(item,index) in list" :key="index">
-				<td width="40%">{{item.name}}</td>
-				<td>{{item.count}}</td>
-				<td>{{item.price * item.count}}元</td>
-			</tr>
+				<tr v-for="(item,key) in list" :key="key">
+					<td width="40%">{{item.name}}</td>
+					<td>{{item.count}}</td>
+					<td>{{item.price * item.count}}元</td>
+				</tr>
 			<tr>
 				<td>合计</td>
 				<td></td>
@@ -31,7 +31,7 @@
 			<van-button style="margin-top: 10px;" type="info" size="large">微信结账</van-button>
 		</div>
 		<van-popup v-model="showPop" position="bottom">
-			<van-address-list v-model="radio" :list="address" @add="addAddress" @edit="bindToEditAddress" @select="selectAddress" />
+			<van-address-list v-model="address_id" :list="address" @add="addAddress" @edit="bindToEditAddress" @select="selectAddress" />
 		</van-popup>
 	</div>
 </template>
@@ -44,11 +44,12 @@
 		addShopOrder
 	} from '@/api/store.js';
 	import {
+		saveOrder
+	} from '@/api/selfDish.js';
+	import {
 		Toast
 	} from 'vant';
-	// Toast.setDefaultOptions({
-	// 	duration: 2000
-	// });
+
 	export default {
 		data() {
 			return {
@@ -56,12 +57,13 @@
 				def: {}, //页面显示的地址（初始为默认地址）,
 				list: [], //订单清单
 				sum: 0, //清单合计
-				type: null, //订单类型 3:小卖部
-				shop: {
+				orderType: null, //订单类型 3:小卖部
+				shop: { //小卖部商品列表
 					count: null, //数量
 				},
 				showPop: false, //展示地址选择弹窗
-				radio: '', //地址选择id
+				address_id: '', //地址选择id
+				selfDish: {}, //个人选菜商品列表
 			}
 		},
 		methods: {
@@ -72,7 +74,7 @@
 			},
 			//订单提交
 			async submit() {
-				if (this.type == 3) {
+				if (this.orderType == 3) {
 					//若订单类型为小卖部
 					if (this.def.id != '') {
 						//若取货方式为送货上门
@@ -109,7 +111,17 @@
 						//如果该用户还没地址
 						Toast.fail('请选择地址！');
 					};
-				};
+				} else if (this.orderType == 1) {
+					//个人选菜订单
+					this.selfDish.detail = JSON.stringify(this.selfDish.detail);
+					const data = Object.assign(this.selfDish, {
+						address_id: this.address_id,
+						detail: this.selfDish.detail
+					});
+
+					const result2 = await saveOrder(data);
+					console.log('请求：', result2);
+				}
 			},
 			//新增地址
 			addAddress() {
@@ -119,13 +131,25 @@
 			//编辑地址
 			bindToEditAddress(e) {
 				console.log('编辑地址', e);
-				//跳转至编辑页面
-				this.$router.push({
-					name: 'editaddress',
-					params: {
-						data: e
-					}
-				});
+				if (this.orderType == 1) {
+					//个人选菜订单
+					this.$router.push({
+						name: 'editaddress',
+						params: {
+							selfDish: this.selfDish,
+							data: e
+						}
+					});
+				} else {
+					//跳转至编辑页面
+					this.$router.push({
+						name: 'editaddress',
+						params: {
+							shop: this.shop,
+							data: e
+						}
+					});
+				};
 			},
 			//选择地址
 			selectAddress(e) {
@@ -145,16 +169,27 @@
 		},
 		async created() {
 			const data = this.$route.params;
-			//若为小卖部订单
-			if (data.type == 3) {
-				this.type = data.type;
+			console.log('路由数据：', data);
+			if (data.orderType == 3) {
+				//若为小卖部订单
+				this.orderType = data.orderType;
 				this.shop = data;
 				this.list = data.products;
 				this.list.forEach((item, index) => {
 					this.sum += item.count * item.price;
 				});
+			} else if (data.orderType == 1) {
+				//若为个人选菜订单
+				this.orderType = data.orderType;
+				this.selfDish = data;
+				//处理展示数据的结构 及 总计
+				data.detail.forEach((items, index) => {
+					items.foods.forEach((item, key) => {
+						this.list.push(item);
+						this.sum += item.count * item.price;
+					});
+				});
 			}
-
 			//调用获取用户地址接口
 			const result = await getUserAddress();
 			if (result.errorCode == 0) {
@@ -163,7 +198,7 @@
 			//将默认地址提取出来 
 			this.address.forEach((value, index) => {
 				if (value.default == 1) {
-					this.radio = value.id;
+					this.address_id = value.id;
 					this.def = value;
 				}
 				//按照组件格式设置属性

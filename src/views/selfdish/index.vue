@@ -20,8 +20,8 @@
 		<!-- 就餐类型 -->
 		<div class="flex-row" style="justify-content: space-between;align-items:center;padding: 10px 20px 0 20px;">
 			<van-radio-group v-model="type">
-				<van-radio v-if="dining_mode==1||dining_mode==3" style="margin: 10px 0;" name="1">堂食</van-radio>
-				<van-radio v-if="dining_mode==2|| dining_mode==3" name="2">外卖</van-radio>
+				<van-radio v-if="dining_mode==1||dining_mode==3" style="margin: 10px 0;" :name="1">堂食</van-radio>
+				<van-radio v-if="dining_mode==2|| dining_mode==3" :name="2">外卖</van-radio>
 			</van-radio-group>
 			<div style="font-size: 15px;color: #EE0A24;">
 				<p style="margin:0 0 10px 0;">数量：{{dishCount}}</p>
@@ -57,8 +57,8 @@
 									<van-icon name="smile-o" size="25px" @click="openComment(item)" />
 								</div>
 								<p>￥：{{item.price}}</p>
-								<van-stepper v-model="item.count" min="0" button-size="40px" :max="items.count" :disabled="submitValidate!=date&&submitValidate!=''"
-								 @plus="addMealCount(item,items.id,index,key)" @minus="reduceMealCount(item,items.id,index,key)" />
+								<van-stepper v-model="item.count" min="0" button-size="40px" :disabled="isDisable" @plus="addMealCount(item,items.id,index,key)"
+								 @minus="reduceMealCount(item,items.id,index,key)" />
 							</div>
 						</div>
 					</li>
@@ -155,8 +155,9 @@
 	} from '@/api/user.js';
 	import {
 		getFoodList,
-		getDiningType
-	} from '@/api/shelfDish.js';
+		getDiningType,
+		getDinnerInfo
+	} from '@/api/selfDish.js';
 	import {
 		Toast
 	} from 'vant';
@@ -166,16 +167,14 @@
 			return {
 				list: [], //菜品列表
 				dinner: '早餐', //默认餐次
-				dinner_id: null,
+				dinner_id: null, //餐次id
 				dinnerList: ['早餐', '中餐', '晚餐'], //餐次列表
 				mealPicker: false, //餐次选择弹出窗
 				count: 1, //订餐数量
-				// amount: null, //订餐金额
 				dining_mode: '', //就餐方式类型1｜食堂；2｜外卖；3｜全部
-				type: '1', //就餐类别
+				type: 1, //就餐类别
 				currentDate: [], //日期菜单
 				date: '', //订餐日期
-				// value: 0,
 				scrollH: '',
 				scrollY: 0, //获取实时滚动位置
 				heightList: [], //获取每一个li的高度
@@ -224,15 +223,21 @@
 				}, //我的评价
 				message: '', //我的评论
 				products: [], //已选商品列表
-				dayMap: null,
-				isInsert: false,
-				isSimilar: false,
-				submitValidate: '',
+				dayMap: null, //整好配置
+				isInsert: false, //是否已插入
+				isSimilar: false, //是否为同类
+				submitValidate: '', //当前添加商品的日期
+				pass: false, //是否允许提交
 			}
 		},
 		methods: {
 			//选择餐次确认
 			async chooseMeal(e) {
+				Toast.loading({
+					message: '加载中...',
+					forbidClick: true,
+					duration: 0
+				})
 				this.dinner = e.name;
 				this.dinner_id = e.id;
 				this.mealPicker = false;
@@ -246,14 +251,17 @@
 					this.currentDate = [];
 					this.list = [];
 					this.date = '';
+					this.products = [];
+					this.submitValidate = '';
 					result.data.forEach(items => {
 						items.foods.forEach(item => {
 							item = Object.assign(item, {
+								food_id: item.f_id,
 								count: 0
 							});
 						});
 					});
-					//将返回数据按照日期进行分类设置一个新的日期map
+					//处理数据 按照日期进行分类设置一个新的日期map
 					var dayMap = new Map();
 					result.data.forEach((items, index) => {
 						items.foods.forEach((item, key) => {
@@ -283,7 +291,6 @@
 						});
 					});
 					this.dayMap = dayMap;
-					console.log('Map:', dayMap);
 					//将日期放入数组中
 					for (var [key, value] of dayMap) {
 						this.currentDate.push(key);
@@ -294,7 +301,14 @@
 					});
 					this.list = dayMap.get(this.currentDate[0]);
 					this.date = this.currentDate[0];
-				}
+				};
+				//因为 _scrollInit函数需要操作DOM，因此必须在DOM元素存在文档中才能获取DOM节点
+				//因此在 nextTick回调函数里面调用可以是实现此功能
+				this.$nextTick(() => {
+					this._scrollInit()
+					this.getHeight()
+				});
+				Toast.clear();
 			},
 			//订餐数量选择
 			changeCount(e) {
@@ -302,7 +316,10 @@
 			},
 			//日期选择
 			chooseDate(index, title) {
+				console.log(index, title);
+				console.log(this.currentDate[index]);
 				this.date = this.currentDate[index];
+				// this.submitValidate = this.currentDate[index];
 				this.list = this.dayMap.get(this.currentDate[index]);
 				//调用日期选择接口（date为当前日期）
 			},
@@ -318,12 +335,19 @@
 								//判断是同菜类
 								this.isSimilar = true
 								if (item.id == e.id) {
-									//判断已存在
+									//同类已存在
 									this.products[index].foods[key] = e;
+									console.log('已存在');
 									this.isInsert = true;
 								}
 							};
 						});
+						//同类不存在
+						if (this.isSimilar && !this.isInsert) {
+							this.products[index].foods.push(e);
+							console.log('同类不存在');
+							this.isInsert = true;
+						}
 					});
 					if (!this.isInsert) {
 						//若未插入(非同类、非存在)
@@ -331,6 +355,7 @@
 							menu_id: menu_id,
 							foods: [e]
 						});
+						console.log('不同类不存在');
 					};
 				} else {
 					//已选商品列表为空
@@ -338,9 +363,11 @@
 						menu_id: menu_id,
 						foods: [e]
 					});
+					console.log('空');
 				};
 				this.submitValidate = this.date
 				this.isInsert = false;
+				this.isSimilar = false
 			},
 			/* 
 			 减少已选商品
@@ -431,8 +458,94 @@
 				console.log(e.f_id);
 			},
 			//提交订单
-			submitOrder(e) {
-				console.log({
+			async submitOrder(e) {
+				Toast.loading({
+					message: '加载中...',
+					forbidClick: true,
+					duration: 0
+				})
+				//获取餐次配置信息
+				/* 1.餐次金额是否为标准金额
+				2.判断当前提交日期是否符合订餐日期规则
+					type type_number对应
+				3.判断订餐数量是否超过可订餐数量
+				4.判断所选菜品种类数量计算是否超过该菜类可选数量*/
+				if (this.dishCount == 0) {
+					Toast.fail('请选择菜品！')
+					return;
+				};
+
+				const result = await getDinnerInfo({
+					day: this.submitValidate
+				});
+				if (result.errorCode == 0) {
+					console.log('配置信息：', result);
+					let nowDay = new Date(); //当前日期
+					let fixed = result.data[0].fixed; //餐次金额
+					let dinner = null; //当前所选餐次的配置信息
+					let menus = null; //当前菜品配置信息
+					result.data.forEach((item, index) => {
+						if (item.id == this.dinner_id) {
+							fixed = item.fixed;
+							dinner = item
+							menus = item.menus;
+						};
+					}); //格式化数据
+
+					/* 超日期 */
+					// dinner.type 时间设置类别：day | week
+					// dinner.limit_time 订餐限制时间
+					//dinner.type_number 订餐时间类别对应数量（week：0-6；周日-周六）
+					dinner.type == 'week' && diner.type_number == 0 ? dinner.type_number = 7 : dinner.type_number;
+					if (this.$moment(this.submitValidate).subtract(dinner.type_number, dinner.type).isBefore(nowDay)) {
+						console.log('请选择' + this.$moment(nowDay).add(dinner.type, dinner.type_number).format('MM-DD') + '之后的菜品');
+						Toast.fail('请选择' + this.$moment(nowDay).add(dinner.type, dinner.type_number).format('MM-DD') + '之后的菜品');
+						return;
+					}
+
+					// if (fixed == 2) {
+					//有限制金额
+
+					/* 订餐数量 */
+					//dinner.ordered_count 可订餐数量
+					//dinner.ordering_count已定餐数量
+					/* 	if (dinner.ordered_count - dinner.ordring_count > this.count) {
+							console.log('订餐数量不可超过:' + dinner.ordered_count - dinner.ordring_count);
+							return;
+						}
+						return; */
+					/* 超种类数量 */
+					// menus[].count//
+
+					//统计已选商品根据菜品统计选菜的数量
+					let list = this.products;
+
+					this.products.forEach((items, index) => {
+						let sum = 0;
+						items.foods.forEach((item, key) => {
+							sum += item.count;
+						})
+						list[index] = Object.assign(list[index], {
+							count: sum
+						})
+					});
+					console.log('我的列表:', list);
+					console.log('配置信息', menus);
+					list.forEach((items, index) => {
+						menus.forEach((item, key) => {
+							if (items.menu_id == item.id && items.count > item.count && item.status == 1) {
+								Toast.fail(item.category + '不可超过' + item.count + '份');
+								this.pass = true;
+							}
+						})
+					});
+					if (this.pass) {
+						this.pass = false;
+						return;
+					};
+				}
+
+				console.log('提交', {
 					ordering_date: this.submitValidate,
 					dinner_id: this.dinner_id,
 					dinner: this.dinner,
@@ -440,19 +553,34 @@
 					count: this.count,
 					detail: this.products,
 				});
-				// this.$router.push({
-				// 	path: '/placeorder'
-				// });
-			}
+
+				this.$router.push({
+					name: 'placeorder',
+					params: {
+						orderType: 1,
+						ordering_date: this.submitValidate,
+						dinner_id: this.dinner_id,
+						dinner: this.dinner,
+						type: this.type,
+						count: this.count,
+						detail: this.products,
+					}
+				});
+				// };
+				Toast.clear();
+			},
 		},
 		mounted() {
-			this.scrollH = window.innerHeight - this.$refs.category.getBoundingClientRect().top;
+			this.scrollH = window.innerHeight - this.$refs.category.getBoundingClientRect().bottom - 40;
+			console.log(this.$refs.category.getBoundingClientRect().bottom);
 		},
 		async created() {
-			// Toast.loading({
-			// 	messae: '加载中',
-			// 	mask: true,
-			// });
+			Toast.loading({
+				message: '加载中',
+				mask: true,
+				duration: 0,
+				forbidClick: true
+			});
 			//初始化 
 			//获取用户可选餐次
 			const result = await getChooseDinner();
@@ -471,13 +599,8 @@
 				dinner_id: this.dinner_id
 			});
 			console.log('菜品列表:', result3);
-			//因为 _scrollInit函数需要操作DOM，因此必须在DOM元素存在文档中才能获取DOM节点
-			//因此在 nextTick回调函数里面调用可以是实现此功能
-			this.$nextTick(() => {
-				this._scrollInit()
-				this.getHeight()
-			});
-			// Toast.clear();
+
+			Toast.clear();
 		},
 		computed: {
 			//右菜单滚动 左菜单同步
@@ -504,6 +627,12 @@
 					});
 				});
 				return sum;
+			},
+			isDisable() {
+				if (this.date == this.submitValidate || this.submitValidate == '') {
+					return false
+				}
+				return true
 			}
 		},
 	}
