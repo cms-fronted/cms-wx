@@ -20,10 +20,11 @@
         <td>全晚</td>-->
       </tr>
       <tr v-for="(item,index) in dateList" :key="index" @click="(e)=>openOrderDialog(item,e)">
-        <td>
-          <span>{{item.date}}</span>
+        <td v-for="i in mealList.length+1" :key="i">{{i === 1 ? item.ordering_date : null}}</td>
+        <!-- <td>
+          <span>{{item.ordering_date}}</span>
         </td>
-        <td v-for="(i,key) in mealList" :key="key">{{item.canteen}}</td>
+        <td v-for="(i,key) in mealList" :key="key"></td>-->
       </tr>
     </table>
     <van-popup v-model="timeShow" position="bottom" :style="{ height: '40%' }">
@@ -40,6 +41,7 @@
 
 <script>
 import { getOrderDetail, getUserOrder } from "@/api/orderingOnline";
+import { compileFunction } from "vm";
 export default {
   data() {
     return {
@@ -95,12 +97,15 @@ export default {
         // 循环插入每一天的数据
         _date = "" + year + "-" + chooseMonth + "-" + i;
         this.dateList.push({
-          date: _date
+          ordering_date: _date
         });
       }
     },
     openOrderDialog(row, e) {
       if (!this.$refs.tableForm.rows[0].cells[e.target.cellIndex]) return;
+      console.log(
+        this.$refs.tableForm.rows[0].cells[e.target.cellIndex].dataset.id
+      );
       this.matchOrderToData();
     },
     async getOrderingDetail() {
@@ -120,39 +125,77 @@ export default {
         );
       }
     },
+    //处理数据， 合并日期为同一天的数据，并将有数据的日期对象插入到 dateList 并排序
     matchOrderToData() {
       let objDate = this.dateList;
-			let objOrder = this.orderDataList;
-			console.log(objOrder);
-      console.log(this.fireDuplicate(objOrder));
-
-      // objDate = Object.assign({}, objDate, objOrder);
-      // this.dateList = objDate;
+      let objOrder = this.orderDataList;
+      objOrder = this.fireDuplicate(objOrder);
+      let result = [];
+      result = this.arrayRepeat(objOrder, objDate);
+      let objDetail = [...objOrder, ...result];
+      objDetail = this.forwardRankingDate(objDetail, "ordering_date");
+      this.dateList = objDetail;
+      console.log(this.dateList);
+    },
+    //日期排序方法
+    forwardRankingDate(data, p) {
+      for (let i = 0; i < data.length - 1; i++) {
+        for (let j = 0; j < data.length - 1 - i; j++) {
+          if (Date.parse(data[j][p]) > Date.parse(data[j + 1][p])) {
+            var temp = data[j];
+            data[j] = data[j + 1];
+            data[j + 1] = temp;
+          }
+        }
+      }
+      return data;
     },
     fireDuplicate(arr) {
-      var map = {},
+      //转换数据格式 ， 合并日期为同一天的数据
+      let map = {},
         dest = [];
-      for (var i = 0; i < arr.length; i++) {
-        var ai = arr[i];
-        if (!map[ai.id]) {
+      for (let i = 0; i < arr.length; i++) {
+        let ai = arr[i];
+        if (!map[ai.ordering_date]) {
           dest.push({
-            id: ai.id,
             ordering_date: ai.ordering_date,
-            d_id: ai.d_id,
+            canteen: ai.canteen,
+            count: ai.count,
             data: [ai]
           });
-          map[ai.id] = ai;
+          map[ai.ordering_date] = ai;
         } else {
-          for (var j = 0; j < dest.length; j++) {
-            var dj = dest[j];
-            if (dj.id == ai.id) {
+          for (let j = 0; j < dest.length; j++) {
+            let dj = dest[j];
+            if (dj.ordering_date == ai.ordering_date) {
               dj.data.push(ai);
               break;
             }
           }
         }
-			}
-			return dest;
+      }
+      return dest;
+    },
+    //比较数组对象，取出某一键值不同的数据，此处比较ordering_date
+    arrayRepeat(array1, array2) {
+      var result = [];
+      for (var i = 0; i < array2.length; i++) {
+        var obj = array2[i];
+        var num = obj.ordering_date;
+        var isExist = false;
+        for (var j = 0; j < array1.length; j++) {
+          var aj = array1[j];
+          var n = aj.ordering_date;
+          if (n === num) {
+            isExist = true;
+            break;
+          }
+        }
+        if (!isExist) {
+          result.push(obj);
+        }
+      }
+      return result;
     }
   },
   created() {
