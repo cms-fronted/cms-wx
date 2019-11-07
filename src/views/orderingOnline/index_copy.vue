@@ -19,18 +19,11 @@
         <!-- <td>全午</td>
         <td>全晚</td>-->
       </tr>
-      <tr v-for="(item,index) in tableData" :key="index" @click="(e)=>openOrderDialog(item,e)">
-        <td>{{item.date}}</td>
-        <td v-for="(order, orderIndex) in item.orderOfMeal" :key="orderIndex">
-          <p
-            v-for="canteen in order.canteens"
-            :key="canteen.canteen_id"
-          >{{canteen.canteen}} + {{canteen.count}}</p>
-        </td>
-
+      <tr v-for="(item,index) in dateList" :key="index" @click="(e)=>openOrderDialog(item,e)">
+        <td v-for="i in mealList.length+1" :key="i">{{i === 1 ? item.ordering_date : null}}</td>
         <!-- <td>
-					<span>{{item.ordering_date}}</span>
-				</td>
+          <span>{{item.ordering_date}}</span>
+        </td>
         <td v-for="(i,key) in mealList" :key="key"></td>-->
       </tr>
     </table>
@@ -47,179 +40,38 @@
 </template>
 
 <script>
-import request from "../../utils/request";
 import { getOrderDetail, getUserOrder } from "@/api/orderingOnline";
-import moment from "moment";
-
-let mockOrderList = [
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 6,
-    dinner: "中餐",
-    ordering_date: "2019-11-15",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 6,
-    dinner: "中餐",
-    ordering_date: "2019-11-16",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 6,
-    dinner: "中餐",
-    ordering_date: "2019-11-17",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 7,
-    dinner: "晚餐",
-    ordering_date: "2019-11-17",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 5,
-    dinner: "早餐",
-    ordering_date: "2019-11-17",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 5,
-    dinner: "早餐",
-    ordering_date: "2019-11-18",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  }
-];
-
+import { compileFunction } from "vm";
 export default {
   data() {
     return {
       timeShow: false,
       currentDate: new Date(),
       minDate: new Date(),
-
+      mealList: [
+        {
+          id: 7,
+          name: "早餐"
+        },
+        {
+          id: 6,
+          name: "中餐"
+        },
+        {
+          id: 8,
+          name: "晚餐"
+        }
+      ],
       dateList: [],
-      orderDataList: [],
-      // 饭餐类型
-      mealList: [],
-      // 饭堂列表
-      canteenList: [],
-      // 订单列表
-      orderList: []
+      orderDataList: []
     };
   },
-  computed: {
-    tableData() {
-      let dateList = this.dateList,
-        mealList = this.mealList,
-        orderList = this.orderList;
-      return dateList.map((date, index) => {
-        return {
-          date: date,
-          orderOfMeal: mealList.map(meal => {
-            return orderList[index][meal.name];
-          })
-        };
-      });
-    }
-  },
-  async mounted() {
-    let res1 = await getOrderDetail();
-    let res2 = await request({
-      method: "get",
-      url: "/v1/user/canteens"
-    });
-    // let res3 = await request({
-    //   url: '/v1/order/userOrdering',
-    //   method: 'get',
-    //   params: {
-    //     consumption_time: moment().format('YYYY-MM')
-    //   }
-    // })
-    this.computeDate();
-    this.mealList = res1.data;
-    this.canteenList = res2.data;
-    this.orderList = this.computeOrderList(mockOrderList);
-  },
   methods: {
-    computeDate() {
-      let format = "YYYY-MM-DD",
-        today = moment().format(format);
-      let dates = [],
-        date = moment();
-      while (date.isSame(today, "month")) {
-        dates.push(date.format(format));
-        date.add(1, "days");
-      }
-      this.dateList = dates;
-    },
-    computeOrderList(mock) {
-      let mealList = this.mealList;
-      return this.dateList.map(date => {
-        let order = {};
-        mealList.forEach(meal => {
-          // 这个根据dinner的中文名还是id，根据实际改变
-          order[meal.name] = {
-            total: 0,
-            canteens: []
-          };
-        });
-        for (let i = mock.length - 1; i >= 0; i--) {
-          let { ordering_date, canteen, c_id, count, dinner } = mock[i];
-          if (date !== ordering_date) continue;
-          // 这个根据dinner的中文名还是id，根据实际改变
-          order[dinner].total += count;
-          let canteenIndex = order[dinner].canteens.findIndex(
-            canteen => canteen.canteen_id === order.c_id
-          );
-          if (canteenIndex === -1) {
-            order[dinner].canteens.push({
-              canteen: canteen,
-              canteen_id: c_id,
-              count: count
-            });
-          } else {
-            order[dinner].canteens[canteenIndex].count += count;
-          }
-          mock.splice(i, 1);
-        }
-        return order;
-      });
-    },
     async timeConf(e) {
       this.currentDate = e;
       this.timeShow = false;
       const consumption_time = this.$moment(e).format("YYYY-MM");
-      // this.initDate(e);
+      this.initDate(e);
       await this.getUserOrdered(consumption_time);
     },
     initDate(date) {
@@ -347,7 +199,7 @@ export default {
     }
   },
   created() {
-    // this.getOrderingDetail();
+    this.getOrderingDetail();
     this.$bus.$on("update", () => {
       setTimeout(() => {
         this.getOrderingDetail();
