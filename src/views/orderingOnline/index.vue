@@ -11,27 +11,36 @@
     <table width="100%" ref="tableForm">
       <tr>
         <th>日期</th>
-        <th v-for="(item,index) in mealList" :data-id="item.id" :key="index">{{item.name}}</th>
+        <th
+          v-for="(item,index) in mealList"
+          :data-d_id="item.id"
+          :data-type="item.type"
+          :data-type_number="item.type_number"
+          :data-time="item.limit_time"
+          :data-count="item.ordered_count"
+          :key="index"
+        >{{item.name}}</th>
       </tr>
       <tr>
         <td>全选</td>
-        <td v-for="(item,index) in mealList" :data-id="item.id" :key="index">全{{item.name}}</td>
+        <td v-for="(item,index) in mealList" :data-d_id="item.id" :key="index">全{{item.name}}</td>
         <!-- <td>全午</td>
         <td>全晚</td>-->
       </tr>
-      <tr v-for="(item,index) in tableData" :key="index" @click="(e)=>openOrderDialog(item,e)">
+      <tr v-for="(item,index) in tableData" :key="index">
         <td>{{item.date}}</td>
-        <td v-for="(order, orderIndex) in item.orderOfMeal" :key="orderIndex">
+        <td
+          v-for="(order, orderIndex) in item.orderOfMeal"
+          @touchstart="(e)=>gotouchstart(e,item)"
+          @touchmove="gotouchmove"
+          @touchend="(e)=>gotouchend(e,item)"
+          :key="orderIndex"
+        >
           <p
             v-for="canteen in order.canteens"
             :key="canteen.canteen_id"
-          >{{canteen.canteen}} + {{canteen.count}}</p>
+          >{{canteen.canteen}}*{{canteen.count}}</p>
         </td>
-
-        <!-- <td>
-					<span>{{item.ordering_date}}</span>
-				</td>
-        <td v-for="(i,key) in mealList" :key="key"></td>-->
       </tr>
     </table>
     <van-popup v-model="timeShow" position="bottom" :style="{ height: '40%' }">
@@ -43,6 +52,21 @@
         @confirm="timeConf"
       />
     </van-popup>
+    <van-dialog
+      v-model="editShow"
+      title="修改数量"
+      :before-close="(action,done)=>confirmEdit(action,done)"
+      :show-cancel-button="true"
+    >
+      <van-stepper
+        style="padding:10px 0"
+        input-width="40px"
+        button-size="32px"
+        v-model="nowCount"
+        min="1"
+        :max="maxCount"
+      />
+    </van-dialog>
   </div>
 </template>
 
@@ -50,83 +74,21 @@
 import request from "../../utils/request";
 import { getOrderDetail, getUserOrder } from "@/api/orderingOnline";
 import moment from "moment";
-
-let mockOrderList = [
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 6,
-    dinner: "中餐",
-    ordering_date: "2019-11-15",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 6,
-    dinner: "中餐",
-    ordering_date: "2019-11-16",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 6,
-    dinner: "中餐",
-    ordering_date: "2019-11-17",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 7,
-    dinner: "晚餐",
-    ordering_date: "2019-11-17",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 5,
-    dinner: "早餐",
-    ordering_date: "2019-11-17",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  },
-  {
-    id: 1,
-    c_id: 6,
-    canteen: "饭堂1",
-    d_id: 5,
-    dinner: "早餐",
-    ordering_date: "2019-11-18",
-    ordering_month: "2019-11",
-    count: 1,
-    type: "online"
-  }
-];
+import { Dialog, Stepper } from "vant";
+import { async } from "q";
+import QS from "qs";
 
 export default {
   data() {
     return {
       timeShow: false,
+      editShow: false,
       currentDate: new Date(),
       minDate: new Date(),
-
+      timeOutEvent: null,
+      maxCount: "",
+      nowCount: "",
+      nowId: "",
       dateList: [],
       orderDataList: [],
       // 饭餐类型
@@ -143,6 +105,7 @@ export default {
         mealList = this.mealList,
         orderList = this.orderList;
       return dateList.map((date, index) => {
+        if (!orderList) return;
         return {
           date: date,
           orderOfMeal: mealList.map(meal => {
@@ -155,26 +118,29 @@ export default {
   async mounted() {
     let res1 = await getOrderDetail();
     let res2 = await request({
+      url: "/v1/order/userOrdering",
       method: "get",
-      url: "/v1/user/canteens"
+      params: {
+        consumption_time: moment().format("YYYY-MM")
+      }
     });
-    // let res3 = await request({
-    //   url: '/v1/order/userOrdering',
-    //   method: 'get',
-    //   params: {
-    //     consumption_time: moment().format('YYYY-MM')
-    //   }
-    // })
     this.computeDate();
-    this.mealList = res1.data;
-    this.canteenList = res2.data;
-    this.orderList = this.computeOrderList(mockOrderList);
+    this.mealList = res1.data; //数据的 渲染必须同步， 同时生成mealList，orderList
+    this.orderList = this.computeOrderList(
+      res2.data.filter(item => item.ordering_type === "online")
+    );
+    this.$bus.$on("update", () => {
+      setTimeout(async () => {
+        await this.selectCanteen();
+      }, 2000);
+    });
   },
   methods: {
     computeDate() {
+      //首次载入时， 创建当月剩余天数日期数组
       let format = "YYYY-MM-DD",
-        today = moment().format(format);
-      let dates = [],
+        today = moment().format(format),
+        dates = [],
         date = moment();
       while (date.isSame(today, "month")) {
         dates.push(date.format(format));
@@ -182,48 +148,88 @@ export default {
       }
       this.dateList = dates;
     },
-    computeOrderList(mock) {
+    computeOrderList(data) {
       let mealList = this.mealList;
       return this.dateList.map(date => {
         let order = {};
         mealList.forEach(meal => {
-          // 这个根据dinner的中文名还是id，根据实际改变
+          // 这个对象的键名根据dinner的中文名还是id，根据实际改变
           order[meal.name] = {
             total: 0,
             canteens: []
           };
         });
-        for (let i = mock.length - 1; i >= 0; i--) {
-          let { ordering_date, canteen, c_id, count, dinner } = mock[i];
+        for (let i = data.length - 1; i >= 0; i--) {
+          let {
+            ordering_date,
+            canteen,
+            d_id,
+            c_id,
+            count,
+            dinner,
+            id,
+            create_time
+          } = data[i];
+          // 订餐数据条目不为今日则跳过这一条
           if (date !== ordering_date) continue;
+          // 如果 餐次信息与当前饭堂餐次信息不匹配则跳过这一条
+          if (!order[dinner]) continue;
           // 这个根据dinner的中文名还是id，根据实际改变
           order[dinner].total += count;
           let canteenIndex = order[dinner].canteens.findIndex(
             canteen => canteen.canteen_id === order.c_id
           );
           if (canteenIndex === -1) {
+            order[dinner].id = id;
             order[dinner].canteens.push({
               canteen: canteen,
               canteen_id: c_id,
-              count: count
+              d_id: d_id,
+              count: count,
+              create_time: create_time
             });
           } else {
             order[dinner].canteens[canteenIndex].count += count;
           }
-          mock.splice(i, 1);
+          data.splice(i, 1);
         }
         return order;
       });
     },
+    async selectCanteen() {
+      let date = this.currentDate;
+      let res1 = await getOrderDetail();
+      let res2 = await request({
+        url: "/v1/order/userOrdering",
+        method: "get",
+        params: {
+          consumption_time: moment(date).format("YYYY-MM")
+        }
+      });
+      this.initDate(date);
+      this.mealList = res1.data;
+      this.orderList = this.computeOrderList(
+        res2.data.filter(item => item.ordering_type === "online")
+      );
+    },
     async timeConf(e) {
-      this.currentDate = e;
+      this.currentDate = e || new Date();
       this.timeShow = false;
+      this.dateList = [];
+      this.orderList = [];
+      // await this.getUserOrdered(e);
       const consumption_time = this.$moment(e).format("YYYY-MM");
-      // this.initDate(e);
-      await this.getUserOrdered(consumption_time);
+      const res = await getUserOrder({
+        consumption_time
+      });
+      this.initDate(e);
+      this.orderList = this.computeOrderList(
+        res.data.filter(item => item.ordering_type === "online")
+      );
     },
     initDate(date) {
-      this.dateList = []; //默认清空日期数据
+      //默认清空日期数据
+      let dates = [];
       let year = this.$moment(date).year();
       let chooseMonth = date.getMonth() + 1; //保存选中的月份
       let nowMonth = new Date().getMonth() + 1; // 保存当前月份
@@ -244,115 +250,145 @@ export default {
       for (let i = startD; i < endD + 1; i++) {
         // 循环插入每一天的数据
         _date = "" + year + "-" + chooseMonth + "-" + i;
-        this.dateList.push({
-          ordering_date: _date
-        });
+        dates.push(_date);
       }
-    },
-    openOrderDialog(row, e) {
-      if (!this.$refs.tableForm.rows[0].cells[e.target.cellIndex]) return;
-      console.log(
-        this.$refs.tableForm.rows[0].cells[e.target.cellIndex].dataset.id
-      );
-      this.matchOrderToData();
+      this.dateList = dates;
     },
     async getOrderingDetail() {
+      //获取餐次配置信息， 切换饭堂后，需延迟2000ms再获取，否则为上一饭堂的配置信息
       const res = await getOrderDetail();
       if (res.msg === "ok") {
         this.mealList = Array.from(res.data);
       }
     },
     async getUserOrdered(e) {
+      //获取用户 选取月份的订单信息
+      const consumption_time = e
+        ? this.$moment(e).format("YYYY-MM")
+        : this.$moment().format("YYYY-MM");
       const res = await getUserOrder({
-        consumption_time: e
+        consumption_time
       });
       if (res.msg === "ok") {
         const data = res.data;
-        this.orderDataList = data.filter(
-          item => item.ordering_type === "online"
+        this.orderList = this.computeOrderList(
+          data.filter(item => item.ordering_type === "online")
         );
       }
     },
-    //处理数据， 合并日期为同一天的数据，并将有数据的日期对象插入到 dateList 并排序
-    matchOrderToData() {
-      let objDate = this.dateList;
-      let objOrder = this.orderDataList;
-      objOrder = this.fireDuplicate(objOrder);
-      let result = [];
-      result = this.arrayRepeat(objOrder, objDate);
-      let objDetail = [...objOrder, ...result];
-      objDetail = this.forwardRankingDate(objDetail, "ordering_date");
-      this.dateList = objDetail;
-      console.log(this.dateList);
-    },
-    //日期排序方法
-    forwardRankingDate(data, p) {
-      for (let i = 0; i < data.length - 1; i++) {
-        for (let j = 0; j < data.length - 1 - i; j++) {
-          if (Date.parse(data[j][p]) > Date.parse(data[j + 1][p])) {
-            var temp = data[j];
-            data[j] = data[j + 1];
-            data[j + 1] = temp;
-          }
-        }
-      }
-      return data;
-    },
-    fireDuplicate(arr) {
-      //转换数据格式 ， 合并日期为同一天的数据
-      let map = {},
-        dest = [];
-      for (let i = 0; i < arr.length; i++) {
-        let ai = arr[i];
-        if (!map[ai.ordering_date]) {
-          dest.push({
-            ordering_date: ai.ordering_date,
-            canteen: ai.canteen,
-            count: ai.count,
-            data: [ai]
+    gotouchstart(e, row) {
+      //e.target.parentNode.cellIndex对应点击的单元格位置
+      //e.target.parentNode.cellIndex + 1 对应对象中第几个点餐数据
+      let that = this;
+      let cellIndex, dataset, d_id, count, id;
+      clearTimeout(this.timeOutEvent); //清除定时器
+      if (e.target.tagName === "P") {
+        //如果已经订餐 走这里面的流程
+        dataset = this.$refs.tableForm.rows[0].cells[
+          e.target.parentNode.cellIndex
+        ].dataset;
+        cellIndex = e.target.parentNode.cellIndex;
+        id = row.orderOfMeal[cellIndex - 1].id;
+        console.log(row);
+        //执行长按事件，取消订餐
+
+        this.timeOutEvent = setTimeout(function() {
+          //执行长按要执行的内容，
+          that.timeOutEvent = 0;
+          Dialog.confirm({
+            message: "是否取消该餐次订单，取消后无法撤回",
+            beforeClose
           });
-          map[ai.ordering_date] = ai;
-        } else {
-          for (let j = 0; j < dest.length; j++) {
-            let dj = dest[j];
-            if (dj.ordering_date == ai.ordering_date) {
-              dj.data.push(ai);
-              break;
+        }, 700); //这里设置定时
+        return false;
+        async function beforeClose(action, done) {
+          const data = { id: id };
+          if (action === "confirm") {
+            const res = await request({
+              url: "/v1/order/cancel",
+              method: "post",
+              data: QS.stringify(data)
+            });
+            console.log(res);
+            if (res.msg === "ok") {
+              done();
+              Dialog({ message: "操作成功！" }).then(async () => {
+                Dialog.close();
+                await that.getUserOrdered();
+              });
+            } else {
+              setTimeout(() => {
+                done();
+              }, 700);
             }
+          } else {
+            done();
           }
         }
+      } else {
+        // if (!this.$refs.tableForm.rows[0].cells[e.target.cellIndex]) return;
+        // dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
+        //   .dataset;
+        // d_id = dataset.d_id;
+        // count = dataset.count;
+        // cellIndex = e.target.parentNode.cellIndex;
       }
-      return dest;
     },
-    //比较数组对象，取出某一键值不同的数据，此处比较ordering_date
-    arrayRepeat(array1, array2) {
-      var result = [];
-      for (var i = 0; i < array2.length; i++) {
-        var obj = array2[i];
-        var num = obj.ordering_date;
-        var isExist = false;
-        for (var j = 0; j < array1.length; j++) {
-          var aj = array1[j];
-          var n = aj.ordering_date;
-          if (n === num) {
-            isExist = true;
-            break;
-          }
+    async confirmEdit(action, done) {
+      const data = {
+        id: this.nowId,
+        count: this.nowCount
+      };
+      if (action === "confirm") {
+        const res = await request({
+          url: "/v1/order/changeCount",
+          method: "post",
+          data: QS.stringify(data)
+        });
+        if (res.msg === "ok") {
+          done();
+          Dialog({ message: "操作成功！" }).then(async () => {
+            Dialog.close();
+          });
+          await this.getUserOrdered();
+        } else {
+          done();
         }
-        if (!isExist) {
-          result.push(obj);
+      } else {
+        done();
+      }
+    },
+    //手释放，如果在1000毫秒内就释放，则取消长按事件，此时可以执行onclick应该执行的事件
+    gotouchend(e, row) {
+      clearTimeout(this.timeOutEvent);
+      let cellIndex, dataset, d_id, count, id;
+      if (this.timeOutEvent != 0) {
+        //这里写要执行的内容（尤如onclick事件）
+        if (e.target.tagName === "P") {
+          //如果已经订餐 走这里面的流程
+          dataset = this.$refs.tableForm.rows[0].cells[
+            e.target.parentNode.cellIndex
+          ].dataset;
+          this.editShow = true;
+          cellIndex = e.target.parentNode.cellIndex;
+          id = row.orderOfMeal[cellIndex - 1].id;
+          this.nowId = id; //保存 订单id 供修改使用
+          d_id = dataset.d_id;
+          this.nowCount = row.orderOfMeal[cellIndex - 1].canteens[0].count; //当前订单数量
+          this.maxCount = dataset.count; //限制最大订餐数量
+        } else {
+          //如果未订餐， 走这里面的流程
+          dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
+            .dataset;
+          console.log(dataset);
         }
       }
-      return result;
+    },
+    //如果手指有移动，则取消所有事件，此时说明用户只是要移动而不是长按
+    gotouchmove() {
+      clearTimeout(this.timeOutEvent); //清除定时器
+      this.timeOutEvent = 0;
     }
-  },
-  created() {
-    // this.getOrderingDetail();
-    this.$bus.$on("update", () => {
-      setTimeout(() => {
-        this.getOrderingDetail();
-      }, 2000);
-    });
   }
 };
 </script>
@@ -362,6 +398,13 @@ table tr,
 th,
 td {
   border: 0.5px solid;
-  height: 30px;
+  height: 50px;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 </style>
