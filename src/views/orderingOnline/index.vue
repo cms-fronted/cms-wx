@@ -67,6 +67,21 @@
         :max="maxCount"
       />
     </van-dialog>
+    <van-dialog
+      v-model="addShow"
+      title="订餐数量"
+      :before-close="(action,done)=>confirmAdd(action,done)"
+      :show-cancel-button="true"
+    >
+      <van-stepper
+        style="padding:10px 0"
+        input-width="40px"
+        button-size="32px"
+        v-model="addCount"
+        min="1"
+        :max="maxCount"
+      />
+    </van-dialog>
   </div>
 </template>
 
@@ -77,18 +92,23 @@ import moment from "moment";
 import { Dialog, Stepper } from "vant";
 import { async } from "q";
 import QS from "qs";
+import { constants } from "buffer";
 
 export default {
   data() {
     return {
       timeShow: false,
       editShow: false,
+      addShow: false,
       currentDate: new Date(),
       minDate: new Date(),
       timeOutEvent: null,
-      maxCount: "",
-      nowCount: "",
-      nowId: "",
+      maxCount: "", //编辑时最大订餐数量
+      nowCount: "", //编辑时订餐数量
+      nowId: "", //编辑时订餐id
+      dinner_id: "", //下单时餐次id
+      addCount: "", //下单时订餐数量
+      ordering_date: "", //下单时点击单元格对应的时间
       dateList: [],
       orderDataList: [],
       // 饭餐类型
@@ -358,6 +378,42 @@ export default {
         done();
       }
     },
+    async confirmAdd(action, done) {
+      if (action === "confirm") {
+        let d_id = this.dinner_id;
+        let count = this.addCount;
+        let ordering_date = this.ordering_date;
+        let detail = [
+          {
+            d_id: d_id,
+            ordering: [
+              {
+                ordering_date,
+                count
+              }
+            ]
+          }
+        ];
+        detail = JSON.stringify(detail);
+        const data = { detail };
+        const res = await request({
+          url: "/v1/order/online/save",
+          method: "post",
+          data: QS.stringify(data)
+        });
+        if (res.msg === "ok") {
+          done();
+          Dialog({ message: "操作成功！" }).then(async () => {
+            Dialog.close();
+          });
+          await this.getUserOrdered();
+        } else {
+          done();
+        }
+      } else {
+        done();
+      }
+    },
     //手释放，如果在1000毫秒内就释放，则取消长按事件，此时可以执行onclick应该执行的事件
     gotouchend(e, row) {
       clearTimeout(this.timeOutEvent);
@@ -381,6 +437,11 @@ export default {
           dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
             .dataset;
           console.log(dataset);
+          console.log(row);
+          this.ordering_date = row.date;
+          this.dinner_id = dataset.d_id;
+          this.maxCount = dataset.count;
+          this.addShow = true;
         }
       }
     },
