@@ -436,22 +436,33 @@ export default {
           dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
             .dataset;
           let { type, type_number, time } = dataset;
-          console.log(dataset);
-          console.log(moment().day(-type_number));
-          return false;
+          const order_date = row.date; //选中的 订餐日期
+          const hour = moment(time, "HH:mm:ss").get("hour");
+          const minute = moment(time, "HH:mm:ss").get("minute");
+          const now = moment();
           const today = moment().format("YYYY-MM-DD");
           const date = moment(); //创建 今日时间戳
-          const hour = moment(time,"HH:mm:ss").get('hour');
-          const minute = moment(time,"HH:mm:ss").get('minute');
-          date.set("hour",hour);
-          date.set("minute",minute);
-          date.add(type_number, type); //  加上需提前的天数
-          const order_date = row.date; //选中的 订餐日期
-          if (!moment(order_date).isAfter(date)) {
-            Dialog({ message: "已超过订餐截止时间" }).then(() => {
-              Dialog.close();
-            });
-            return false;
+          if (type === "day") {
+            date.set("hour", hour);
+            date.set("minute", minute);
+            date.add(type_number, type); //  加上需提前的天数
+            if (!moment(order_date).isAfter(date)) {
+              // 如果选中 订餐日期 符合 提前天数
+              Dialog({ message: "已超过订餐截止时间" }).then(() => {
+                Dialog.close();
+              });
+              return false;
+            }
+          } else if (type === "week") {
+            const prevDate = moment(order_date).day(-type_number); //选中日期 提前 一周的周 几，根据实际情况
+            prevDate.set("hour", hour);
+            prevDate.set("minute", minute);
+            if (!moment(now).isBefore(prevDate)) {
+              Dialog({ message: "已超过订餐截止时间" }).then(() => {
+                Dialog.close();
+              });
+              return false;
+            } // 是否有提前
           }
           this.ordering_date = row.date;
           this.dinner_id = dataset.d_id;
