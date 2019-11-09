@@ -212,7 +212,7 @@ export default {
             order[dinner].canteens[canteenIndex].count += count;
           }
           data.splice(i, 1);
-        }
+        }console.log(order);
         return order;
       });
     },
@@ -247,6 +247,7 @@ export default {
         res.data.filter(item => item.ordering_type === "online")
       );
     },
+    //初始化事件数组
     initDate(date) {
       //默认清空日期数据
       let dates = [];
