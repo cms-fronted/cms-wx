@@ -329,7 +329,6 @@ export default {
               method: "post",
               data: QS.stringify(data)
             });
-            console.log(res);
             if (res.msg === "ok") {
               done();
               Dialog({ message: "操作成功！" }).then(async () => {
@@ -436,7 +435,24 @@ export default {
           //如果未订餐， 走这里面的流程
           dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
             .dataset;
-          console.log(dataset, row);
+          let { type, type_number, time } = dataset;
+          console.log(dataset);
+          console.log(moment().day(-type_number));
+          return false;
+          const today = moment().format("YYYY-MM-DD");
+          const date = moment(); //创建 今日时间戳
+          const hour = moment(time,"HH:mm:ss").get('hour');
+          const minute = moment(time,"HH:mm:ss").get('minute');
+          date.set("hour",hour);
+          date.set("minute",minute);
+          date.add(type_number, type); //  加上需提前的天数
+          const order_date = row.date; //选中的 订餐日期
+          if (!moment(order_date).isAfter(date)) {
+            Dialog({ message: "已超过订餐截止时间" }).then(() => {
+              Dialog.close();
+            });
+            return false;
+          }
           this.ordering_date = row.date;
           this.dinner_id = dataset.d_id;
           this.maxCount = dataset.count;
