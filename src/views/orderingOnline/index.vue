@@ -436,8 +436,7 @@ export default {
           //如果未订餐， 走这里面的流程
           dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
             .dataset;
-          console.log(dataset);
-          console.log(row);
+          console.log(dataset, row);
           this.ordering_date = row.date;
           this.dinner_id = dataset.d_id;
           this.maxCount = dataset.count;
