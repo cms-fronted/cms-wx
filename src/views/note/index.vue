@@ -1,36 +1,75 @@
 <template>
 	<div>
-		<div class="content" v-for="(item,index) in note" :key="index">
-			<p style="font-weight: 700;font-size: 16px;">{{item.title}}</p>
-			<p style="color: #A1A1A1;">{{item.create_time}}</p>
-			<p>{{item.content}}</p>
-			<a :href="item.equity_url">{{item.equity_title}}>></a>
-		</div>
+		<van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
+			<div class="content" v-for="(item,index) in note" :key="index">
+				<p style="font-weight: 700;font-size: 16px;">{{item.title}}</p>
+				<p style="color: #A1A1A1;">{{item.create_time}}</p>
+				<p>{{item.content}}</p>
+				<a :href="item.equity_url">{{item.equity_title}}>></a>
+			</div>
+		</van-list>
 	</div>
 </template>
 
 <script>
-	export default {
+	import {
+		getUserNotice
+	} from '@/api/notice.js';
+	import {
+		Toast
+	} from 'vant';
 
+	export default {
 		data() {
 			return {
-				total: 1,
+				total: 0,
 				per_page: 10,
 				current_page: 1,
-				last_page: 1,
-				note: [{
-					"id": 1,
-					"s_id": 9,
-					"read": 2,
-					"title": "国庆放假通知",
-					"content": "国庆放假七天!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!sfasdfasdfasdfsadfadf",
-					"equity_url": "http:// a.ccom", //权益跳转地址
-					"equity_title": "国庆优惠", //权益标题
-					"create_time": "2019-09-17 16:43:05",
-					"author": "里斯",
-					"type": "公告"
-				}]
+				last_page: null,
+				loading: false,
+				finished: false,
+				note: [] //通知列表
 			}
+		},
+		methods: {
+			async onLoad() {
+				if (this.last_page != null) {
+					console.log(this.current_page, this.last_page);
+					if (this.current_page >= this.last_page) {
+						//加载完成
+						this.finished = true;
+					} else {
+						this.current_page += 1;
+						const result = await getUserNotice({
+							page: this.current_page,
+							size: this.per_page
+						});
+						if (result.errorCode == 0) {
+							this.toatal = result.data.total;
+							this.last_page = result.data.last_page;
+							this.note = this.note.concat(result.data.data);
+						}
+					}
+				}
+				this.loading = false;
+			}
+		},
+		async created() {
+			Toast.loading({
+				message: '加载中...',
+				forbidClick: true,
+				duration: 0
+			})
+			const result = await getUserNotice({
+				page: this.current_page,
+				size: this.per_page
+			});
+			if (result.errorCode == 0) {
+				this.toatal = result.data.total,
+					this.last_page = result.data.last_page
+				this.note = result.data.data;
+			}
+			Toast.clear();
 		}
 	}
 </script>

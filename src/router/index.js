@@ -23,6 +23,7 @@ import NoticeEdit from '../views/notice/noticeEdit'
 import Selection from '../views/notice/selection'
 import OrderingOnline from '../views/orderingOnline'
 import SelectCanteen from '../views/selectcanteen'
+import SelectStaffs from '@/views/notice/selectStaffs/index.vue'
 
 Vue.use(Router)
 
@@ -44,23 +45,23 @@ export default new Router({
 			path: '/mealMenage',
 			name: 'mealMenage',
 			component: MealMenage,
-			meta:{
-				noCache:true
+			meta: {
+				noCache: true
 			}
 		},
 		{ //菜品管理（个人选菜）
 			path: '/mealMenageSelf',
 			name: 'mealMenageSelf',
 			component: MealMenageSelf,
-			meta:{
-				noCache:true
+			meta: {
+				noCache: true
 			}
 		},
 		{ //小卖部
 			path: '/store',
 			name: "store",
-			meta:{
-				noCache:true
+			meta: {
+				noCache: true
 			},
 			component: Store
 		}, { //个人选菜
@@ -70,8 +71,8 @@ export default new Router({
 		}, { //个人选菜下单
 			path: '/placeorder',
 			name: 'placeorder',
-			meta:{
-				noCache:true
+			meta: {
+				noCache: true
 			},
 			component: PlaceOrder
 		}, { //个人选菜选择地址
@@ -86,16 +87,16 @@ export default new Router({
 		{ //个人选菜修改地址
 			path: '/editaddress',
 			name: 'editaddress',
-			meta:{
-				noCache:true
+			meta: {
+				noCache: true
 			},
 			component: EditAddress
 		},
 		{ //菜谱查看
 			path: '/menu',
 			name: 'menu',
-			meta:{
-				noCache:true
+			meta: {
+				noCache: true
 			},
 			component: Menu
 		}, { //订单查询
@@ -128,15 +129,32 @@ export default new Router({
 		}, { //公告发布
 			path: '/notice',
 			name: 'notice',
+			meta: {
+				noCache: true
+			},
 			component: Notice
 		}, { //公告编辑
 			path: '/noticeEdit',
 			name: 'noticeEdit',
+			meta: {
+				noCache: true
+			},
 			component: NoticeEdit
-		}, { //公告发布范围选择
+		}, { //公告发布部门选择
 			path: '/selection',
 			name: 'selection',
+			meta: {
+				noCache: true
+			},
 			component: Selection
+		},
+		{ //公告发布人员选择
+			path: '/selectStaffs',
+			name: 'selectStaffs',
+			meta: {
+				noCache: true
+			},
+			component: SelectStaffs
 		},
 		{ //线上订餐
 			path: '/orderingOnline',

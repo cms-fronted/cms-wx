@@ -18,18 +18,18 @@
 			<van-button style="width: 35%;border-radius: 10px;" type="info" @click="submitOrder">提交</van-button>
 		</div>
 		<!-- 就餐类型 -->
-		<div class="flex-row" style="justify-content: space-between;align-items:center;padding: 10px 20px 0 20px;">
+		<div class="flex-row" style="justify-content: space-between;align-items:center;padding: 10px 20px 0 20px;" ref="aaa">
 			<van-radio-group v-model="type">
 				<van-radio v-if="dining_mode==1||dining_mode==3" style="margin: 10px 0;" :name="1">堂食</van-radio>
 				<van-radio v-if="dining_mode==2|| dining_mode==3" :name="2">外卖</van-radio>
 			</van-radio-group>
 			<div style="font-size: 15px;color: #EE0A24;">
 				<p style="margin:0 0 10px 0;">数量：{{dishCount}}</p>
-				<p style="margin: 0;">金额：{{amount}}元</p>
+				<p v-if="fixed != 1" style="margin: 0;">金额：{{amount}}元</p>
 			</div>
 		</div>
 		<!-- 日期选择 -->
-		<div class="dateMenu" v-if="currentDate.length !=0">
+		<div class="dateMenu" v-if="currentDate.length !=0" >
 			<van-tabs color="#1989fa" @click="chooseDate">
 				<van-tab v-for="(item,index) in currentDate" :title="$moment(item).format('MM-DD')" :key="index">
 					<!-- 内容 {{ index }} -->
@@ -56,7 +56,7 @@
 									<p>{{item.name}} </p>
 									<van-icon name="smile-o" size="25px" @click="openComment(item)" />
 								</div>
-								<p>￥：{{item.price}}</p>
+								<p v-if="fixed != 1">￥：{{item.price}}</p>
 								<van-stepper v-model="item.count" min="0" button-size="40px" :disabled="isDisable" @plus="addMealCount(item,items.id,index,key)"
 								 @minus="reduceMealCount(item,items.id,index,key)" />
 							</div>
@@ -67,84 +67,87 @@
 		</div>
 
 		<!-- 弹出层&&餐次 -->
-		<van-popup v-model="mealPicker" position="bottom">
+		<van-popup id="myCom" v-model="mealPicker" position="bottom">
 			<van-picker :columns="dinnerList" value-key="name" show-toolbar @cancel="mealPicker = false" @confirm="chooseMeal" />
 		</van-popup>
 		<!-- 弹出层&&评价 -->
-		<van-popup v-model="showComment" position="bottom" :style="{height:'70%'}">
+		<van-popup id="myCome" v-model="showComment" position="bottom" :style="{height:'70%'}">
 			<!-- 弹出层顶部 -->
-			<div class="flex-row" style="justify-content: space-around;align-items: center;">
-				<div>
-					<p style="margin: 0;">{{comment.canteenScore.service}}</p>
-					<p style="margin: 0;">饭堂评分</p>
-				</div>
-				<div>
-					<div class="flex-row" style="align-items: center; margin: 5px;">
-						<h4>味道</h4>
-						<van-rate v-model="comment.canteenScore.taste" allow-half void-icon="star" readonly void-color="#eee" />
+			<van-list class="van-clearfix" v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
+				<div class="flex-row" style="justify-content: space-around;align-items: center;">
+					<div>
+						<p style="margin: 0;">{{comment.canteenScore.service}}</p>
+						<p style="margin: 0;">饭堂评分</p>
 					</div>
-					<div class="flex-row" style="align-items: center; margin: 5px;">
-						<h4>服务</h4>
-						<van-rate v-model="comment.canteenScore.service" allow-half void-icon="star" readonly void-color="#eee" />
+					<div>
+						<div class="flex-row" style="align-items: center; margin: 5px;">
+							<h4>味道</h4>
+							<van-rate v-model="myComment.canteen.taste" allow-half void-icon="star" void-color="#eee" />
+						</div>
+						<div class="flex-row" style="align-items: center; margin: 5px;">
+							<h4>服务</h4>
+							<van-rate v-model="myComment.canteen.service" allow-half void-icon="star" void-color="#eee" />
+						</div>
 					</div>
-				</div>
-				<div>
-					<van-button @click="closeComment">关闭</van-button>
-				</div>
-			</div>
-			<!-- 我的评论 -->
-			<div class="flex-row" style="border:1px solid #CCCCCC;">
-				<!-- 评论左侧 -->
-				<div style="margin: 5px 10px;width: 35%; line-height: 30px;">
-					<van-image style="background-color: #26A2FF;width: 100%;height: 100px;" :src="'http://canteen.tonglingok.com/'+comment.food.img_url" />
-					<h4>{{comment.food.name}}</h4>
-					<h4>主厨:{{comment.food.chef}}</h4>
-				</div>
-				<!-- 评论右侧 -->
-				<div style="margin: auto 10px;width: 65%;">
-					<div class="flex-row" style="align-items: center; margin: 5px;">
-						<h4>味道</h4>
-						<van-rate v-model="myComment.taste" :size="23" allow-half void-icon="star" void-color="#eee" />
-					</div>
-					<div class="flex-row" style="align-items: center; margin: 5px;">
-						<h4>服务</h4>
-						<van-rate v-model="myComment.service" :size="23" allow-half void-icon="star" void-color="#eee" />
-					</div>
-					<van-cell-group>
-						<van-field style="padding: 0; border:1px solid #CCCCCC;height: 100px;" input-align="left" v-model="message" type="textarea"
-						 placeholder="请输入留言" autosize />
-					</van-cell-group>
-					<div class="flex-row" style="justify-content: space-around;margin: 10px auto;">
-						<van-button size="small" @click="showComment = false"> 取消 </van-button>
-						<van-button size="small" @click="submitComment()"> 完成 </van-button>
+					<div>
+						<van-button @click="closeComment">关闭</van-button>
 					</div>
 				</div>
-			</div>
-			<!-- 更多评论 -->
-			更多评论
-			<div v-for="(item,index) in comment.food.comments" :key="index" class="flex-row" style="border:1px solid #CCCCCC;">
-				<!-- 评论左侧 -->
-				<div style="margin: 5px 10px;width: 35%; line-height: 30px;">
-					<img style="background-color: #26A2FF;width: 100%;height: 100px;" :src="'http://canteen.tonglingok.com/'+comment.food.img_url" />
-					<h4>{{comment.food.name}}</h4>
-					<h4>主厨:{{comment.food.chef}}</h4>
-				</div>
-				<!-- 评论右侧 -->
-				<div style="margin: auto 10px;width: 65%;">
-					<div class="flex-row" style="align-items: center; margin: 5px;">
-						<h4>味道</h4>
-						<van-rate v-model="item.taste" :size="23" readonly allow-half void-icon="star" void-color="#eee" />
+				<!-- 我的评论 -->
+				<div class="flex-row" style="border:1px solid #CCCCCC;">
+					<!-- 评论左侧 -->
+					<div style="margin: 5px 10px;width: 35%; line-height: 30px;">
+						<van-image style="background-color: #26A2FF;width: 100%;height: 100px;" :src="comment.food.img_url" />
+						<h4>{{comment.food.name}}</h4>
+						<h4>主厨:{{comment.food.chef}}</h4>
 					</div>
-					<div class="flex-row" style="align-items: center; margin: 5px;">
-						<h4>服务</h4>
-						<van-rate v-model="item.service" :size="23" readonly allow-half void-icon="star" void-color="#eee" />
+					<!-- 评论右侧 -->
+					<div style="margin: auto 10px;width: 65%;">
+
+						<div class="flex-row" style="align-items: center; margin: 5px;">
+							<h4>味道</h4>
+							<van-rate v-model="myComment.foods.taste" :size="23"  void-icon="star" void-color="#eee" />
+						</div>
+						<div class="flex-row" style="align-items: center; margin: 5px;">
+							<h4>服务</h4>
+							<van-rate v-model="myComment.foods.service" :size="23"  void-icon="star" void-color="#eee" />
+						</div>
+						<van-cell-group>
+							<van-field style="padding: 0; border:1px solid #CCCCCC;height: 100px;" input-align="left" v-model="myComment.foods.remark"
+							 type="textarea" placeholder="请输入留言" autosize />
+						</van-cell-group>
+						<div class="flex-row" style="justify-content: space-around;margin: 10px auto;">
+							<van-button size="small" @click="showComment = false"> 取消 </van-button>
+							<van-button size="small" @click="submitComment"> 完成 </van-button>
+						</div>
 					</div>
-					<van-cell-group>
-						<van-field style="padding: 0; border:1px solid #CCCCCC;height: 100px;" readonly v-model="item.remark" type="textarea"
-						 autosize />
-					</van-cell-group>
 				</div>
-			</div>
+				<!-- 更多评论 -->
+				更多评论
+				<div v-for="(item,index) in comment.food.comments" :key="index" class="flex-row" style="border:1px solid #CCCCCC;">
+					<!-- 评论左侧 -->
+					<div style="margin: 5px 10px;width: 35%; line-height: 30px;">
+						<img style="background-color: #26A2FF;width: 100%;height: 100px;" :src="comment.food.img_url" />
+						<h4>{{comment.food.name}}</h4>
+						<h4>主厨:{{comment.food.chef}}</h4>
+					</div>
+					<!-- 评论右侧 -->
+					<div style="margin: auto 10px;width: 65%;">
+						<div class="flex-row" style="align-items: center; margin: 5px;">
+							<h4>味道</h4>
+							<van-rate v-model="item.taste" :size="23" readonly allow-half void-icon="star" void-color="#eee" />
+						</div>
+						<div class="flex-row" style="align-items: center; margin: 5px;">
+							<h4>服务</h4>
+							<van-rate v-model="item.service" :size="23" readonly allow-half void-icon="star" void-color="#eee" />
+						</div>
+						<van-cell-group>
+							<van-field style="padding: 0; border:1px solid #CCCCCC;height: 100px;" readonly v-model="item.remark" type="textarea"
+							 autosize />
+						</van-cell-group>
+					</div>
+				</div>
+			</van-list>
 		</van-popup>
 	</div>
 </template>
@@ -156,7 +159,10 @@
 	import {
 		getFoodList,
 		getDiningType,
-		getDinnerInfo
+		getDinnerInfo,
+		getComments,
+		saveFoodComment,
+		saveCanteenComment
 	} from '@/api/selfDish.js';
 	import {
 		Toast
@@ -184,7 +190,7 @@
 						"id": 1,
 						"name": "红烧牛肉",
 						"price": 5,
-						"img_url": "static/image/20190810/ab9ce8ff0e2c5adb40263641b24f36d4.png",
+						"img_url": "http://canteen.tonglingok.com/static/image/20190810/ab9ce8ff0e2c5adb40263641b24f36d4.png",
 						"chef": "李大厨",
 						"comments": [{
 								"id": 4,
@@ -209,29 +215,64 @@
 								"taste": 5,
 								"service": 5,
 								"remark": "2"
+							}, {
+								"id": 2,
+								"u_id": 3,
+								"f_id": 1,
+								"taste": 5,
+								"service": 5,
+								"remark": "2"
+							}, {
+								"id": 2,
+								"u_id": 3,
+								"f_id": 1,
+								"taste": 5,
+								"service": 5,
+								"remark": "2"
+							}, {
+								"id": 2,
+								"u_id": 3,
+								"f_id": 1,
+								"taste": 5,
+								"service": 5,
+								"remark": "2"
 							}
 						]
 					},
-					"canteenScore": {
-						"taste": 2,
-						"service": 3.6
-					}
+					"canteenScore": {}
 				}, //评价
 				myComment: {
-					taste: 0,
-					service: 0
+					canteen: {
+						taste: 1,
+						service: 1
+					},
+					foods: {
+						taste: 1,
+						service: 1,
+						remark: ''
+					}
 				}, //我的评价
 				message: '', //我的评论
+				chooseFoodId:null,//当前评论选中菜品id
 				products: [], //已选商品列表
 				dayMap: null, //整好配置
 				isInsert: false, //是否已插入
 				isSimilar: false, //是否为同类
 				submitValidate: '', //当前添加商品的日期
 				pass: false, //是否允许提交
+				fixed: null,//是否为固定金额
+				loading: false,//
+				finished: false,//
+				total:0,//评论总数
+				current_page:1,//当前页码
+				per_page:6,//一页显示多少条数据
+				last_page:0//最后的页码
 			}
 		},
 		methods: {
-			//选择餐次确认
+			/* 
+			 选择餐次确认
+			 */
 			async chooseMeal(e) {
 				Toast.loading({
 					message: '加载中...',
@@ -253,54 +294,65 @@
 					this.date = '';
 					this.products = [];
 					this.submitValidate = '';
-					result.data.forEach(items => {
-						items.foods.forEach(item => {
-							item = Object.assign(item, {
-								food_id: item.f_id,
-								count: 0
+					if (result.data.length > 0) {
+						result.data.forEach(items => {
+							items.foods.forEach(item => {
+								item = Object.assign(item, {
+									food_id: item.f_id,
+									count: 0
+								});
 							});
 						});
-					});
-					//处理数据 按照日期进行分类设置一个新的日期map
-					var dayMap = new Map();
-					result.data.forEach((items, index) => {
-						items.foods.forEach((item, key) => {
-							if (!dayMap.has(item.day)) {
-								//若日期map中不存在此日期 初始化该日期
-								dayMap.set(item.day, [{
-									category: items.category,
-									count: items.count,
-									id: items.id,
-									foods: [item]
-								}]);
-							} else {
-								//若存在，将菜品放置对菜类的菜品列表中
-								dayMap.get(item.day).forEach((e, i) => {
-									if (items.id != e.id) {
-										dayMap.get(item.day).push({
-											category: items.category,
-											count: items.count,
-											id: items.id,
-											foods: [item]
-										});
-									} else {
-										dayMap.get(item.day)[i].foods.push(item);
-									}
-								});
-							};
+						//处理数据 按照日期进行分类设置一个新的日期map
+						var dayMap = new Map();
+						result.data.forEach((items, index) => {
+							items.foods.forEach((item, key) => {
+								if (!dayMap.has(item.day)) {
+									//若日期map中不存在此日期 初始化该日期
+									dayMap.set(item.day, [{
+										category: items.category,
+										count: items.count,
+										id: items.id,
+										foods: [item]
+									}]);
+								} else {
+									//若存在，将菜品放置对菜类的菜品列表中
+									dayMap.get(item.day).forEach((e, i) => {
+										if (items.id != e.id) {
+											dayMap.get(item.day).push({
+												category: items.category,
+												count: items.count,
+												id: items.id,
+												foods: [item]
+											});
+										} else {
+											dayMap.get(item.day)[i].foods.push(item);
+										}
+									});
+								};
+							});
 						});
-					});
-					this.dayMap = dayMap;
-					//将日期放入数组中
-					for (var [key, value] of dayMap) {
-						this.currentDate.push(key);
-					};
-					//将日期排序
-					this.currentDate.sort((a, b) => {
-						return a > b ? 1 : -1;
-					});
-					this.list = dayMap.get(this.currentDate[0]);
-					this.date = this.currentDate[0];
+						this.dayMap = dayMap;
+						//将日期放入数组中
+						for (var [key, value] of dayMap) {
+							this.currentDate.push(key);
+						};
+						//将日期排序
+						this.currentDate.sort((a, b) => {
+							return a > b ? 1 : -1;
+						});
+						this.list = dayMap.get(this.currentDate[0]);
+						this.date = this.currentDate[0];
+
+						const result2 = await getDinnerInfo({
+							day: this.date
+						});
+						result2.data.forEach(item => {
+							if (item.id == e.id) {
+								this.fixed = item.fixed;
+							}
+						})
+					}
 				};
 				//因为 _scrollInit函数需要操作DOM，因此必须在DOM元素存在文档中才能获取DOM节点
 				//因此在 nextTick回调函数里面调用可以是实现此功能
@@ -310,11 +362,15 @@
 				});
 				Toast.clear();
 			},
-			//订餐数量选择
+			/* 
+			 订餐数量选择
+			 */
 			changeCount(e) {
 				this.count = this.$refs.countInput.value;
 			},
-			//日期选择
+			/* 
+			 日期选择
+			 */
 			chooseDate(index, title) {
 				console.log(index, title);
 				console.log(this.currentDate[index]);
@@ -432,38 +488,71 @@
 					})
 				}
 			},
-			//关闭评论弹窗
+			/* 
+			关闭评论弹窗 
+			 */
 			closeComment() {
+				this.total=0,//评论总数
+				this.current_page=1,//当前页码
+				this.last_page=0//最后的页码
 				this.showComment = false;
 			},
-			//提交评论
-
-			submitComment(e) {
-				// {
-				// 	"food_id": 1,
-				// 	"taste": 5,
-				// 	"service": 5 "remark": "味道好极了",
-				// } {
-				// 	"taste": 5,
-				// 	"service": 5
-				// }
-				console.log(this.comment.food.id);
-				console.log(this.myComment);
+			/* 
+			 提交评论
+			 */
+			async submitComment() {
+				await saveCanteenComment(this.myComment.canteen);
+				await saveFoodComment({
+					food_id: this.chooseFoodId,
+					taste: this.myComment.foods.taste,
+					service: this.myComment.foods.service,
+					remark: this.myComment.foods.remark
+				});
 				//调用提交评论接口(饭堂评价 菜品评价)
 				this.showComment = false;
 			},
-			//打开评论弹窗
-			openComment(e) {
+			/* 
+			 打开评论弹窗
+			 */
+			async openComment(e) {
+				this.chooseFoodId = e.f_id;
+				console.log('菜品id', e);
+				const result = await getComments({
+					food_id: e.f_id,
+					page:1,
+					size:0
+				});
+				console.log(result);
+				if (result.errorCode == 0) {
+					// this.comment = result.data;
+				};
 				this.showComment = true;
-				console.log(e.f_id);
 			},
+			/* 加载更多数据 */
+			onLoad() {
+				// 异步更新数据
+				console.log('11111');
+				setTimeout(() => {
+					for (let i = 0; i < 10; i++) {
+						console.log(1123435);
+					}
+					// 加载状态结束
+					this.loading = false;
+
+					// 数据全部加载完成
+					if (this.list.length >= 40) {
+						this.finished = true;
+					}
+				}, 500);
+			},
+
 			//提交订单
 			async submitOrder(e) {
 				Toast.loading({
 					message: '加载中...',
 					forbidClick: true,
 					duration: 0
-				})
+				});
 				//获取餐次配置信息
 				/* 1.餐次金额是否为标准金额
 				2.判断当前提交日期是否符合订餐日期规则
@@ -472,6 +561,10 @@
 				4.判断所选菜品种类数量计算是否超过该菜类可选数量*/
 				if (this.dishCount == 0) {
 					Toast.fail('请选择菜品！')
+					return;
+				};
+				if (this.count == 0) {
+					Toast.fail('请输入订餐数量！')
 					return;
 				};
 
@@ -491,7 +584,7 @@
 							menus = item.menus;
 						};
 					}); //格式化数据
-
+					console.log('menus：', menus);
 					/* 超日期 */
 					// dinner.type 时间设置类别：day | week
 					// dinner.limit_time 订餐限制时间
@@ -503,17 +596,17 @@
 						return;
 					}
 
-					// if (fixed == 2) {
-					//有限制金额
-
 					/* 订餐数量 */
 					//dinner.ordered_count 可订餐数量
 					//dinner.ordering_count已定餐数量
-					/* 	if (dinner.ordered_count - dinner.ordring_count > this.count) {
-							console.log('订餐数量不可超过:' + dinner.ordered_count - dinner.ordring_count);
-							return;
-						}
-						return; */
+					if ((dinner.ordering_count - dinner.ordered_count) < this.count) {
+						if ((dinner.ordering_count - dinner.ordered_count) == 0) {
+							Toast.fail('今日可订餐数量已达上限')
+						} else {
+							Toast.fail('订餐数量不可超过:' + (dinner.ordering_count - dinner.ordered_count) + '份');
+						};
+						return;
+					};
 					/* 超种类数量 */
 					// menus[].count//
 
@@ -530,7 +623,6 @@
 						})
 					});
 					console.log('我的列表:', list);
-					console.log('配置信息', menus);
 					list.forEach((items, index) => {
 						menus.forEach((item, key) => {
 							if (items.menu_id == item.id && items.count > item.count && item.status == 1) {
@@ -545,15 +637,6 @@
 					};
 				}
 
-				console.log('提交', {
-					ordering_date: this.submitValidate,
-					dinner_id: this.dinner_id,
-					dinner: this.dinner,
-					type: this.type,
-					count: this.count,
-					detail: this.products,
-				});
-
 				this.$router.push({
 					name: 'placeorder',
 					params: {
@@ -566,15 +649,16 @@
 						detail: this.products,
 					}
 				});
-				// };
 				Toast.clear();
 			},
 		},
 		mounted() {
-			this.scrollH = window.innerHeight - this.$refs.category.getBoundingClientRect().bottom - 40;
-			console.log(this.$refs.category.getBoundingClientRect().bottom);
+			this.scrollH = window.innerHeight - (this.$refs.aaa.getBoundingClientRect().bottom +74);
+			console.log(window.innerHeight);
+			console.log(this.$refs.aaa.getBoundingClientRect().bottom);
 		},
 		async created() {
+			console.log(this.$route);
 			Toast.loading({
 				message: '加载中',
 				mask: true,

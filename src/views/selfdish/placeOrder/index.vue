@@ -118,9 +118,7 @@
 						address_id: this.address_id,
 						detail: this.selfDish.detail
 					});
-
 					const result2 = await saveOrder(data);
-					console.log('请求：', result2);
 				}
 			},
 			//新增地址

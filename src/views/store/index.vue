@@ -47,57 +47,59 @@
 		<!-- 评论弹窗 -->
 		<van-popup v-model="showComment" position="bottom" :style="{height:'70%'}">
 			<!-- 商品评价 -->
-			<div class="flex-row" style="justify-content: space-around;align-items: center;border-bottom: 1px solid #F2F3F5;">
-				<div>
-					<p style="margin: 0;">{{productScore.taste}}</p>
-					<p style="margin: 0;">商品评分</p>
-				</div>
-				<div>
-					<div class="flex-row" style="align-items: center; margin: 5px;">
-						<h4>质量</h4>
-						<van-rate v-model="productScore.taste" :size="23" allow-half void-icon="star" readonly void-color="#eee" />
+			<van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad" :offset="100">
+				<div class="flex-row" style="justify-content: space-around;align-items: center;border-bottom: 1px solid #F2F3F5;">
+					<div>
+						<p style="margin: 0;">{{productScore.taste}}</p>
+						<p style="margin: 0;">商品评分</p>
 					</div>
-					<div class="flex-row" style="align-items: center; margin: 5px;">
-						<h4>服务</h4>
-						<van-rate v-model="productScore.service" :size="23" allow-half void-icon="star" readonly void-color="#eee" />
+					<div>
+						<div class="flex-row" style="align-items: center; margin: 5px;">
+							<h4>质量</h4>
+							<van-rate v-model="productScore.taste" :size="23" allow-half void-icon="star" readonly void-color="#eee" />
+						</div>
+						<div class="flex-row" style="align-items: center; margin: 5px;">
+							<h4>服务</h4>
+							<van-rate v-model="productScore.service" :size="23" allow-half void-icon="star" readonly void-color="#eee" />
+						</div>
+					</div>
+					<div>
+						<van-button @click="closeComment">关闭</van-button>
 					</div>
 				</div>
-				<div>
-					<van-button @click="closeComment">关闭</van-button>
-				</div>
-			</div>
-			<!-- 我的评价 -->
-			<div class="flex-row" style="align-items: center; margin: 5px 5%;">
-				<h4>质量</h4>
-				<van-rate v-model="myComment.taste" :size="23" allow-half void-icon="star" void-color="#eee" />
-			</div>
-			<div class="flex-row" style="align-items: center; margin: 5px 5%;">
-				<h4>服务</h4>
-				<van-rate v-model="myComment.service" :size="23" allow-half void-icon="star" void-color="#eee" />
-			</div>
-			<van-cell-group style="width: 90%;margin: 5px 5%;">
-				<van-field style="padding: 0; border:1px solid #CCCCCC;height: 100px;" input-align="left" v-model="myComment.remark"
-				 type="textarea" placeholder="请输入留言" autosize rows="2" />
-			</van-cell-group>
-			<div class="flex-row" style="justify-content: space-around;padding: 5px;border-bottom: 1px solid #F2F3F5;">
-				<van-button size="small" @click="showComment = false"> 取消 </van-button>
-				<van-button size="small" @click="submitComment"> 完成 </van-button>
-			</div>
-			<!-- 更多评价 -->
-			<div v-for="(item,index) in comment.data" :key="index">
-				<p>鸡翅</p>
+				<!-- 我的评价 -->
 				<div class="flex-row" style="align-items: center; margin: 5px 5%;">
 					<h4>质量</h4>
-					<van-rate v-model="item.taste" :size="23" allow-half void-icon="star" void-color="#eee" />
+					<van-rate v-model="myComment.taste" :size="23" allow-half void-icon="star" void-color="#eee" />
 				</div>
 				<div class="flex-row" style="align-items: center; margin: 5px 5%;">
 					<h4>服务</h4>
-					<van-rate v-model="item.service" :size="23" allow-half void-icon="star" void-color="#eee" />
+					<van-rate v-model="myComment.service" :size="23" allow-half void-icon="star" void-color="#eee" />
 				</div>
-				<van-cell-group>
-					<van-field v-model="item.remark" label-width="50px" rows="1" autosize label="评论" type="textarea" readonly />
+				<van-cell-group style="width: 90%;margin: 5px 5%;">
+					<van-field style="padding: 0; border:1px solid #CCCCCC;height: 100px;" input-align="left" v-model="myComment.remark"
+					 type="textarea" placeholder="请输入留言" autosize rows="2" />
 				</van-cell-group>
-			</div>
+				<div class="flex-row" style="justify-content: space-around;padding: 5px;border-bottom: 1px solid #F2F3F5;">
+					<van-button size="small" @click="showComment = false"> 取消 </van-button>
+					<van-button size="small" @click="submitComment"> 完成 </van-button>
+				</div>
+				<!-- 更多评价 -->
+				<div v-for="(item,index) in comment.data" :key="index">
+					<p>鸡翅</p>
+					<div class="flex-row" style="align-items: center; margin: 5px 5%;">
+						<h4>质量</h4>
+						<van-rate v-model="item.taste" :size="23" allow-half void-icon="star" void-color="#eee" />
+					</div>
+					<div class="flex-row" style="align-items: center; margin: 5px 5%;">
+						<h4>服务</h4>
+						<van-rate v-model="item.service" :size="23" allow-half void-icon="star" void-color="#eee" />
+					</div>
+					<van-cell-group>
+						<van-field v-model="item.remark" label-width="50px" rows="1" autosize label="评论" type="textarea" readonly />
+					</van-cell-group>
+				</div>
+			</van-list>
 		</van-popup>
 	</div>
 </template>
@@ -123,8 +125,8 @@
 				scrollH: '',
 				scrollY: 0, //获取实时滚动位置
 				heightList: [], //获取每一个li的高度
-				comment: {},//商品评论
-				productScore: {},//饭堂评论
+				comment: {}, //商品评论
+				productScore: {}, //饭堂评论
 				showComment: false, //显示评论
 				myComment: {
 					taste: 0,
@@ -135,6 +137,12 @@
 				count: 0,
 				products: [], //已选商品列表
 				isExist: false, //数量选择是否已在选择
+				total: 0, //总数
+				per_page: 6, //当前页码显示数量
+				current_page: 1, //当前页
+				last_page: 0, //最后一页
+				loading: false, //加载logo显示
+				finished: false
 			}
 		},
 		methods: {
@@ -175,6 +183,9 @@
 			},
 			//关闭评论弹窗
 			closeComment() {
+				this.total = 0;
+				this.current_page = 1;
+				this.last_page = 0, //最后一页
 				this.showComment = false;
 			},
 			//提交评论
@@ -198,7 +209,9 @@
 					Toast('提交成功');
 				};
 			},
-			//打开评论弹窗
+			/*
+			打开评论弹窗
+			*/
 			async openComment(e) {
 				Toast.loading({
 					message: '加载中...',
@@ -209,11 +222,14 @@
 				//调用获取评论接口
 				const result = await getComments({
 					product_id: e.id,
-					page: 1,
-					size: 6
+					page: this.current_page,
+					size: this.per_page
 				});
 				console.log('获取的评论：', result);
 				if (result.errorCode == 0) {
+					this.total = result.data.comments.total;
+					this.per_page = result.data.comments.per_page;
+					this.last_page = result.data.comments.last_page;
 					this.comment = result.data.comments;
 					this.productScore = result.data.productScore;
 				}
@@ -223,6 +239,36 @@
 				// })
 				// this.myComment = myComment;
 				Toast.clear();
+			},
+			/* 
+			加载更多 
+			 */
+			async onLoad() {
+				// 异步更新数据
+				console.log(11231241234);
+				console.log(this.last_page);
+				console.log(this.current_page);
+				// setTimeout(() => {
+				if (this.last_page == this.current_page) {
+					this.finished = true;
+				}
+				// 数据全部加载完成
+				else {
+					this.current_page = this.current_page + 1;
+					const result = await getComments({
+						product_id: this.myComment.product_id,
+						page: this.current_page,
+						size: this.per_page
+					})
+					console.log(result);
+					this.total = result.data.comments.total;
+					this.per_page = result.data.comments.per_page;
+					this.last_page = result.data.comments.last_page;
+					this.comment.data = this.comment.data.concat(result.data.comments.data);
+					// this.productScore = result.data.productScore;
+				}
+				// 加载状态结束
+				this.loading = false;
 			},
 			//提交订单
 			submitOrder() {

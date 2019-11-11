@@ -30,9 +30,27 @@ export function getMenuQuery(data) {
 //获取菜品评论信息
 export function getComments(data) {
 	return request({
-		url: '/api/v1/food/info/comment',
+		url: '/v1/food/info/comment',
 		method: 'get',
 		params: data
+	});
+};
+
+//菜品评论提交
+export function saveFoodComment(data){
+	return request({
+		url:'/v1/food/saveComment',
+		method:'post',
+		data
+	});
+};
+
+//饭堂评论提交
+export function saveCanteenComment(data){
+	return request({
+		url:'/v1/canteen/saveComment',
+		method:'post',
+		data
 	});
 };
 
