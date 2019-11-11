@@ -126,74 +126,74 @@
 	}
 </script>
 <style lang="scss">
-	#app {
-		font-family: 'Avenir', Helvetica, Arial, sans-serif;
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
-		text-align: center;
-		color: #2c3e50;
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
 
-		mt-header {
-			position: fixed;
-		}
-	}
+  mt-header {
+    position: fixed;
+  }
+}
 
-	#nav {
-		padding: 30px;
+#nav {
+  padding: 30px;
 
-		a {
-			font-weight: bold;
-			color: #2c3e50;
+  a {
+    font-weight: bold;
+    color: #2c3e50;
 
-			&.router-link-exact-active {
-				color: #42b983;
-			}
-		}
-	}
+    &.router-link-exact-active {
+      color: #42b983;
+    }
+  }
+}
 
-	body {
-		width: 100%;
-		height: 100%;
-		position: relative;
-		background-color: #FFFFFF;
-		margin: 0;
-	}
+body {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: #ffffff;
+  margin: 0;
+}
 
-	.flex-row {
-		display: flex;
-		flex-direction: row;
-	}
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
 
-	.flex-column {
-		display: flex;
-		flex-direction: column;
-	}
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
 
-	.flex-center {
-		justify-content: center;
-		align-items: center;
-	}
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
 
-	.shadow {
-		box-shadow: 5px 5px 10px 0px #ccc;
-	}
+.shadow {
+  box-shadow: 5px 5px 10px 0px #ccc;
+}
 
-	.mIcon {
-		position: absolute;
-		top: 50%;
-		right: -4px;
-		margin-top: -5px;
-		margin-right: 15px;
-		border: 3px solid;
-		border-color: transparent transparent currentColor currentColor;
-		-webkit-transform: rotate(-45deg);
-		transform: rotate(-45deg);
-		opacity: .8;
-		content: '';
-	}
+.mIcon {
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  margin-top: -5px;
+  margin-right: 15px;
+  border: 3px solid;
+  border-color: transparent transparent currentColor currentColor;
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  opacity: 0.8;
+  content: "";
+}
 
-	.myBtn {
-		border-radius: 10px !important;
-		width: 100px;
-	}
+.myBtn {
+  border-radius: 10px !important;
+  width: 100px;
+}
 </style>

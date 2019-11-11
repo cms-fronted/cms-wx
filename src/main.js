@@ -16,6 +16,13 @@ Vue.prototype.$http = axios;
 Vue.use(Vant);
 Vue.use(MintUI);
 
+const _bus = new Vue()
+_bus.install = function (Vue) { //注册、监听、触发全局事件
+	Vue.prototype.$bus = Vue.prototype.bus = _bus
+}
+
+Vue.use(_bus);
+
 Vue.config.productionTip = false;
 
 new Vue({
