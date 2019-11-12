@@ -11,7 +11,7 @@
 			</van-button>
 		</div>
 		<!-- 列表 -->
-		<van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
+		<van-list v-model="loading" :finished="finished" finished-text="没有更多了" :immediate-check="false" @load="onLoad">
 			<div class="flex-row flex-center" style="width: 100%;margin-top: 20px;">
 				<table style="width: 95%;" border="1" cellpadding="0" cellspacing="0">
 					<tr style="height: 60px;background-color: #26A2FF;">
@@ -35,21 +35,21 @@
 		</van-list>
 		<!-- 弹窗&&选择器 -->
 		<van-popup v-model="addressPicker" :close-on-click-overlay="false" position="bottom">
-			<van-picker :columns="addressList" show-toolbar @cancel="addressPicker = false" @confirm="addressConf" />
+			<van-picker :columns="addressList" show-toolbar value-key="name" @cancel="addressPicker = false" @confirm="addressConf" />
 		</van-popup>
 		<van-popup v-model="typePicker" :close-on-click-overlay="false" position="bottom">
-			<van-picker :columns="typeList" show-toolbar @cancel="typePicker = false" @confirm="typeConf" />
+			<van-picker :columns="typeList" show-toolbar value-key="name" @cancel="typePicker = false" @confirm="typeConf" />
 		</van-popup>
 		<!-- 订单详情弹窗 -->
 		<van-popup class="flex-column flex-center" v-model="detailShow" :closeable="true" :close-on-click-overlay="false"
-		 style="width: 90%;">
+		 @close="closeDetail" style="width: 90%;padding-bottom: 20px;">
 			<p style="border-bottom: 1px solid #CCCCCC;width: 100%;font-size: 14px;width: 100%;margin: 0;padding: 10px 0;">午餐</p>
 			<div class="flex-column flex-center" style="width: 95%;">
 				<div class="flex-row" style="justify-content: space-between;width: 80%;">
 					<p>份数：</p>
 					<p style="color: #EE0A24;">{{this.orderDetail.count}}份</p>
 				</div>
-				<table style="width: 95%;" border="1">
+				<table style="width: 95%;" border="1" cellpadding="0" cellspacing="0" v-if="orderDetail.foods">
 					<tr>
 						<td>名称</td>
 						<td>单位</td>
@@ -69,19 +69,20 @@
 						<td>{{detailAmount}}(元)</td>
 					</tr>
 				</table>
-				<div v-if="orderDetail.address" style="font-size: 14px;width: 95%;margin: 10px;">
-					<div style="border:1px solid #F2F3F5;">
-						<p style="border-bottom:1px solid #F2F3F5;">送餐地址</p>
-						<p style="text-align: left;">{{orderDetail.address.address}}</p>
-						<p style="text-align:left;color: #D7D7D7;font-size: 12px;">{{orderDetail.address.name}}
+				<div style="font-size: 14px;width: 95%;margin: 10px;">
+					<div v-if="orderDetail.order_type==2" style="border:1px solid #F2F3F5;">
+						<p style="border-bottom:1px solid #F2F3F5;margin: 0;padding: 10px 0;">送餐地址</p>
+						<p style="text-align: left;padding-left: 10px;">{{orderDetail.address.address}}</p>
+						<p style="text-align:left;color: #D7D7D7;font-size: 12px;padding-left: 10px;">{{orderDetail.address.name}}
 							{{orderDetail.address.phone}}</p>
 					</div>
 					<div class="flex-row" style="justify-content: space-around;margin-top: 10px;flex-wrap: wrap;">
-						<van-button type="info" @click="cancleOrder">取消订单</van-button>
-						<van-button type="info" @click="editOrder">修改订单</van-button>
-						<van-button type="info" @click="editAddress">修改地址</van-button>
+						<van-button type="info" :disabled="orderDetail.used ==1" @click="cancleOrder">取消订单</van-button>
+						<van-button type="info" :disabled="orderDetail.used ==1" @click="editOrder">修改订单</van-button>
+						<van-button type="info" :disabled="orderDetail.used ==1" @click="editAddress">修改地址</van-button>
 					</div>
-					<div class="flex-column flex-center" style="margin:auto;">
+					<div v-if="orderDetail.ordering_type == 'shop' && orderDetail.order_type == 1" class="flex-column flex-center"
+					 style="margin:auto;">
 						<p>已绑定，扫描二维码即可消费</p>
 						<img :src="shopCode" style="width: 60%;margin-bottom: 20px;" />
 						<!-- <span>生成日期：{{sTime}}</span> -->
@@ -113,7 +114,16 @@
 				addressId: null, //饭堂id 或企业id
 				address: '请选择地点', //地点
 				addressList: [], //地点列表
-				typeList: ['就餐', '外卖', '小卖部'],
+				typeList: [{
+					id: 1,
+					name: '就餐'
+				}, {
+					id: 2,
+					name: '外卖'
+				}, {
+					id: 3,
+					name: '小卖部'
+				}],
 				typePicker: false, //类型选择器
 				addressPicker: false, //地点选择器
 				list: [],
@@ -126,7 +136,7 @@
 				shopCode: '', //小卖部提货码
 				total: null,
 				current_page: 1,
-				per_page: 10,
+				per_page: 8,
 				last_page: 0,
 				loading: false,
 				finished: false,
@@ -136,11 +146,7 @@
 			/* 下拉加载 */
 			async onLoad() {
 				// setTimeout(async () => {
-				// if (this.type != 0 && this.total != null) {
-				if (this.current_page >= this.last_page) {
-					this.finished = true;
-				} 
-				if(this.current_page < this.last_page){
+				if (this.current_page < this.last_page) {
 					this.current_page += 1;
 					const result = await userOrderings({
 						page: this.current_page,
@@ -149,31 +155,28 @@
 						id: this.addressId
 					});
 					if (result.errorCode == 0) {
-						// console.log(this.list.concat(result.data.data));
 						this.list = this.list.concat(result.data.data);
 						this.total = result.data.total;
 						this.last_page = result.data.last_page;
 						this.current_page = result.data.current_page;
-						this.loading = false;
 					};
-					this.loading = false;
 				};
-				if (this.total == 0) {
+				this.loading = false;
+				console.log(this.current_page, this.last_page, this.total == 0);
+				if (this.current_page == this.last_page || this.total == 0) {
 					this.finished = true;
 				}
 				// }, 1000);
 			},
 			//选择器确认按钮
 			typeConf(e) {
-				if (e == '就餐') {
-					this.type = 1;
-				} else if (e == '外卖') {
-					this.type = 2;
-				} else {
-					this.type = 3;
-				};
+				this.type = e.id
 				this.address = '请选择地点';
 				this.typePicker = false;
+				this.current_page = 1;
+				this.last_page = 0;
+				this.list = [];
+				this.finished = false;
 				this.$dialog.confirm({
 					title: '提示',
 					message: '请选择地点进行查询',
@@ -182,28 +185,32 @@
 			},
 			//确认并获取订单列表
 			async addressConf(e) {
+				console.log(e);
 				Toast.loading({
 					message: '获取订单信息中...',
 					forbidClick: true
 				});
 				if (this.type == 3) {
 					this.place.forEach((items, index) => {
-						if (items.company.name == e) {
+						if (items.company.name == e.name) {
 							this.addressId = items.company_id
 						};
 					});
 				} else if (this.type == 1 || this.type == 2) {
 					this.place.forEach((items, index) => {
 						items.canteens.forEach((item, key) => {
-							if (item.info.name == e) {
+							if (item.info.name == e.name) {
 								this.addressId = item.canteen_id
 							};
 						});
 					});
 				};
-				this.address = e;
+				this.address = e.name;
 				this.addressPicker = false;
-
+				this.current_page = 1;
+				this.last_page = 0;
+				this.list = [];
+				this.finished = false;
 				//调用获取订单列表接口
 				const data = {
 					page: this.current_page,
@@ -254,14 +261,21 @@
 				if (result.errorCode == 0) {
 					this.orderDetail = result.data;
 				};
-				const result2 = await deliveryCode({
-					id: e.id
-				});
-				if (result2.errorCode == 0) {
-					this.shopCode = 'http://canteen.tonglingok.com/' + result2.data.url
-				};
+				if (this.orderDetail.ordering_type == 'shop' && this.orderDetail.order_type == 1) {
+					console.log('有码');
+					const result2 = await deliveryCode({
+						id: e.id
+					});
+					if (result2.errorCode == 0) {
+						this.shopCode = 'http://canteen.tonglingok.com/' + result2.data.url
+					};
+				}
 				this.detailShow = true;
 				Toast.clear();
+			},
+			/* 关闭订单详情 */
+			closeDetail() {
+				this.shopCode = '';
 			},
 			//修改订单
 			editOrder() {
@@ -308,14 +322,20 @@
 					//初始化地点选项
 					this.addressList = [];
 					this.place.forEach((item, index) => {
-						this.addressList[index] = this.place[index].company.name
+						this.addressList[index] = {
+							name: this.place[index].company.name,
+							id: this.place[index].company.id
+						}
 					});
 				} else {
 					//初始化地点选项
 					this.addressList = [];
 					this.place.forEach((items, index) => {
 						items.canteens.forEach((item, key) => {
-							this.addressList[key] = item.info.name
+							this.addressList[key] = {
+								name: item.info.name,
+								id: item.info.id
+							}
 						});
 					});
 				}

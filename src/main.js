@@ -20,9 +20,9 @@ Vue.use(MintUI);
 function stopTouchendPropagationAfterScroll() {
 	var locked = false;
 
-	window.addEventListener('touchmove', function (ev) {
-		locked || (locked = true, window.addEventListener('touchend', stopTouchendPropagation, true));
-	}, true);
+	// window.addEventListener('touchmove', function (ev) {
+	// 	locked || (locked = true, window.addEventListener('touchend', stopTouchendPropagation, true));
+	// }, true);
 	function stopTouchendPropagation(ev) {
 		ev.stopPropagation();
 		window.removeEventListener('touchend', stopTouchendPropagation, true);
