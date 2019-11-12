@@ -11,7 +11,7 @@
 			</van-button>
 		</div>
 		<!-- 列表 -->
-		<van-list v-model="loading" :finished="finished" @load="onLoad" finished-text="没有更多数据了...">
+		<van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
 			<div class="flex-row flex-center" style="width: 100%;margin-top: 20px;">
 				<table style="width: 95%;" border="1" cellpadding="0" cellspacing="0">
 					<tr style="height: 60px;background-color: #26A2FF;">
@@ -109,7 +109,7 @@
 	export default {
 		data() {
 			return {
-				type: 1, // 类型：1|就餐；2|外卖；3|小卖部
+				type: 0, // 类型：1|就餐；2|外卖；3|小卖部
 				addressId: null, //饭堂id 或企业id
 				address: '请选择地点', //地点
 				addressList: [], //地点列表
@@ -135,26 +135,33 @@
 		methods: {
 			/* 下拉加载 */
 			async onLoad() {
-				if (this.last_page != null && this.type!=0) {
-					if (this.current_page <= this.last_page) {
-						this.finished = true;
-					} else {
-						this.current_page += 1;
-						const result = await userOrderings({
-							page: this.current_page,
-							size: this.per_page,
-							type: this.type,
-							id: this.addressId
-						});
-						if (result.errorCode == 0) {
-							this.list = this.list.push(result.data.data);
-							this.total = result.data.total;
-							this.last_page = result.data.last_page;
-							this.current_page = result.data.current_page;
-							this.loading = false;
-						};
+				// setTimeout(async () => {
+				// if (this.type != 0 && this.total != null) {
+				if (this.current_page >= this.last_page) {
+					this.finished = true;
+				} 
+				if(this.current_page < this.last_page){
+					this.current_page += 1;
+					const result = await userOrderings({
+						page: this.current_page,
+						size: this.per_page,
+						type: this.type,
+						id: this.addressId
+					});
+					if (result.errorCode == 0) {
+						// console.log(this.list.concat(result.data.data));
+						this.list = this.list.concat(result.data.data);
+						this.total = result.data.total;
+						this.last_page = result.data.last_page;
+						this.current_page = result.data.current_page;
+						this.loading = false;
 					};
+					this.loading = false;
 				};
+				if (this.total == 0) {
+					this.finished = true;
+				}
+				// }, 1000);
 			},
 			//选择器确认按钮
 			typeConf(e) {
@@ -299,13 +306,13 @@
 			type(e) {
 				if (e == 3) {
 					//初始化地点选项
-					this.addressList = []
+					this.addressList = [];
 					this.place.forEach((item, index) => {
 						this.addressList[index] = this.place[index].company.name
 					});
 				} else {
 					//初始化地点选项
-					this.addressList = []
+					this.addressList = [];
 					this.place.forEach((items, index) => {
 						items.canteens.forEach((item, key) => {
 							this.addressList[key] = item.info.name
@@ -337,26 +344,42 @@
 		async created() {
 			//调用用户可进入饭堂接口获取地点数据
 			const result = await canChooseCant();
-			console.log('结果',result);
+			console.log('结果', result);
 			if (result.errorCode == 0) {
 				this.place = result.data;
-				
+				console.log('ft:', this.place[0].canteens[0].info.id);
+				console.log('qy:', this.place[0].company_id);
 			};
+			this.type = 1;
 			if (this.type == 3) {
-				this.place.forEach((items, index) => {
-					if (items.company.name == e) {
-						this.addressId = items.company_id
-					};
+				this.addressId = this.place[0].company.id;
+				this.address = this.place[0].company.name;
+				this.place.forEach((item, index) => {
+					this.addressList[index] = this.place[index].company.name
 				});
 			} else if (this.type == 1 || this.type == 2) {
+				this.addressId = this.place[0].canteens[0].info.id;
+				this.address = this.place[0].canteens[0].info.name;
 				this.place.forEach((items, index) => {
 					items.canteens.forEach((item, key) => {
-						if (item.info.name == e) {
-							this.addressId = item.canteen_id
-						};
+						this.addressList[key] = item.info.name
 					});
 				});
 			};
+			//初始化订单列表
+			const result2 = await userOrderings({
+				page: this.current_page,
+				size: this.per_page,
+				type: this.type,
+				id: this.addressId
+			});
+			if (result2.errorCode == 0) {
+				this.list = result2.data.data;
+				this.total = result2.data.total;
+				this.last_page = result2.data.last_page;
+				this.current_page = result2.data.current_page;
+			};
+
 			//初始化
 			// if (!this.list.length) {
 			// 	this.$dialog.confirm({
