@@ -16,7 +16,7 @@ Vue.prototype.$http = axios;
 Vue.use(Vant);
 Vue.use(MintUI);
 
-// 滑动后禁用 touchend事件
+// 解决移动端滑动后触发 touchend事件
 function stopTouchendPropagationAfterScroll() {
 	var locked = false;
 
