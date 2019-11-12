@@ -100,10 +100,9 @@
 import request from "../../utils/request";
 import { getOrderDetail, getUserOrder } from "@/api/orderingOnline";
 import moment from "moment";
-import { Dialog, Stepper } from "vant";
+import { Dialog, Stepper, Toast } from "vant";
 import { async } from "q";
 import QS from "qs";
-import { constants } from "buffer";
 
 export default {
   data() {
@@ -164,6 +163,11 @@ export default {
     );
     this.$bus.$on("updatePage", () => {
       setTimeout(async () => {
+        Toast.loading({
+          forbidClick: true,
+          message: "加载中...",
+          buration: 0
+        });
         await this.selectCanteen();
       }, 2000);
     });
@@ -244,6 +248,7 @@ export default {
       this.orderList = this.computeOrderList(
         res2.data.filter(item => item.ordering_type === "online")
       );
+      Toast.clear();
     },
     async timeConf(e) {
       this.currentDate = e || new Date();
@@ -293,6 +298,7 @@ export default {
       const res = await getOrderDetail();
       if (res.msg === "ok") {
         this.mealList = Array.from(res.data);
+      } else {
       }
     },
     async getUserOrdered(e) {
