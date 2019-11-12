@@ -3,12 +3,12 @@ import {
 	getUserToken,
 	// bindCanteen
 } from '@/api/user.js';
-import {Toast} from 'vant';
+import { Toast } from 'vant';
 
 const state = {
 	token: 'b9b73f6ddc12636f92d5b55f38e02c7a',
 	canteen_id: '',
-	canteenList:[],
+	canteenList: [],
 }
 
 const mutations = {
@@ -19,17 +19,15 @@ const mutations = {
 		if (result.errorCode == 0) {
 			state.token = result.data.token
 		}
-		// state.token = '11111';
 	},
 
 	async setCanteen(state, data) {
 		state.canteen_id = data
-		const result = await bindCanteen({canteen_id:data});
-		// console.log(data);
+		const result = await bindCanteen({ canteen_id: data });
 		Toast.success('成功进入饭堂！');
 	},
-	
-	setCanteenList(state,data){
+
+	setCanteenList(state, data) {
 		state.canteenList = data
 	}
 }
@@ -45,10 +43,10 @@ const getters = {
 	canteenIdGetters(state) {
 		return state.canteen_id;
 	},
-	canteenListGetters(state){
+	canteenListGetters(state) {
 		return state.canteenList;
 	}
-	
+
 }
 
 export default {
