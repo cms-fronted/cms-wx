@@ -16,11 +16,27 @@ Vue.prototype.$http = axios;
 Vue.use(Vant);
 Vue.use(MintUI);
 
+// 滑动后禁用 touchend事件
+function stopTouchendPropagationAfterScroll() {
+	var locked = false;
+
+	window.addEventListener('touchmove', function (ev) {
+		locked || (locked = true, window.addEventListener('touchend', stopTouchendPropagation, true));
+	}, true);
+	function stopTouchendPropagation(ev) {
+		ev.stopPropagation();
+		window.removeEventListener('touchend', stopTouchendPropagation, true);
+		locked = false;
+	}
+}
+stopTouchendPropagationAfterScroll();
 const _bus = new Vue()
 _bus.install = function (Vue) { //注册、监听、触发全局事件
 	Vue.prototype.$bus = Vue.prototype.bus = _bus
 }
-
+moment.locale('en', {
+	weekdaysShort: ["日", "一", "二", "三", "四", "五", "六"]
+});
 Vue.use(_bus);
 
 Vue.config.productionTip = false;

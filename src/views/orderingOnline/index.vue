@@ -34,8 +34,12 @@
         <!-- <td>全午</td>
         <td>全晚</td>-->
       </tr>
-      <tr v-for="(item, index) in tableData" :key="index">
-        <td>{{ item.date }}</td>
+      <tr
+        v-for="(item, index) in tableData"
+        :key="index"
+        :class="{ weekend: item.isWeekend }"
+      >
+        <td>{{ item.date | showTime }}</td>
         <td
           v-for="(order, orderIndex) in item.orderOfMeal"
           @touchstart="e => gotouchstart(e, item)"
@@ -123,7 +127,8 @@ export default {
       // 饭堂列表
       canteenList: [],
       // 订单列表
-      orderList: []
+      orderList: [],
+      longPress: false
     };
   },
   computed: {
@@ -135,6 +140,7 @@ export default {
         if (!orderList) return;
         return {
           date: date,
+          isWeekend: moment(date).day() === 0 || moment(date).day() === 6,
           orderOfMeal: mealList.map(meal => {
             return orderList[index][meal.name];
           })
@@ -220,7 +226,6 @@ export default {
           }
           data.splice(i, 1);
         }
-        console.log(order);
         return order;
       });
     },
@@ -310,6 +315,7 @@ export default {
       //e.target.parentNode.cellIndex + 1 对应对象中第几个点餐数据
       let that = this;
       let cellIndex, dataset, d_id, count, id;
+      this.longPress = false;
       clearTimeout(this.timeOutEvent); //清除定时器
       if (e.target.tagName === "P") {
         //如果已经订餐 走这里面的流程
@@ -318,45 +324,19 @@ export default {
         ].dataset;
         cellIndex = e.target.parentNode.cellIndex;
         id = row.orderOfMeal[cellIndex - 1].id;
-        console.log(row);
         //执行长按事件，取消订餐
-
         this.timeOutEvent = setTimeout(function() {
           //执行长按要执行的内容，
-          that.timeOutEvent = 0;
+          that.longPress = true;
+          // that.timeOutEvent = 0;
           Dialog.confirm({
             message: "是否取消该餐次订单，取消后无法撤回",
-            beforeClose
+            beforeClose: (action, done, id) =>
+              that.beforeClose(action, done, id)
           });
         }, 700); //这里设置定时
+        console.log(this.timeOutEvent);
         return false;
-        async function beforeClose(action, done) {
-          const data = {
-            id: id
-          };
-          if (action === "confirm") {
-            const res = await request({
-              url: "/v1/order/cancel",
-              method: "post",
-              data: QS.stringify(data)
-            });
-            if (res.msg === "ok") {
-              done();
-              Dialog({
-                message: "操作成功！"
-              }).then(async () => {
-                Dialog.close();
-                await that.getUserOrdered();
-              });
-            } else {
-              setTimeout(() => {
-                done();
-              }, 700);
-            }
-          } else {
-            done();
-          }
-        }
       } else {
         // if (!this.$refs.tableForm.rows[0].cells[e.target.cellIndex]) return;
         // dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
@@ -364,6 +344,33 @@ export default {
         // d_id = dataset.d_id;
         // count = dataset.count;
         // cellIndex = e.target.parentNode.cellIndex;
+      }
+    },
+    async beforeClose(action, done, id) {
+      const data = {
+        id: id
+      };
+      if (action === "confirm") {
+        const res = await request({
+          url: "/v1/order/cancel",
+          method: "post",
+          data: QS.stringify(data)
+        });
+        if (res.msg === "ok") {
+          done();
+          Dialog({
+            message: "操作成功！"
+          }).then(async () => {
+            Dialog.close();
+            await that.getUserOrdered();
+          });
+        } else {
+          setTimeout(() => {
+            done();
+          }, 700);
+        }
+      } else {
+        done();
       }
     },
     async confirmEdit(action, done) {
@@ -436,7 +443,7 @@ export default {
     gotouchend(e, row) {
       clearTimeout(this.timeOutEvent);
       let cellIndex, dataset, d_id, count, id;
-      if (this.timeOutEvent != 0) {
+      if (!this.longPress) {
         //这里写要执行的内容（尤如onclick事件）
         if (e.target.tagName === "P") {
           //如果已经订餐 走这里面的流程
@@ -461,6 +468,12 @@ export default {
           const now = moment();
           const today = moment().format("YYYY-MM-DD");
           const date = moment(); //创建 今日时间戳
+          if (
+            moment(order_date).day() === 0 ||
+            moment(order_date).day() === 6
+          ) {
+            return false;
+          }
           if (type === "day") {
             date.set("hour", hour);
             date.set("minute", minute);
@@ -499,6 +512,11 @@ export default {
       clearTimeout(this.timeOutEvent); //清除定时器
       this.timeOutEvent = 0;
     }
+  },
+  filters: {
+    showTime: function(str) {
+      return moment(str).format("MM-DD ddd");
+    }
   }
 };
 </script>
@@ -515,5 +533,8 @@ td {
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+}
+.weekend {
+  background: rgba(128, 128, 128, 0.2);
 }
 </style>
