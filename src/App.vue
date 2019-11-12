@@ -1,7 +1,5 @@
 <template>
 	<div id="app">
-		<!-- 饭堂选择下拉箭头 -->
-		<van-icon style="position: fixed;right: 10px;top: 40px;z-index: 10;" size="40px" name="arrow-down" @click="showCanteen" />
 		<!-- 导航栏 -->
 		<mt-header title="哈哈哈哈" style="padding:0;">
 			<div @click="back" slot="left" v-show="isShow">
@@ -10,11 +8,17 @@
 		</mt-header>
 		<!-- 饭堂选择 -->
 		<van-sticky>
-			<div class="shadow" style="margin-bottom: 10px;background-color: #FFFFFF;" v-bind:hidden="show">
-				<van-radio-group v-model="radio" @change="chooseCanteen" style="width: 100%;display: flex;flex-wrap: wrap;padding-top: 35px">
-					<van-radio class="flex-row flex-center" :name="item.id" icon-size="12px" v-for="(item,index) in canteenList" :key="index"
-					 style="width: 33%; margin: 10px 0">{{item.name}}</van-radio>
-				</van-radio-group>
+			<!-- 饭堂选择下拉箭头 -->
+			<div class="shadow" style="background-color: #FFFFFF;margin-bottom: 10px">
+				<div class="flex-column" style="width: auto;align-items: flex-end;padding-right: 20px;" @click="showCanteen">
+					<van-icon size="32px" :name="!show?'arrow-up':'arrow-down'" />
+				</div>
+				<div v-bind:hidden="show">
+					<van-radio-group v-model="radio" @change="chooseCanteen" style="width: 100%;display: flex;flex-wrap: wrap;">
+						<van-radio class="flex-row flex-center" :name="item.id" icon-size="12px" v-for="(item,index) in canteenList" :key="index"
+						 style="width: 33%; margin: 10px 0">{{item.name}}</van-radio>
+					</van-radio-group>
+				</div>
 			</div>
 		</van-sticky>
 		<!-- <van-popup v-model="show" :overlay="false" position="top"  style="margin-top: 40px;" closeable :lock-scroll="false" >
@@ -32,7 +36,8 @@
 	} from 'vuex';
 	import {
 		getUserToken,
-		canChooseCant
+		canChooseCant,
+		bindCanteen
 	} from './api/user.js';
 	import {
 		Toast
@@ -55,8 +60,21 @@
 			},
 			//用户选择饭堂
 			chooseCanteen(e) {
-				console.log('1111', e);
-				this.$store.commit('user/setCanteen', e);
+				Toast.loading({
+					forbidClick:true,
+					message:'加载中...',
+					buration:0
+				});
+				bindCanteen({
+					canteen_id: e
+				}).then((result) => {
+					if (result.errorCode == 0) {
+						this.$store.commit('user/setCanteen', e);
+						this.$bus.$emit("updatePage");//注册全局事件
+						Toast.clear();
+						Toast.success('成功进入饭堂!');
+					}
+				}).then(() => {});
 			}
 		},
 		watch: {
@@ -126,74 +144,74 @@
 	}
 </script>
 <style lang="scss">
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+	#app {
+		font-family: "Avenir", Helvetica, Arial, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-align: center;
+		color: #2c3e50;
 
-  mt-header {
-    position: fixed;
-  }
-}
+		mt-header {
+			position: fixed;
+		}
+	}
 
-#nav {
-  padding: 30px;
+	#nav {
+		padding: 30px;
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+		a {
+			font-weight: bold;
+			color: #2c3e50;
 
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
+			&.router-link-exact-active {
+				color: #42b983;
+			}
+		}
+	}
 
-body {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background-color: #ffffff;
-  margin: 0;
-}
+	body {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		background-color: #ffffff;
+		margin: 0;
+	}
 
-.flex-row {
-  display: flex;
-  flex-direction: row;
-}
+	.flex-row {
+		display: flex;
+		flex-direction: row;
+	}
 
-.flex-column {
-  display: flex;
-  flex-direction: column;
-}
+	.flex-column {
+		display: flex;
+		flex-direction: column;
+	}
 
-.flex-center {
-  justify-content: center;
-  align-items: center;
-}
+	.flex-center {
+		justify-content: center;
+		align-items: center;
+	}
 
-.shadow {
-  box-shadow: 5px 5px 10px 0px #ccc;
-}
+	.shadow {
+		box-shadow: 5px 5px 10px 0px #ccc;
+	}
 
-.mIcon {
-  position: absolute;
-  top: 50%;
-  right: -4px;
-  margin-top: -5px;
-  margin-right: 15px;
-  border: 3px solid;
-  border-color: transparent transparent currentColor currentColor;
-  -webkit-transform: rotate(-45deg);
-  transform: rotate(-45deg);
-  opacity: 0.8;
-  content: "";
-}
+	.mIcon {
+		position: absolute;
+		top: 50%;
+		right: -4px;
+		margin-top: -5px;
+		margin-right: 15px;
+		border: 3px solid;
+		border-color: transparent transparent currentColor currentColor;
+		-webkit-transform: rotate(-45deg);
+		transform: rotate(-45deg);
+		opacity: 0.8;
+		content: "";
+	}
 
-.myBtn {
-  border-radius: 10px !important;
-  width: 100px;
-}
+	.myBtn {
+		border-radius: 10px !important;
+		width: 100px;
+	}
 </style>
