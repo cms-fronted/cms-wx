@@ -1,9 +1,12 @@
 <template>
   <!-- 线上订餐 -->
   <div>
-    <div class="flex-row" style="align-items: center;justify-content: space-around;margin: 20px 0;">
+    <div
+      class="flex-row"
+      style="align-items: center;justify-content: space-around;margin: 20px 0;"
+    >
       <van-button class="myBtn" @click="timeShow = true">
-        {{$moment(currentDate).format("YYYY-MM")}}
+        {{ $moment(currentDate).format("YYYY-MM") }}
         <div class="mIcon" />
       </van-button>
       <p>订餐数量：8</p>
@@ -12,37 +15,41 @@
       <tr>
         <th>日期</th>
         <th
-          v-for="(item,index) in mealList"
+          v-for="(item, index) in mealList"
           :data-d_id="item.id"
           :data-type="item.type"
           :data-type_number="item.type_number"
           :data-time="item.limit_time"
           :data-count="item.ordered_count"
           :key="index"
-        >{{item.name}}</th>
+        >
+          {{ item.name }}
+        </th>
       </tr>
       <tr>
         <td>全选</td>
-        <td v-for="(item,index) in mealList" :data-d_id="item.id" :key="index">全{{item.name}}</td>
+        <td v-for="(item, index) in mealList" :data-d_id="item.id" :key="index">
+          全{{ item.name }}
+        </td>
         <!-- <td>全午</td>
         <td>全晚</td>-->
       </tr>
-      <tr v-for="(item,index) in tableData" :key="index">
-        <td>{{item.date}}</td>
+      <tr v-for="(item, index) in tableData" :key="index">
+        <td>{{ item.date }}</td>
         <td
           v-for="(order, orderIndex) in item.orderOfMeal"
-          @touchstart="(e)=>gotouchstart(e,item)"
+          @touchstart="e => gotouchstart(e, item)"
           @touchmove="gotouchmove"
-          @touchend="(e)=>gotouchend(e,item)"
+          @touchend="e => gotouchend(e, item)"
           :key="orderIndex"
         >
-          <p
-            v-for="canteen in order.canteens"
-            :key="canteen.canteen_id"
-          >{{canteen.canteen}}*{{canteen.count}}</p>
+          <p v-for="canteen in order.canteens" :key="canteen.canteen_id">
+            {{ canteen.canteen }}*{{ canteen.count }}
+          </p>
         </td>
       </tr>
     </table>
+
     <van-popup v-model="timeShow" position="bottom" :style="{ height: '40%' }">
       <van-datetime-picker
         v-model="currentDate"
@@ -55,7 +62,7 @@
     <van-dialog
       v-model="editShow"
       title="修改数量"
-      :before-close="(action,done)=>confirmEdit(action,done)"
+      :before-close="(action, done) => confirmEdit(action, done)"
       :show-cancel-button="true"
     >
       <van-stepper
@@ -70,7 +77,7 @@
     <van-dialog
       v-model="addShow"
       title="订餐数量"
-      :before-close="(action,done)=>confirmAdd(action,done)"
+      :before-close="(action, done) => confirmAdd(action, done)"
       :show-cancel-button="true"
     >
       <van-stepper
@@ -212,7 +219,8 @@ export default {
             order[dinner].canteens[canteenIndex].count += count;
           }
           data.splice(i, 1);
-        }console.log(order);
+        }
+        console.log(order);
         return order;
       });
     },
@@ -346,12 +354,6 @@ export default {
           }
         }
       } else {
-        // if (!this.$refs.tableForm.rows[0].cells[e.target.cellIndex]) return;
-        // dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
-        //   .dataset;
-        // d_id = dataset.d_id;
-        // count = dataset.count;
-        // cellIndex = e.target.parentNode.cellIndex;
       }
     },
     async confirmEdit(action, done) {

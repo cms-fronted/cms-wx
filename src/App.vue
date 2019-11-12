@@ -29,10 +29,11 @@
             class="flex-row flex-center"
             :name="item.id"
             icon-size="12px"
-            v-for="(item,index) in canteenList"
+            v-for="(item, index) in canteenList"
             :key="index"
             style="width: 33%; margin: 10px 0"
-          >{{item.name}}</van-radio>
+            >{{ item.name }}</van-radio
+          >
         </van-radio-group>
       </div>
     </van-sticky>
