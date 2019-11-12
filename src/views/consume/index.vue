@@ -48,7 +48,7 @@
 						<td>数量</td>
 						<td>金额（元）</td>
 					</tr>
-					<tr v-for="(items,index) in detailList.foods" :key="index">
+					<tr v-if="detailList.order_type == 2" v-for="(items,index) in detailList.foods" :key="index">
 						<td>{{items.name}}</td>
 						<td>{{items.count}}</td>
 						<td>{{items.price}}</td>
@@ -60,7 +60,7 @@
 					</tr>
 				</table>
 
-				<div v-if="detailList.order_type ==1" style="text-align: left;width: 80%;margin-bottom: 20px;">
+				<div v-if="detailList.order_type == 2" style="text-align: left;width: 80%;margin-bottom: 20px;">
 					<p style="text-align: center;">送餐地址</p>
 					<p style="font-size: 14px;">{{detailList.address.address}}</p>
 					<p style="font-size:12px ;color: #D7D7D7;">{{detailList.address.name}} {{detailList.address.phone}}</p>
@@ -94,7 +94,7 @@
 				balance: {}, //余额信息
 				paging: {
 					total: 0,
-					per_page: 15,
+					per_page: 6,
 					current_page: 1,
 					last_page: null,
 				}, // 消费查询分页
@@ -177,7 +177,9 @@
 						this.list = result.data.records.data;
 						this.totalAmount = result.data.consumptionMoney; //月消费金额
 						this.balance = result.data.balance
-						this.paging = result.data.records;
+						this.paging.total = result.data.records.total;
+						this.paging.current_page = result.data.records.current_page;
+						this.paging.last_page = result.data.records.last_page;
 					};
 					this.loading = false;
 				};
@@ -200,8 +202,10 @@
 			if (result.errorCode == 0) {
 				this.list = result.data.records.data;
 				this.totalAmount = result.data.consumptionMoney; //月消费金额
-				this.balance = result.data.balance
-				this.paging = result.data.records;
+				this.balance = result.data.balance;
+				this.paging.total = result.data.records.total;
+				this.paging.current_page = result.data.records.current_page;
+				this.paging.last_page = result.data.records.last_page;
 			};
 			Toast.clear();
 		},

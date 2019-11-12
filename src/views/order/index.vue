@@ -11,26 +11,28 @@
 			</van-button>
 		</div>
 		<!-- 列表 -->
-		<div class="flex-row flex-center" style="width: 100%;margin-top: 20px;">
-			<table style="width: 95%;" border="1" cellpadding="0" cellspacing="0">
-				<tr style="height: 60px;background-color: #26A2FF;">
-					<td width="10%">序号</td>
-					<td>地点</td>
-					<td>类型</td>
-					<td width="30%">日期</td>
-					<td>名称</td>
-					<td width="20%">金额（元）</td>
-				</tr>
-				<tr v-for="(item,index) in list" :key="index" height="80px" @click="showOrder(item)">
-					<td>{{index+1}}</td>
-					<td>{{item.address}}</td>
-					<td>{{item.type}}</td>
-					<td>{{item.create_time}}</td>
-					<td>{{item.dinner}}</td>
-					<td>{{item.money}}</td>
-				</tr>
-			</table>
-		</div>
+		<van-list v-model="loading" :finished="finished" @load="onLoad" finished-text="没有更多数据了...">
+			<div class="flex-row flex-center" style="width: 100%;margin-top: 20px;">
+				<table style="width: 95%;" border="1" cellpadding="0" cellspacing="0">
+					<tr style="height: 60px;background-color: #26A2FF;">
+						<td width="10%">序号</td>
+						<td>地点</td>
+						<td>类型</td>
+						<td width="30%">日期</td>
+						<td>名称</td>
+						<td width="20%">金额（元）</td>
+					</tr>
+					<tr v-for="(item,index) in list" :key="index" height="80px" @click="showOrder(item)">
+						<td>{{index+1}}</td>
+						<td>{{item.address}}</td>
+						<td>{{item.type}}</td>
+						<td>{{item.create_time}}</td>
+						<td>{{item.dinner}}</td>
+						<td>{{item.money}}</td>
+					</tr>
+				</table>
+			</div>
+		</van-list>
 		<!-- 弹窗&&选择器 -->
 		<van-popup v-model="addressPicker" :close-on-click-overlay="false" position="bottom">
 			<van-picker :columns="addressList" show-toolbar @cancel="addressPicker = false" @confirm="addressConf" />
@@ -39,7 +41,8 @@
 			<van-picker :columns="typeList" show-toolbar @cancel="typePicker = false" @confirm="typeConf" />
 		</van-popup>
 		<!-- 订单详情弹窗 -->
-		<van-popup class="flex-column flex-center" v-model="detailShow" :closeable="true" :close-on-click-overlay="false" style="width: 90%;">
+		<van-popup class="flex-column flex-center" v-model="detailShow" :closeable="true" :close-on-click-overlay="false"
+		 style="width: 90%;">
 			<p style="border-bottom: 1px solid #CCCCCC;width: 100%;font-size: 14px;width: 100%;margin: 0;padding: 10px 0;">午餐</p>
 			<div class="flex-column flex-center" style="width: 95%;">
 				<div class="flex-row" style="justify-content: space-between;width: 80%;">
@@ -106,9 +109,7 @@
 	export default {
 		data() {
 			return {
-				page: 1, //当前页码
-				size: 10, //每页多少条数据
-				type: 0, // 类型：1|就餐；2|外卖；3|小卖部
+				type: 1, // 类型：1|就餐；2|外卖；3|小卖部
 				addressId: null, //饭堂id 或企业id
 				address: '请选择地点', //地点
 				addressList: [], //地点列表
@@ -123,9 +124,38 @@
 				place: [], //用户可选地址
 				orderDetailCount: {}, //订单总数查询
 				shopCode: '', //小卖部提货码
+				total: null,
+				current_page: 1,
+				per_page: 10,
+				last_page: 0,
+				loading: false,
+				finished: false,
 			}
 		},
 		methods: {
+			/* 下拉加载 */
+			async onLoad() {
+				if (this.last_page != null && this.type!=0) {
+					if (this.current_page <= this.last_page) {
+						this.finished = true;
+					} else {
+						this.current_page += 1;
+						const result = await userOrderings({
+							page: this.current_page,
+							size: this.per_page,
+							type: this.type,
+							id: this.addressId
+						});
+						if (result.errorCode == 0) {
+							this.list = this.list.push(result.data.data);
+							this.total = result.data.total;
+							this.last_page = result.data.last_page;
+							this.current_page = result.data.current_page;
+							this.loading = false;
+						};
+					};
+				};
+			},
 			//选择器确认按钮
 			typeConf(e) {
 				if (e == '就餐') {
@@ -169,15 +199,17 @@
 
 				//调用获取订单列表接口
 				const data = {
-					page: this.page,
-					size: this.size,
+					page: this.current_page,
+					size: this.per_page,
 					type: this.type,
 					id: this.addressId
 				}
 				const result = await userOrderings(data);
-				console.log('订单列表：', result);
 				if (result.errorCode == 0) {
-					this.list = result.data.data
+					this.list = result.data.data;
+					this.total = result.data.total;
+					this.last_page = result.data.last_page;
+					this.current_page = result.data.current_page;
 				}
 				Toast.clear();
 			},
@@ -202,9 +234,9 @@
 			// 显示订单详情
 			async showOrder(e) {
 				Toast.loading({
-					message:'加载中...',
-					forbidClick:true,
-					duration:0
+					message: '加载中...',
+					forbidClick: true,
+					duration: 0
 				});
 				//调用获取订单的详情
 				const result = await getOrderDetail({
@@ -305,8 +337,25 @@
 		async created() {
 			//调用用户可进入饭堂接口获取地点数据
 			const result = await canChooseCant();
+			console.log('结果',result);
 			if (result.errorCode == 0) {
 				this.place = result.data;
+				
+			};
+			if (this.type == 3) {
+				this.place.forEach((items, index) => {
+					if (items.company.name == e) {
+						this.addressId = items.company_id
+					};
+				});
+			} else if (this.type == 1 || this.type == 2) {
+				this.place.forEach((items, index) => {
+					items.canteens.forEach((item, key) => {
+						if (item.info.name == e) {
+							this.addressId = item.canteen_id
+						};
+					});
+				});
 			};
 			//初始化
 			// if (!this.list.length) {
