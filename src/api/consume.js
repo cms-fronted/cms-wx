@@ -10,7 +10,7 @@ export function getConsumptionRecords(data){
 };
 
 //获取消费订单详情
-export function getConsumeDetail(){
+export function getConsumeDetail(data){
 	return request({
 		url:'/v1/order/consumptionRecords/detail',
 		method:'get',

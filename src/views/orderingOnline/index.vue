@@ -156,7 +156,7 @@ export default {
     this.orderList = this.computeOrderList(
       res2.data.filter(item => item.ordering_type === "online")
     );
-    this.$bus.$on("update", () => {
+    this.$bus.$on("updatePage", () => {
       setTimeout(async () => {
         await this.selectCanteen();
       }, 2000);
@@ -331,7 +331,9 @@ export default {
         }, 700); //这里设置定时
         return false;
         async function beforeClose(action, done) {
-          const data = { id: id };
+          const data = {
+            id: id
+          };
           if (action === "confirm") {
             const res = await request({
               url: "/v1/order/cancel",
@@ -340,7 +342,9 @@ export default {
             });
             if (res.msg === "ok") {
               done();
-              Dialog({ message: "操作成功！" }).then(async () => {
+              Dialog({
+                message: "操作成功！"
+              }).then(async () => {
                 Dialog.close();
                 await that.getUserOrdered();
               });
@@ -354,6 +358,12 @@ export default {
           }
         }
       } else {
+        // if (!this.$refs.tableForm.rows[0].cells[e.target.cellIndex]) return;
+        // dataset = this.$refs.tableForm.rows[0].cells[e.target.cellIndex]
+        //   .dataset;
+        // d_id = dataset.d_id;
+        // count = dataset.count;
+        // cellIndex = e.target.parentNode.cellIndex;
       }
     },
     async confirmEdit(action, done) {
@@ -369,7 +379,9 @@ export default {
         });
         if (res.msg === "ok") {
           done();
-          Dialog({ message: "操作成功！" }).then(async () => {
+          Dialog({
+            message: "操作成功！"
+          }).then(async () => {
             Dialog.close();
           });
           await this.getUserOrdered();
@@ -397,7 +409,9 @@ export default {
           }
         ];
         detail = JSON.stringify(detail);
-        const data = { detail };
+        const data = {
+          detail
+        };
         const res = await request({
           url: "/v1/order/online/save",
           method: "post",
@@ -405,7 +419,9 @@ export default {
         });
         if (res.msg === "ok") {
           done();
-          Dialog({ message: "操作成功！" }).then(async () => {
+          Dialog({
+            message: "操作成功！"
+          }).then(async () => {
             Dialog.close();
           });
           await this.getUserOrdered();
@@ -451,7 +467,9 @@ export default {
             date.add(type_number, type); //  加上需提前的天数
             if (!moment(order_date).isAfter(date)) {
               // 如果选中 订餐日期 符合 提前天数
-              Dialog({ message: "已超过订餐截止时间" }).then(() => {
+              Dialog({
+                message: "已超过订餐截止时间"
+              }).then(() => {
                 Dialog.close();
               });
               return false;
@@ -461,7 +479,9 @@ export default {
             prevDate.set("hour", hour);
             prevDate.set("minute", minute);
             if (!moment(now).isBefore(prevDate)) {
-              Dialog({ message: "已超过订餐截止时间" }).then(() => {
+              Dialog({
+                message: "已超过订餐截止时间"
+              }).then(() => {
                 Dialog.close();
               });
               return false;

@@ -23,8 +23,9 @@ const mutations = {
 
 	async setCanteen(state, data) {
 		state.canteen_id = data
-		const result = await bindCanteen({ canteen_id: data });
-		Toast.success('成功进入饭堂！');
+		// const result = await bindCanteen({canteen_id:data});
+		// console.log(data);
+		// Toast.success('成功进入饭堂！');
 	},
 
 	setCanteenList(state, data) {

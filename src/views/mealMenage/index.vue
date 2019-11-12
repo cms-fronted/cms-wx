@@ -32,7 +32,7 @@
 							<td style="width: 15%;" @click="changeStatus(item,index)">
 								<van-checkbox v-model="item.status"></van-checkbox>
 							</td>
-<!-- 							<td style="width: 15%;" @click="changeDefault(item,index)">
+							<!-- 							<td style="width: 15%;" @click="changeDefault(item,index)">
 								<van-checkbox v-model="item.default"></van-checkbox>
 							</td> -->
 						</tr>
@@ -51,7 +51,7 @@
 		</van-popup>
 		<!-- 弹出层&菜类型选择器 -->
 		<van-popup v-model="show2" position="bottom">
-			<van-picker show-toolbar :columns="typeList" @cancel="show2 = false" @confirm="typeEvent" />
+			<van-picker show-toolbar :columns="typeList" value-key="name" @cancel="show2 = false" @confirm="typeEvent" />
 		</van-popup>
 	</div>
 </template>
@@ -123,7 +123,7 @@
 					console.log('返回值', result);
 					this.typeList = [];
 					result.data.forEach((item, index) => {
-						this.typeList[index] = item.id
+						this.typeList[index] = item
 					});
 				};
 				this.type = '菜类';
@@ -141,7 +141,7 @@
 					page: 1,
 					size: 12,
 					food_type: 1,
-					menu_id: e,
+					menu_id: e.id,
 					day: this.$moment(this.date).format("YYYY-MM-DD"),
 					canteen_id: this.getCanteenId
 				});
@@ -261,6 +261,29 @@
 				}
 				return name;
 			},
+		},
+		mounted() {
+			this.$bus.$on('updatePage', async () => {
+				//1、获取可选择的餐次（餐次信息：早中晚）
+				Toast.loading({
+					message: '加载中...',
+					forbidClick: true,
+					duration: 0
+				});
+				this.type = '菜类';
+				this.dinner = '餐次';
+				this.typeLis = [];
+				this.dinnerList = [];
+				this.foodList = {};
+				const result = await getChooseDinner();
+				if (result.errorCode == 0) {
+					this.dinnerInfo = result.data;
+					result.data.forEach((item, index) => {
+						this.dinnerList[index] = item.name
+					});
+				};
+				Toast.clear();
+			});
 		}
 	}
 </script>

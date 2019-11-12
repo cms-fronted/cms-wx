@@ -2,7 +2,7 @@
 	<!-- 小卖部 -->
 	<div>
 		<!-- 顶部购买方式&&按钮 -->
-		<div class="flex-row" style="align-items: center;justify-content: space-around;padding: 15px 0;background-color: #F2F3F5;">
+		<div class="flex-row" style="align-items: center;justify-content: space-around;padding: 15px 0;background-color: #F2F3F5;" ref='info'>
 			<div style="width: auto;">
 				<div class="flex-row" style="justify-content: space-around;">
 					<h4 style="margin: 10px 0;">数量：{{ ccc }} </h4>
@@ -346,7 +346,7 @@
 			}
 		},
 		mounted() {
-			this.scrollH = window.innerHeight - this.$refs.category.getBoundingClientRect().top;
+			this.scrollH = window.innerHeight - this.$refs.info.getBoundingClientRect().bottom -44;
 		},
 		async created() {
 			Toast.loading({
