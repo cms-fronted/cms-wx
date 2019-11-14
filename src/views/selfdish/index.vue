@@ -1,6 +1,6 @@
 <template>
 	<!-- 个人选菜 -->
-	<div class="flex-column" style>
+	<div class="flex-column">
 		<!-- 餐次选择 -->
 		<div class="flex-row" style="padding: 10px 20px 0 20px;">
 			<van-button style="border-radius: 10px;width: 40%;" @click="mealPicker = true">
@@ -19,7 +19,7 @@
 			<van-button style="width: 35%;border-radius: 10px;" type="info" @click="submitOrder">提交</van-button>
 		</div>
 		<!-- 就餐类型 -->
-		<div class="flex-row" style="justify-content: space-between;align-items:center;padding: 10px 20px 0 20px;" ref="aaa">
+		<div class="flex-row" style="justify-content: space-between;align-items:center;padding: 10px 20px 0 20px;" ref="mealType">
 			<van-radio-group v-model="type">
 				<van-radio v-if="dining_mode==1||dining_mode==3" style="margin: 10px 0;" :name="1">堂食</van-radio>
 				<van-radio v-if="dining_mode==2|| dining_mode==3" :name="2">外卖</van-radio>
@@ -59,7 +59,7 @@
 									<van-icon name="smile-o" size="25px" @click="openComment(item)" />
 								</div>
 								<p v-if="fixed != 1">￥：{{item.price}}</p>
-								<van-stepper v-model="item.count" min="0" button-size="40px" :disabled="isDisable" :show-plus="!outLimited[index]"
+								<van-stepper v-model="item.count" min="0" button-size="40px" :disabled="isDisable" :show-plus="!outLimited[index]||fixed==1"
 								 @plus="addMealCount(item,items.id,index,key)" @minus="reduceMealCount(item,items.id,index,key)" />
 							</div>
 						</div>
@@ -187,63 +187,25 @@
 				heightList: [], //获取每一个li的高度
 				showComment: false, //显示评论
 				comment: {
-					food: {
-						id: 1,
-						name: "红烧牛肉",
-						price: 5,
-						img_url: "http://canteen.tonglingok.com/static/image/20190810/ab9ce8ff0e2c5adb40263641b24f36d4.png",
-						chef: "李大厨",
-						comments: [{
-								id: 4,
-								u_id: 3,
-								f_id: 1,
-								taste: 3,
-								service: 3,
-								remark: "4"
-							},
-							{
-								id: 3,
-								u_id: 3,
-								f_id: 1,
-								taste: 4,
-								service: 4,
-								remark: "3"
-							},
-							{
-								id: 2,
-								u_id: 3,
-								f_id: 1,
-								taste: 5,
-								service: 5,
-								remark: "2"
-							},
-							{
-								id: 2,
-								u_id: 3,
-								f_id: 1,
-								taste: 5,
-								service: 5,
-								remark: "2"
-							},
-							{
-								id: 2,
-								u_id: 3,
-								f_id: 1,
-								taste: 5,
-								service: 5,
-								remark: "2"
-							},
-							{
-								id: 2,
-								u_id: 3,
-								f_id: 1,
-								taste: 5,
-								service: 5,
-								remark: "2"
-							}
-						]
+					"food": {
+						"id": 1,
+						"name": "红烧牛肉",
+						"price": 5,
+						"img_url": "http://canteen.tonglingok.com/static/image/20190810/ab9ce8ff0e2c5adb40263641b24f36d4.png",
+						"chef": "李大厨",
+						"comments": [{
+							"id": 2,
+							"u_id": 3,
+							"f_id": 1,
+							"taste": 5,
+							"service": 5,
+							"remark": "2"
+						}]
 					},
-					canteenScore: {}
+					"canteenScore": {
+						"taste": 4.3,
+						"service": 4.3
+					}
 				}, //评价
 				myComment: {
 					canteen: {
@@ -264,7 +226,7 @@
 				isSimilar: false, //是否为同类
 				submitValidate: "", //当前添加商品的日期
 				pass: false, //是否允许提交
-				fixed: null, //是否为固定金额
+				fixed: null, //是否为固定金额 1:是|2:否
 				loading: false, //
 				finished: false, //
 				total: 0, //评论总数
@@ -624,7 +586,7 @@
 					/* 订餐数量 */
 					//dinner.ordered_count 可订餐数量
 					//dinner.ordering_count已定餐数量
-					if (dinner.ordering_count - dinner.ordered_count < this.count) {
+					if (fixed == 2 && dinner.ordering_count - dinner.ordered_count < this.count) {
 						if (dinner.ordering_count - dinner.ordered_count == 0) {
 							Toast.fail("今日可订餐数量已达上限");
 						} else {
@@ -679,7 +641,8 @@
 						dinner: this.dinner,
 						type: this.type,
 						count: this.count,
-						detail: this.products
+						detail: this.products,
+						dining_mode: this.type
 					}
 				});
 				Toast.clear();
@@ -687,8 +650,8 @@
 		},
 		mounted() {
 			this.scrollH =
-				window.innerHeight - (this.$refs.aaa.getBoundingClientRect().bottom + 74);
-			this.$bus.$on('updatePage',async () => {
+				window.innerHeight - (this.$refs.mealType.getBoundingClientRect().bottom + 74);
+			this.$bus.$on('updatePage', async () => {
 				Toast.loading({
 					message: "加载中",
 					mask: true,
@@ -696,7 +659,7 @@
 					forbidClick: true
 				});
 				//初始化数据
-				
+
 				//获取用户可选餐次
 				const result = await getChooseDinner();
 				if (result.errorCode == 0) {
@@ -741,9 +704,9 @@
 				this.dining_mode = result2.data.dining_mode;
 			}
 			//获取菜品列表
-			const result3 = await getFoodList({
-				dinner_id: this.dinner_id
-			});
+			// const result3 = await getFoodList({
+			// 	dinner_id: this.dinner_id
+			// });
 			Toast.clear();
 		},
 		computed: {

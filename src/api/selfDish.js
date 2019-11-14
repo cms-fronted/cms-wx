@@ -37,19 +37,19 @@ export function getComments(data) {
 };
 
 //菜品评论提交
-export function saveFoodComment(data){
+export function saveFoodComment(data) {
 	return request({
-		url:'/v1/food/saveComment',
-		method:'post',
+		url: '/v1/food/saveComment',
+		method: 'post',
 		data
 	});
 };
 
 //饭堂评论提交
-export function saveCanteenComment(data){
+export function saveCanteenComment(data) {
 	return request({
-		url:'/v1/canteen/saveComment',
-		method:'post',
+		url: '/v1/canteen/saveComment',
+		method: 'post',
 		data
 	});
 };
@@ -64,10 +64,19 @@ export function saveOrder(data) {
 };
 
 //获取饭堂餐次配置信息
-export function getDinnerInfo(data){
+export function getDinnerInfo(data) {
 	return request({
-		url:'/v1/order/personChoice/info',
-		mathod:'get',
-		params:data
-	})
-}
+		url: '/v1/order/personChoice/info',
+		mathod: 'get',
+		params: data
+	});
+};
+
+//修改订单菜品信息
+export function changeFoods(data) {
+	return request({
+		url: '/v1/order/changeFoods',
+		method: 'post',
+		data
+	});
+};

@@ -24,11 +24,11 @@
 		<!-- <van-popup v-model="show" :overlay="false" position="top"  style="margin-top: 40px;" closeable :lock-scroll="false" >
 			
     </van-popup>-->
-    <!-- 		<keep-alive>
+		<!-- 		<keep-alive>
 			<router-view v-if="!$route.meta.noCache" />
     </keep-alive>-->
-    <router-view />
-  </div>
+		<router-view />
+	</div>
 </template>
 <script>
 	import {
@@ -61,16 +61,16 @@
 			//用户选择饭堂
 			chooseCanteen(e) {
 				Toast.loading({
-					forbidClick:true,
-					message:'加载中...',
-					buration:0
+					forbidClick: true,
+					message: '加载中...',
+					buration: 0
 				});
 				bindCanteen({
 					canteen_id: e
 				}).then((result) => {
 					if (result.errorCode == 0) {
 						this.$store.commit('user/setCanteen', e);
-						this.$bus.$emit("updatePage");//注册全局事件
+						this.$bus.$emit("updatePage"); //注册全局事件
 						Toast.clear();
 						Toast.success('成功进入饭堂!');
 					}
@@ -91,6 +91,9 @@
 				forbidClick: true,
 				duration: 0
 			});
+			if (this.$router.path !== '/') {
+				this.$router.replace('/')
+			}
 			// this.$store.commit('user/setToken');
 			//获取用户信息判断该用户是否绑定手机或饭堂
 			// const result = await getUserToken();
@@ -118,30 +121,30 @@
 				return;
 			}
 
-    //驱动视图
-    this.radio = this.canteen_id;
+			//驱动视图
+			this.radio = this.canteen_id;
 
-    //获取用户可进入饭堂
-    var canteens = new Array();
-    const result2 = await canChooseCant();
-    if (result2.errorCode == 0) {
-      result2.data.forEach((items, index) => {
-        items.canteens.forEach((item, key) => {
-          canteens.push(item.info);
-        });
-      });
-      this.$store.commit("user/setCanteenList", canteens);
-    }
-    Toast.clear();
-  },
-  computed: {
-    ...mapGetters("user", {
-      token: "tokenGetters",
-      canteenList: "canteenListGetters",
-      canteen_id: "canteenIdGetters"
-    })
-  }
-};
+			//获取用户可进入饭堂
+			var canteens = new Array();
+			const result2 = await canChooseCant();
+			if (result2.errorCode == 0) {
+				result2.data.forEach((items, index) => {
+					items.canteens.forEach((item, key) => {
+						canteens.push(item.info);
+					});
+				});
+				this.$store.commit("user/setCanteenList", canteens);
+			}
+			Toast.clear();
+		},
+		computed: {
+			...mapGetters("user", {
+				token: "tokenGetters",
+				canteenList: "canteenListGetters",
+				canteen_id: "canteenIdGetters"
+			})
+		}
+	};
 </script>
 <style lang="scss">
 	#app {

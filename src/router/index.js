@@ -23,7 +23,8 @@ import NoticeEdit from '../views/notice/noticeEdit'
 import Selection from '../views/notice/selection'
 import OrderingOnline from '../views/orderingOnline'
 import SelectCanteen from '../views/selectcanteen'
-import SelectStaffs from '@/views/notice/selectStaffs/index.vue'
+import SelectStaffs from '@/views/notice/selectStaffs'
+import EditSelfOrder from '@/views/editSelfOrder'
 
 Vue.use(Router)
 
@@ -165,6 +166,11 @@ export default new Router({
 			path: '/selectcanteen',
 			name: 'selectcanteen',
 			component: SelectCanteen
+		},
+		{ //修改个人选菜订单
+			path: '/editselforder',
+			name: 'editselforder',
+			component: EditSelfOrder
 		}
 		// {
 		// 	path: '/',

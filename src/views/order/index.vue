@@ -43,9 +43,10 @@
 		<!-- 订单详情弹窗 -->
 		<van-popup class="flex-column flex-center" v-model="detailShow" :closeable="true" :close-on-click-overlay="false"
 		 @close="closeDetail" style="width: 90%;padding-bottom: 20px;">
-			<p style="border-bottom: 1px solid #CCCCCC;width: 100%;font-size: 14px;width: 100%;margin: 0;padding: 10px 0;">午餐</p>
+			<p style="border-bottom: 1px solid #CCCCCC;width: 100%;font-size: 14px;width: 100%;margin: 0;padding: 10px 0;">{{orderDetail.dinner}}</p>
+			<!-- <p v-if="type == 3" style="border-bottom: 1px solid #CCCCCC;width: 100%;font-size: 14px;width: 100%;margin: 0;padding: 10px 0;">商品</p> -->
 			<div class="flex-column flex-center" style="width: 95%;">
-				<div class="flex-row" style="justify-content: space-between;width: 80%;">
+				<div v-if="type!=3" class="flex-row" style="justify-content: space-between;width: 80%;">
 					<p>份数：</p>
 					<p style="color: #EE0A24;">{{this.orderDetail.count}}份</p>
 				</div>
@@ -70,7 +71,7 @@
 					</tr>
 				</table>
 				<div style="font-size: 14px;width: 95%;margin: 10px;">
-					<div v-if="orderDetail.order_type==2" style="border:1px solid #F2F3F5;">
+					<div v-if="orderDetail.address" style="border:1px solid #F2F3F5;">
 						<p style="border-bottom:1px solid #F2F3F5;margin: 0;padding: 10px 0;">送餐地址</p>
 						<p style="text-align: left;padding-left: 10px;">{{orderDetail.address.address}}</p>
 						<p style="text-align:left;color: #D7D7D7;font-size: 12px;padding-left: 10px;">{{orderDetail.address.name}}
@@ -79,14 +80,14 @@
 					<div class="flex-row" style="justify-content: space-around;margin-top: 10px;flex-wrap: wrap;">
 						<van-button type="info" :disabled="orderDetail.used ==1" @click="cancleOrder">取消订单</van-button>
 						<van-button type="info" :disabled="orderDetail.used ==1" @click="editOrder">修改订单</van-button>
-						<van-button type="info" :disabled="orderDetail.used ==1" @click="editAddress">修改地址</van-button>
+						<van-button v-if="orderDetail.address" type="info" :disabled="orderDetail.used ==1" @click="editAddress">修改地址</van-button>
+						<van-button v-if="type==3&&orderDetail.order_type==1" :disabled="hadCode" type="info" @click="getCode">获取提货码</van-button>
 					</div>
-					<div v-if="orderDetail.ordering_type == 'shop' && orderDetail.order_type == 1" class="flex-column flex-center"
-					 style="margin:auto;">
+					<div v-if="shopCode" class="flex-column flex-center" style="margin:auto;">
 						<p>已绑定，扫描二维码即可消费</p>
 						<img :src="shopCode" style="width: 60%;margin-bottom: 20px;" />
-						<!-- <span>生成日期：{{sTime}}</span> -->
-						<!-- <span>失效日期：{{eTime}}</span> -->
+						<span>生成日期：{{sTime}}</span>
+						<span>失效日期：{{eTime}}</span>
 					</div>
 				</div>
 			</div>
@@ -129,12 +130,12 @@
 				list: [],
 				detailShow: false, //订单详情展示
 				orderDetail: {}, //订单详情信息
-				sTime: '2019/5/10 16:20:50',
-				eTime: '2019/5/10 16:30:50',
+				sTime: '', //二维码开始时间
+				eTime: '', //二维码结束时间
 				place: [], //用户可选地址
 				orderDetailCount: {}, //订单总数查询
 				shopCode: '', //小卖部提货码
-				total: null,
+				total: null, //订单总数
 				current_page: 1,
 				per_page: 8,
 				last_page: 0,
@@ -247,6 +248,7 @@
 			},
 			// 显示订单详情
 			async showOrder(e) {
+				console.log(e);
 				Toast.loading({
 					message: '加载中...',
 					forbidClick: true,
@@ -257,24 +259,37 @@
 					type: this.type,
 					id: e.id
 				});
-				console.log(result);
 				if (result.errorCode == 0) {
-					this.orderDetail = result.data;
-				};
-				if (this.orderDetail.ordering_type == 'shop' && this.orderDetail.order_type == 1) {
-					console.log('有码');
-					const result2 = await deliveryCode({
-						id: e.id
+					this.orderDetail = Object.assign(result.data, {
+						dinner: e.dinner
 					});
-					if (result2.errorCode == 0) {
-						this.shopCode = 'http://canteen.tonglingok.com/' + result2.data.url
-					};
+					this.detailShow = true;
+				} else {
+					this.detailShow = false;
 				}
-				this.detailShow = true;
+				Toast.clear();
+			},
+			/* 获取提货码 */
+			async getCode() {
+				Toast.loading({
+					message: '获取中...',
+					forbidClick: true,
+					duration: 0
+				})
+				const result2 = await deliveryCode({
+					id: this.orderDetail.id
+				});
+				console.log(result2);
+				if (result2.errorCode == 0) {
+					this.sTime = result2.data.url.time_begin;
+					this.eTime = result2.data.url.time_end;
+					this.shopCode = 'http://canteen.tonglingok.com/' + result2.data.url.url
+				};
 				Toast.clear();
 			},
 			/* 关闭订单详情 */
 			closeDetail() {
+				this.orderDetail = {};
 				this.shopCode = '';
 			},
 			//修改订单
@@ -284,9 +299,15 @@
 						message: '该订单无法修改'
 					});
 				} else {
-					//跳转至小卖部订单修改
-					this.$dialog.alert({
-						message: '跳转小卖部订单修改'
+					//跳转至订单修改
+					this.$router.push({
+						name: 'editselforder',
+						params: {
+							canteen_id: this.orderDetail.canteen_id,
+							dinner_id: this.orderDetail.dinner_id,
+							ordering_date: this.orderDetail.ordering_date,
+							orderDetail: this.orderDetail
+						}
 					});
 				}
 			},
@@ -298,8 +319,12 @@
 					});
 				} else {
 					//跳转至地址修改
-					this.$dialog.alert({
-						message: '跳转地址修改'
+					this.$router.push({
+						name: 'placeorder',
+						params: {
+							orderDetail: this.orderDetail,
+							orderType: 4
+						}
 					});
 				}
 			}
@@ -359,9 +384,19 @@
 					});
 				};
 				return sum;
+			},
+			hadCode() {
+				if (this.shopCode != '') {
+					return true;
+				}
+				return false;
 			}
 		},
 		async created() {
+			Toast.loading({
+				duration: 0,
+				forbidClick: true
+			});
 			//调用用户可进入饭堂接口获取地点数据
 			const result = await canChooseCant();
 			console.log('结果', result);
@@ -399,23 +434,7 @@
 				this.last_page = result2.data.last_page;
 				this.current_page = result2.data.current_page;
 			};
-
-			//初始化
-			// if (!this.list.length) {
-			// 	this.$dialog.confirm({
-			// 		title: '提示',
-			// 		message: '请选择订单查询条件',
-			// 		'close-on-click-overlay':true
-			// 	}).then(() => {
-			// 		// on confirm
-			// 		this.typePicker = true;
-			// 	}).catch(() => {
-			// 		// on cancel
-			// 		this.typePicker = true;
-			// 	});
-			// }
-			//调用获取订单列表接口
-			// const result2 = await userOrderings({})
+			Toast.clear();
 		}
 	}
 </script>
