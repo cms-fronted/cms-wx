@@ -103,7 +103,8 @@
 		userOrderings,
 		getOrderDetail,
 		cancelOrder,
-		deliveryCode
+		deliveryCode,
+		cancelSelfOrder
 	} from '@/api/order.js';
 	import {
 		Toast
@@ -233,14 +234,46 @@
 				this.$dialog.confirm({
 					title: '取消订单',
 					message: '确认取消该订单吗?'
-				}).then(() => {
+				}).then(async () => {
+					Toast.loading({
+						forbidClick: true,
+						duration: 0
+					})
 					// on confirm
-					//调用取消订单接口
-					cancelOrder({
-						id: this.orderDetail.id
-					}).then(result => {
-						console.log('确认:', result);
+					if (this.type == 3) {
+						//调用取消订单接口
+						const result = await cancelOrder({
+							id: this.orderDetail.id
+						})
+						if (result.errorCode == 0) {
+							this.detailShow = false;
+							Toast.success('取消成功！')
+						};
+					} else {
+						const result = await cancelSelfOrder({
+							id: this.orderDetail.id
+						});
+						if (result.errorCode == 0) {
+							this.detailShow = false;
+							Toast.success('取消成功！');
+						};
+					}
+					
+					//初始化订单列表
+					const result2 = await userOrderings({
+						page: this.current_page,
+						size: this.per_page,
+						type: this.type,
+						id: this.addressId
 					});
+					if (result2.errorCode == 0) {
+						this.list = result2.data.data;
+						this.total = result2.data.total;
+						this.last_page = result2.data.last_page;
+						this.current_page = result2.data.current_page;
+					};
+					
+					Toast.clear();
 				}).catch(() => {
 					// on cancel
 					console.log('取消');
@@ -402,8 +435,6 @@
 			console.log('结果', result);
 			if (result.errorCode == 0) {
 				this.place = result.data;
-				console.log('ft:', this.place[0].canteens[0].info.id);
-				console.log('qy:', this.place[0].company_id);
 			};
 			this.type = 1;
 			if (this.type == 3) {

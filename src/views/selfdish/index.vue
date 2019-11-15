@@ -281,9 +281,14 @@
 										id: items.id,
 										foods: [item]
 									}]);
+									// console.log(item.day);
+									// if(item.day=='2019-11-14'){
+									// console.log(dayMap.toString());
+									// }
 								} else {
 									//若存在，将菜品放置对菜类的菜品列表中
 									dayMap.get(item.day).forEach((e, i) => {
+										//若菜类id不同
 										if (items.id != e.id) {
 											dayMap.get(item.day).push({
 												category: items.category,
@@ -294,7 +299,9 @@
 										} else {
 											dayMap.get(item.day)[i].foods.push(item);
 										}
+										// console.log('菜品id', items.id, e.id);
 									});
+
 								}
 							});
 						});
@@ -307,7 +314,7 @@
 						this.currentDate.sort((a, b) => {
 							return a > b ? 1 : -1;
 						});
-						this.list = dayMap.get(this.currentDate[0]);
+						this.list = this.unique(dayMap.get(this.currentDate[0]));
 						this.date = this.currentDate[0];
 
 						const result2 = await getDinnerInfo({
@@ -338,12 +345,24 @@
 			 日期选择
 			 */
 			chooseDate(index, title) {
-				console.log(index, title);
-				console.log(this.currentDate[index]);
 				this.date = this.currentDate[index];
 				// this.submitValidate = this.currentDate[index];
-				this.list = this.dayMap.get(this.currentDate[index]);
+
+				// this.list = this.dayMap.get(this.currentDate[index]);
+				this.list = this.unique(this.dayMap.get(this.currentDate[index]));
 				//调用日期选择接口（date为当前日期）
+			},
+			/* 去重 */
+			unique(arr) {
+				for(var i = 0; i < arr.length; i++) {
+					for (var j = i + 1; j < arr.length; j++) {
+						if (arr[i].id == arr[j].id) { //第一个等同于第二个，splice方法删除第二个
+							arr.splice(j, 1);
+							j--;
+						}
+					}
+				}
+				return arr;
 			},
 			/*
 			 *增加菜品数量

@@ -31,3 +31,11 @@ export function deliveryCode(data){
 		params:data
 	});
 };
+//取消订单
+export function cancelSelfOrder(data){
+	return request({
+		url:'/v1/order/cancel',
+		method:'post',
+		data
+	});
+};

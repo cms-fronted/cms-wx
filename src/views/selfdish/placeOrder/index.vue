@@ -48,7 +48,8 @@
 	} from '@/api/store.js';
 	import {
 		saveOrder,
-		changeFoods
+		changeFoods,
+		changeOrderAddress
 	} from '@/api/selfDish.js';
 	import {
 		Toast
@@ -196,16 +197,17 @@
 					forbidClick: true,
 					duration: 0
 				});
-				const result = await changeFoods({
-					id: this.$route.params.orderDetail.id,
-					// detail: [],
+				const result = await changeOrderAddress({
+					order_id: this.$route.params.orderDetail.id,
 					address_id: this.address_id
 				});
 				if (result.errorCode == 0) {
 					Toast.success('修改成功！');
 					this.$router.push('/');
 				};
-				Toast.clear();
+				setTimeout(() => {
+					Toast.clear();
+				}, 1500)
 			}
 		},
 		filters: {

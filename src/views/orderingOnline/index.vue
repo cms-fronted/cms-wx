@@ -43,7 +43,7 @@
         <td
           v-for="(order, orderIndex) in item.orderOfMeal"
           @touchstart="e => gotouchstart(e, item)"
-          @touchmove="gotouchmove"
+          @touchmove.stop="gotouchmove"
           @touchend="e => gotouchend(e, item)"
           :key="orderIndex"
         >

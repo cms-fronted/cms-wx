@@ -80,3 +80,12 @@ export function changeFoods(data) {
 		data
 	});
 };
+
+//修改订单地址
+export function changeOrderAddress(data){
+	return request({
+		url:'/v1/order/changeAddress',
+		method:'post',
+		data
+	})
+}
