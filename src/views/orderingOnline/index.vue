@@ -127,7 +127,8 @@ export default {
       canteenList: [],
       // 订单列表
       orderList: [],
-      longPress: false
+      longPress: false,
+      isMove: false
     };
   },
   computed: {
@@ -322,6 +323,7 @@ export default {
       let that = this;
       let cellIndex, dataset, d_id, count, id;
       this.longPress = false;
+      this.isMove = false;
       clearTimeout(this.timeOutEvent); //清除定时器
       if (e.target.tagName === "P") {
         //如果已经订餐 走这里面的流程
@@ -337,11 +339,9 @@ export default {
           // that.timeOutEvent = 0;
           Dialog.confirm({
             message: "是否取消该餐次订单，取消后无法撤回",
-            beforeClose: (action, done, id) =>
-              that.beforeClose(action, done, id)
+            beforeClose: (action, done) => that.beforeClose(action, done, id)
           });
         }, 700); //这里设置定时
-        console.log(this.timeOutEvent);
         return false;
       } else {
         // if (!this.$refs.tableForm.rows[0].cells[e.target.cellIndex]) return;
@@ -356,6 +356,7 @@ export default {
       const data = {
         id: id
       };
+      console.log(data);
       if (action === "confirm") {
         const res = await request({
           url: "/v1/order/cancel",
@@ -368,7 +369,7 @@ export default {
             message: "操作成功！"
           }).then(async () => {
             Dialog.close();
-            await that.getUserOrdered();
+            await this.getUserOrdered();
           });
         } else {
           setTimeout(() => {
@@ -449,7 +450,7 @@ export default {
     gotouchend(e, row) {
       clearTimeout(this.timeOutEvent);
       let cellIndex, dataset, d_id, count, id;
-      if (!this.longPress) {
+      if (!this.longPress && !this.isMove) {
         //这里写要执行的内容（尤如onclick事件）
         if (e.target.tagName === "P") {
           //如果已经订餐 走这里面的流程
@@ -517,6 +518,7 @@ export default {
     gotouchmove() {
       clearTimeout(this.timeOutEvent); //清除定时器
       this.timeOutEvent = 0;
+      this.isMove = true;
     }
   },
   filters: {
