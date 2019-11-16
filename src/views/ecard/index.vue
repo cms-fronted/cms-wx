@@ -2,30 +2,41 @@
 	<div id="ecard">
 		<img :src="img_url" />
 		<span>生成日期：{{sTime}}</span>
-		<span>失效日期：{{eTime}}</span>
+		<span style="margin-bottom:120px;">失效日期：{{eTime}}</span>
 	</div>
 </template>
 
 <script>
-	import {getCard} from '@/api/user.js';
+	import {
+		getCard
+	} from '@/api/user.js';
+	import {Toast} from 'vant';
+	
 	export default {
 		name: "Ecard",
 		data() {
 			return {
-				sTime: '2019/5/10 16:20:50',
-				eTime: '2019/5/10 16:30:50',
-				img_url:''
+				sTime: '',
+				eTime: '',
+				img_url: ''
 			}
 		},
 		/* 
 		初始化 数据
 		 */
-		async created(){
+		async created() {
+			Toast.loading({
+				forbidClick:true,
+				duration:0
+			});
 			//获取电子饭卡
 			const result = await getCard();
-			if(result.errorCode == 0){
+			if (result.errorCode == 0) {
 				this.img_url = result.data.url;
-			}
+				this.sTime = result.data.create_time;
+				this.eTime = result.data.expiry_date;
+			};
+			Toast.clear();
 		}
 	}
 </script>
@@ -45,7 +56,8 @@
 		width: 60%;
 		margin-bottom: 20px;
 	}
-	#ecard span{
+
+	#ecard span {
 		margin-top: 20px;
 	}
 </style>

@@ -2,14 +2,15 @@
 	<!-- 菜品查询 -->
 	<div>
 		<!-- 顶部选择器 -->
-		<div class="flex-row" style="justify-content: space-around;padding:10px ; width: auto;">
+		<div class="flex-row" style="padding:10px 10px 10px 70px ;width: auto;border-bottom: 1px solid #F2F3F5;">
 			<van-button class="myBtn" @click="mealShow = true">{{dinner}}
 				<div class="mIcon" />
 			</van-button>
-			<!-- 			<van-button class="myBtn" @click="placeShow = true">{{place}}
-				<div class="mIcon" />
-			</van-button> -->
 		</div>
+
+		<van-divider v-if="list.length==0" :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }">
+			暂无数据
+		</van-divider>
 
 		<!-- 日期选择 -->
 		<div class="dateMenu" v-if="this.currentDate.length>0">
@@ -49,7 +50,7 @@
 			</div>
 		</div>
 		<!-- 弹出层&&评价 -->
-		<van-popup v-model="showComment" position="bottom" :style="{height:'70%'}">
+		<van-popup v-model="showComment" position="bottom" :style="{height:'50%'}">
 			<!-- 更多评论 -->
 			<div class="flex-row" style="justify-content: flex-end;padding: 10px;">
 				<van-button size="small" @click="showComment = false">关闭</van-button>
@@ -96,6 +97,10 @@
 		getChooseDinner
 	} from '@/api/user.js';
 	import Bscroll from 'better-scroll';
+	import {
+		Toast
+	} from 'vant';
+
 	export default {
 		data() {
 			return {
@@ -108,48 +113,29 @@
 				showComment: false, //显示评论
 				comment: {
 					"food": {
-						"id": 1,
-						"name": "红烧牛肉",
-						"price": 5,
-						"img_url": "http://canteen.tonglingok.com/static/image/20190810/ab9ce8ff0e2c5adb40263641b24f36d4.png",
-						"chef": "李大厨",
+						"id": '',
+						"name": "",
+						"price": '',
+						"img_url": "",
+						"chef": "",
 						"comments": [{
-								"id": 4,
-								"u_id": 3,
-								"f_id": 1,
-								"taste": 3,
-								"service": 3,
-								"remark": "4"
-							},
-							{
-								"id": 3,
-								"u_id": 3,
-								"f_id": 1,
-								"taste": 4,
-								"service": 4,
-								"remark": "3"
-							},
-							{
-								"id": 2,
-								"u_id": 3,
-								"f_id": 1,
-								"taste": 5,
-								"service": 5,
-								"remark": "2"
-							}
-						]
+							"id": '',
+							"u_id": '',
+							"f_id": '',
+							"taste": '',
+							"service": '',
+							"remark": ""
+						}]
 					},
-					"canteenScore": {
-						"taste": 4.3,
-						"service": 4.3
-					}
+					// "canteenScore": {
+					// 	"taste": 4.3,
+					// 	"service": 4.3
+					// }
 				}, //评论
-				// placeShow: false,
 				mealShow: false,
-				// placeList: ['大饭堂', '小饭堂', '小卖部'],
 				dinnerList: [],
-				// place: '大饭堂',
 				dinner: '餐次',
+				dinner_id: null,
 			}
 		},
 		methods: {
@@ -197,18 +183,22 @@
 			},
 			//打开评论弹窗
 			async openComment(e) {
-				this.showComment = true;
 				//获取菜品评论信息
-				// console.log(e.f_id);
-				// const result = await getComments({
-				// 	food_id: e.f_id
-				// });
-				// if (result.errorCode) {
-				// 	this.comment = result.data
-				// }
+				const result = await getComments({
+					food_id: e.f_id
+				});
+				if (result.errorCode == 0) {
+					this.comment = result.data
+				}
+				this.showComment = true;
 			},
 			//餐次选择
 			async dinnerEvent(e) {
+				Toast.loading({
+					forbidClick: true,
+					duration: 0
+				});
+
 				this.dinner = e.name;
 				this.dinner_id = e.id
 				this.mealShow = false;
@@ -217,7 +207,7 @@
 					dinner_id: this.dinner_id
 				});
 				console.log(result);
-				if (result.errorCode == 0) {
+				if (result.errorCode == 0 && result.data.length != 0) {
 					//将返回数据按照日期进行分类设置一个新的日期map
 					var dayMap = new Map();
 					result.data.forEach((items, index) => {
@@ -234,14 +224,14 @@
 								//若存在，将菜品放置对菜类的菜品列表中
 								dayMap.get(item.day).forEach((e, i) => {
 									if (items.id != e.id) {
-										console.log('11111',dayMap.get(item.day));
+										console.log('11111', dayMap.get(item.day));
 										dayMap.get(item.day).push({
 											category: items.category,
 											count: items.count,
 											id: items.id,
 											foods: [item]
 										})
-									}else{
+									} else {
 										dayMap.get(item.day)[i].foods.push(item);
 									}
 								});
@@ -249,7 +239,75 @@
 						});
 					});
 					this.dayMap = dayMap;
-					console.log('日期:', dayMap);
+					//将日期放入数组中
+					for (var [key, value] of dayMap) {
+						this.currentDate.push(key);
+					};
+					//将日期排序
+					this.currentDate.sort((a, b) => {
+						return a > b ? 1 : -1;
+					});
+					this.list = dayMap.get(this.currentDate[0]);
+				} else {
+					this.currentDate = [];
+					this.list = []
+				}
+				Toast.clear();
+			},
+		},
+		mounted() {
+			this.scrollH = window.innerHeight - this.$refs.category.getBoundingClientRect().top;
+		},
+		async created() {
+			Toast.loading({
+				forbidClick: true,
+				duration: 0
+			})
+			// 获取用户可选餐次
+			const result = await getChooseDinner();
+			if (result.errorCode == 0) {
+				this.dinnerList = result.data;
+			}
+			if (result.data.length != 0) {
+				this.dinner_id = result.data[0].id;
+				this.dinner = result.data[0].name;
+				//初始化数据
+				const result2 = await getMenuQuery({
+					dinner_id: this.dinner_id
+				});
+				if (result2.errorCode == 0 && result2.data.length != 0) {
+					console.log('进入了吗？');
+					//将返回数据按照日期进行分类设置一个新的日期map
+					var dayMap = new Map();
+					result2.data.forEach((items, index) => {
+						items.foods.forEach((item, key) => {
+							if (!dayMap.has(item.day)) {
+								//若日期map中不存在此日期 初始化该日期
+								dayMap.set(item.day, [{
+									category: items.category,
+									count: items.count,
+									id: items.id,
+									foods: [item]
+								}]);
+							} else {
+								//若存在，将菜品放置对菜类的菜品列表中
+								dayMap.get(item.day).forEach((e, i) => {
+									if (items.id != e.id) {
+										console.log('11111', dayMap.get(item.day));
+										dayMap.get(item.day).push({
+											category: items.category,
+											count: items.count,
+											id: items.id,
+											foods: [item]
+										})
+									} else {
+										dayMap.get(item.day)[i].foods.push(item);
+									}
+								});
+							};
+						});
+					});
+					this.dayMap = dayMap;
 					//将日期放入数组中
 					for (var [key, value] of dayMap) {
 						this.currentDate.push(key);
@@ -260,33 +318,15 @@
 					});
 					this.list = dayMap.get(this.currentDate[0]);
 				}
-			},
-			//地点选择
-			// placeEvent(e) {
-			// 	this.place = e;
-			// 	this.placeShow = false;
-			// }
-		},
-		mounted() {
-			this.scrollH = window.innerHeight - this.$refs.category.getBoundingClientRect().top;
-		},
-		async created() {
-			// 获取用户可选餐次
-			const result = await getChooseDinner();
-			if (result.errorCode == 0) {
-				this.dinnerList = result.data
+
+				//因为 _scrollInit函数需要操作DOM，因此必须在DOM元素存在文档中才能获取DOM节点
+				//因此在 nextTick回调函数里面调用可以是实现此功能
+				this.$nextTick(() => {
+					this._scrollInit()
+					this.getHeight()
+				})
 			}
-			console.log(result);
-
-			console.log(this.comment, '11111111');
-
-
-			//因为 _scrollInit函数需要操作DOM，因此必须在DOM元素存在文档中才能获取DOM节点
-			//因此在 nextTick回调函数里面调用可以是实现此功能
-			this.$nextTick(() => {
-				this._scrollInit()
-				this.getHeight()
-			})
+			Toast.clear();
 		},
 		computed: {
 			//右菜单滚动 左菜单同步

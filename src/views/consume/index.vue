@@ -3,7 +3,7 @@
 	<div>
 		<!-- 顶部条件选择 -->
 		<div class=" shadow picker">
-			<van-button class="btn" type="default" @click="timePop">{{$moment(currentDate).format('YYYY-MM')}}
+			<van-button class="btn" type="default" @click="picker1 = true;">{{$moment(currentDate).format('YYYY-MM')}}
 				<van-icon name="arrow-down" />
 			</van-button>
 			<p v-if="balance.hidden==2" class="btn" style=" margin: auto; font-size: 20px;color: #EE0A24;">余额：{{balance.money}}元</p>
@@ -14,21 +14,21 @@
 				<table style="width: 95%;height: auto;" border="1" cellpadding="0" cellspacing="0">
 					<tr height="60px">
 						<td width="5%">序号</td>
-						<td width="15%">地点</td>
-						<td width="15%">类型</td>
+						<td width="13%">地点</td>
+						<td width="12%">类型</td>
 						<td width="20%">消费日期</td>
 						<td width="20%">餐次日期</td>
-						<td>名称</td>
+						<td width="10%">名称</td>
 						<td width="5%">金额（元）</td>
 					</tr>
-					<tr v-for="(item,index) in list" :key="index" @click="detail(item)" height="90px">
-						<td>{{index+1}}</td>
-						<td>{{item.location}}</td>
-						<td>{{item.used_type}}</td>
-						<td>{{$moment(item.create_time).format('YYYY-MM-DD HH:MM')}}</td>
-						<td>{{item.ordering_date=='/'? '/':$moment(item.ordering_date).format('YYYY-MM-DD HH:MM')}}</td>
-						<td>{{item.dinner}}</td>
-						<td>{{item.money}}</td>
+					<tr v-for="(item,index) in list" :key="index" @click="detail(item)" height="60px">
+						<td width="5%">{{index+1}}</td>
+						<td width="13%">{{item.location}}</td>
+						<td width="12%">{{item.used_type}}</td>
+						<td width="20%">{{$moment(item.create_time).format('YYYY-MM-DD HH:MM')}}</td>
+						<td width="20%">{{item.ordering_date=='/'? '/':$moment(item.ordering_date).format('YYYY-MM-DD HH:MM')}}</td>
+						<td width="10%">{{item.dinner}}</td>
+						<td width="5%">{{item.money}}</td>
 					</tr>
 				</table>
 			</div>
@@ -68,7 +68,7 @@
 			</div>
 		</van-popup>
 
-		<!-- 弹出层&&选择器 时间 地点 类型 -->
+		<!-- 弹出层&&选择器 时间-->
 		<van-popup v-model="picker1" position="bottom">
 			<van-datetime-picker v-model="date" type="year-month" @cancel="picker1 = false" @confirm="timeConf" />
 		</van-popup>
@@ -94,7 +94,7 @@
 				balance: {}, //余额信息
 				paging: {
 					total: 0,
-					per_page: 6,
+					per_page: 10,
 					current_page: 1,
 					last_page: null,
 				}, // 消费查询分页
@@ -112,15 +112,13 @@
 				this.sumAmount = 0;
 				this.sumAmount = 0;
 			},
-			timePop() {
-				this.picker1 = true;
-			},
 			async timeConf(e) {
 				Toast.loading({
 					forbidClick: true,
 					duration: 0
 				});
 				this.currentDate = e;
+				this.finished = false;
 				//数据初始化
 				this.list = [];
 				const result = await getConsumptionRecords({
@@ -164,7 +162,7 @@
 				Toast.clear()
 			},
 			async onLoad() {
-				if (this.paging.current_page == this.paging.last_page) {
+				if (this.paging.last_page != null && this.paging.current_page >= this.paging.last_page) { //非初始值且当前页大于等于最后一页
 					this.finished = true;
 				} else if (this.paging.total != 0) {
 					this.paging.current_page += 1;
@@ -174,7 +172,9 @@
 						size: this.paging.per_page
 					});
 					if (result.errorCode == 0) {
-						this.list = result.data.records.data;
+						result.data.records.data.forEach(item=>{
+							this.list.push(item);
+						});
 						this.totalAmount = result.data.consumptionMoney; //月消费金额
 						this.balance = result.data.balance
 						this.paging.total = result.data.records.total;
@@ -182,7 +182,9 @@
 						this.paging.last_page = result.data.records.last_page;
 					};
 					this.loading = false;
-				};
+				} else if (this.paging.last_page != null && this.paging.total == 0) {
+					this.finished = true;
+				}
 				// 加载状态结束
 				this.loading = false;
 			}

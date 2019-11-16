@@ -25,7 +25,7 @@
 				total: 0,
 				per_page: 10,
 				current_page: 1,
-				last_page: null,
+				last_page: 0,
 				loading: false,
 				finished: false,
 				note: [] //通知列表
@@ -33,8 +33,8 @@
 		},
 		methods: {
 			async onLoad() {
-				if (this.last_page != null) {
-					console.log(this.current_page, this.last_page);
+				console.log(this.current_page, this.last_page);
+				if (this.last_page != null && this.last_page != 0) {//非初始值且最后一页不为0
 					if (this.current_page >= this.last_page) {
 						//加载完成
 						this.finished = true;
@@ -50,6 +50,10 @@
 							this.note = this.note.concat(result.data.data);
 						}
 					}
+				} else if(this.total == 0 && this.last_page!=null) {//非初始值且总数为0 没有更多
+					this.finished = true;
+				}else{
+					this.finished = false;
 				}
 				this.loading = false;
 			}

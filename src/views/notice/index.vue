@@ -50,6 +50,10 @@
 		 初始化数据
 		 */
 		async created() {
+			Toast.loading({
+				forbidClick:true,
+				duration:0
+			});
 			const result = await getNotice({
 				page: this.current_page,
 				size: this.per_page
@@ -59,6 +63,7 @@
 				this.last_page = result.data.last_page;
 				this.list = result.data.data;
 			};
+			Toast.clear();
 		},
 		methods: {
 			/* 
@@ -90,7 +95,7 @@
 					if (this.current_page == this.last_page) {
 						this.finished = true;
 					} else {
-						this.current_page = this.current_page + 1;
+						this.current_page += 1;
 						const result = await getNotice({
 							page: this.current_page,
 							size: this.per_page
@@ -103,6 +108,7 @@
 					};
 					this.loading = false;
 				}
+				this.loading = false;
 			},
 		},
 	};

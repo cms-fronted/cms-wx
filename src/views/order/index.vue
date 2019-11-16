@@ -3,10 +3,10 @@
 	<div>
 		<!-- 顶部筛选框 -->
 		<div class=" shadow picker">
-			<van-button class="btn" type="default" @click="typePicker = true;">{{type | typeFilter}}
+			<van-button class="btn" type="default" :disabled="typeList.length == 0" @click="typePicker = true;">{{type | typeFilter}}
 				<van-icon name="arrow-down" />
 			</van-button>
-			<van-button class="btn" type="default" @click="addressPicker = true;">{{address}}
+			<van-button class="btn" type="default" :disabled="addressList.length == 0" @click="addressPicker = true;">{{address}}
 				<van-icon name="arrow-down" />
 			</van-button>
 		</div>
@@ -33,6 +33,11 @@
 				</table>
 			</div>
 		</van-list>
+		
+		<van-divider v-if="list.length==0" :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }">
+			暂无数据
+		</van-divider>
+		
 		<!-- 弹窗&&选择器 -->
 		<van-popup v-model="addressPicker" :close-on-click-overlay="false" position="bottom">
 			<van-picker :columns="addressList" show-toolbar value-key="name" @cancel="addressPicker = false" @confirm="addressConf" />
@@ -138,7 +143,7 @@
 				shopCode: '', //小卖部提货码
 				total: null, //订单总数
 				current_page: 1,
-				per_page: 8,
+				per_page: 10,
 				last_page: 0,
 				loading: false,
 				finished: false,
