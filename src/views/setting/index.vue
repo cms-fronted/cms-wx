@@ -89,7 +89,4 @@
 </script>
 
 <style>
-	. {
-		color: #26A2FF;
-	}
 </style>
