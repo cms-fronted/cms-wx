@@ -24,22 +24,22 @@ import { recharge, getPayInfo } from "@/api/user.js";
 
 import wx from "weixin-js-sdk";
 
-var vm = this;
-if (typeof WeixinJSBridge == "undefined") {
-  //微信浏览器内置对象。参考微信官方文档
-  if (document.addEventListener) {
-    document.addEventListener(
-      "WeixinJSBridgeReady",
-      vm.onBridgeReady(data),
-      false
-    );
-  } else if (document.attachEvent) {
-    document.attachEvent("WeixinJSBridgeReady", vm.onBridgeReady(data));
-    document.attachEvent("onWeixinJSBridgeReady", vm.onBridgeReady(data));
-  }
-} else {
-  vm.onBridgeReady(data);
-}
+// var vm = this;
+// if (typeof WeixinJSBridge == "undefined") {
+//   //微信浏览器内置对象。参考微信官方文档
+//   if (document.addEventListener) {
+//     document.addEventListener(
+//       "WeixinJSBridgeReady",
+//       vm.onBridgeReady(data),
+//       false
+//     );
+//   } else if (document.attachEvent) {
+//     document.attachEvent("WeixinJSBridgeReady", vm.onBridgeReady(data));
+//     document.attachEvent("onWeixinJSBridgeReady", vm.onBridgeReady(data));
+//   }
+// } else {
+//   vm.onBridgeReady(data);
+// }
 
 import { getUserPhone } from "@/api/user.js";
 
@@ -87,7 +87,7 @@ export default {
       console.log("取消充值!");
     },
     //调用微信js api 支付
-    onBridgeReady: function(data) {
+    onBridgeReady(data) {
       var vm = this;
       WeixinJSBridge.invoke(
         "getBrandWCPayRequest",
