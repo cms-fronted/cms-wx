@@ -26,10 +26,10 @@ export function bindPhone(data) {
 };
 
 //获取用户该饭堂电子饭卡
-export function getCard(){
+export function getCard() {
 	return request({
-		url:'/v1/user/card',
-		method:'get'
+		url: '/v1/user/card',
+		method: 'get'
 	});
 };
 
@@ -95,6 +95,31 @@ export function updateUserAddress(data) {
 export function getChooseDinner() {
 	return request({
 		url: '/v1/canteen/dinners/user',
+		method: 'get'
+	});
+};
+
+//用户充值
+export function recharge(data) {
+	return request({
+		url: '/v1/wallet/pay',
+		method: 'post',
+		data
+	});
+};
+
+//获取微信支付信息
+export function getPayInfo() {
+	return request({
+		url: '/v1/wallet/pay/getPreOrder',
+		method: 'get',
+	});
+};
+
+//当前用户绑定的手机
+export function getUserPhone() {
+	return request({
+		url: '/v1/user/phone',
 		method: 'get'
 	});
 };

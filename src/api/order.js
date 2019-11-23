@@ -7,7 +7,7 @@ export function userOrderings(data){
 		params:data
 	});
 };
-
+//获取订单详情
 export function getOrderDetail(data){
 	return request({
 		url:'/v1/order/detail',
@@ -15,7 +15,7 @@ export function getOrderDetail(data){
 		params:data
 	});
 };
-
+//取消订单
 export function cancelOrder(data){
 	return request({
 		url:'/v1/shop/order/cancel',
@@ -23,11 +23,19 @@ export function cancelOrder(data){
 		data
 	});
 };
-
+//获取提货码
 export function deliveryCode(data){
 	return request({
 		url:'v1/shop/order/deliveryCode',
 		method:'get',
 		params:data
+	});
+};
+//取消订单
+export function cancelSelfOrder(data){
+	return request({
+		url:'/v1/order/cancel',
+		method:'post',
+		data
 	});
 };

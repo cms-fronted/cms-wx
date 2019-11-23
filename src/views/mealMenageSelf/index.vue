@@ -270,6 +270,27 @@
 				}
 				return name;
 			},
+		},
+		mounted() {
+			this.$bus.$on('updatePage', async () => {
+				Toast.loading({
+					message: '加载中...',
+					forbidClick: true,
+					duration: 0
+				});
+				this.menu = '菜类';
+				this.menuList = [];
+				this.dinner = '餐次';
+				this.dinnerList = [];
+				this.foodList = {};
+				//1、获取可选择的餐次（餐次信息：早中晚）
+				const result = await getChooseDinner();
+				if (result.errorCode == 0) {
+					this.dinnerList = result.data;
+				};
+
+				Toast.clear();
+			})
 		}
 	}
 </script>
