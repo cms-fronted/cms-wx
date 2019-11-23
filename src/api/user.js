@@ -100,7 +100,7 @@ export function getChooseDinner() {
 };
 
 //用户充值
-export function recharge(data) {
+export function getRechargeId(data) {
 	return request({
 		url: '/v1/wallet/pay',
 		method: 'post',
@@ -109,10 +109,11 @@ export function recharge(data) {
 };
 
 //获取微信支付信息
-export function getPayInfo() {
+export function getPayInfo(data) {
 	return request({
 		url: '/v1/wallet/pay/getPreOrder',
 		method: 'get',
+		params: data
 	});
 };
 

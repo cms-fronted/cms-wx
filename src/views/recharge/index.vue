@@ -9,7 +9,7 @@
       <van-button type="primary" size="large" @click="show = true">充值</van-button>
     </div>
 
-    <van-dialog v-model="show" title="充值确认" show-cancel-button @comfirm="recharge" @cancel="cancel">
+    <van-dialog v-model="show" title="充值确认" show-cancel-button @confirm="recharge" @cancel="cancel">
       <div style="padding-left: 30px;text-align: left;">
         <p>姓名：{{name}}</p>
         <p>手机号码：{{phone}}</p>
@@ -20,7 +20,7 @@
 </template>
 <script>
 import { Dialog, CellGroup, Toast } from "vant";
-import { recharge, getPayInfo } from "@/api/user.js";
+import { getRechargeId, getPayInfo, getUserPhone } from "@/api/user.js";
 
 import wx from "weixin-js-sdk";
 
@@ -41,7 +41,7 @@ import wx from "weixin-js-sdk";
 //   vm.onBridgeReady(data);
 // }
 
-import { getUserPhone } from "@/api/user.js";
+// import { getUserPhone } from "@/api/user.js";
 
 export default {
   data() {
@@ -59,14 +59,15 @@ export default {
         duration: 0
       });
       //获取订单id
-      const result = await recharge({
+      const result = await getRechargeId({
         money: this.money,
         method_id: 1
       });
+
       // result.data.id 订单id
       if (result.errorCode == 0) {
         const result2 = await getPayInfo({
-          id: result.data.id
+          order_id: result.data.id
         });
         if (result2.errorCode == 0) {
           let params = JSON.parse(result2.jsApiParameters);
@@ -102,13 +103,13 @@ export default {
         },
         function(res) {
           console.log(res.err_msg);
-          //            debugger;
+          //debugger;
           // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
           if (res.err_msg == "get_brand_wcpay_request：ok") {
             alert("支付成功");
-            //                vm.$router.push("/reservedBerth");
+            //vm.$router.push("/reservedBerth");
           } else {
-            //                alert("支付失败,请跳转页面"+res.err_msg);
+            //alert("支付失败,请跳转页面"+res.err_msg);
           }
         }
       );
