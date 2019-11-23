@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <!-- 导航栏 -->
-    <mt-header title="哈哈哈哈" style="padding:0;">
+    <mt-header title="云饭堂" style="padding:0;">
       <div @click="back" slot="left" v-show="isShow">
         <mt-button icon="back">返回</mt-button>
       </div>
@@ -46,7 +46,12 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
-import { getUserToken, canChooseCant, bindCanteen } from "./api/user.js";
+import {
+  getUserToken,
+  canChooseCant,
+  bindCanteen,
+  getModules
+} from "./api/user.js";
 import { Toast } from "vant";
 
 export default {
@@ -107,8 +112,8 @@ export default {
     const result = {
       data: {
         token: "35fd062c8b2c546c2a684f506ba21cb5",
-        phone: 2,
-        canteen_selected: 2,
+        phone: 1,
+        canteen_selected: 1,
         canteen_id: 6
       }
     };
@@ -140,6 +145,11 @@ export default {
       });
       this.$store.commit("user/setCanteenList", canteens);
     }
+
+    //获取用户可见模块
+    const result3 = await getModules({ c_id: this.canteen_id });
+    console.log("用户可见模块：", result3);
+
     Toast.clear();
   },
   computed: {
@@ -215,7 +225,7 @@ body {
   -webkit-transform: rotate(-45deg);
   transform: rotate(-45deg);
   opacity: 0.8;
-  content: "";
+  content: " ";
 }
 
 .myBtn {
