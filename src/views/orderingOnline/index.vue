@@ -26,6 +26,7 @@
           {{ item.name }}
         </th>
       </tr>
+      <!--TODO: 全选功能待添加-->
       <tr>
         <td>全选</td>
         <td v-for="(item, index) in mealList" :data-d_id="item.id" :key="index">
