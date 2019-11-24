@@ -150,6 +150,10 @@ export default {
     }
   },
   async mounted() {
+		Toast.loading({
+			forbidClick:true,
+			duration:0
+		});
     let res1 = await getOrderDetail();
     let res2 = await request({
       url: "/v1/order/userOrdering",
@@ -173,6 +177,7 @@ export default {
         await this.selectCanteen();
       }, 2000);
     });
+		Toast.clear()
   },
   methods: {
     computeDate() {

@@ -6,10 +6,10 @@
 			<van-button class="btn" type="default" @click="timeEvent">{{$moment(date).format("YYYY-MM-DD")}}
 				<van-icon name="arrow-down" />
 			</van-button>
-			<van-button class="btn" type="default" @click="show1 = true">{{dinnerCom}}
+			<van-button class="btn" type="default" @click="show1 = true">{{dinner}}
 				<van-icon name="arrow-down" />
 			</van-button>
-			<van-button class="btn" type="default" @click="show2 = true">{{menuCom}}
+			<van-button class="btn" type="default" @click="show2 = true" :disabled="typeList.length == 0">{{type}}
 				<van-icon name="arrow-down" />
 			</van-button>
 		</div>
@@ -18,27 +18,29 @@
 			<li style="width: 25%;">菜品名称</li>
 			<li style="width: 10%;">单价</li>
 			<li style="width: 15%;">上架</li>
-			<!-- <li style="width: 15%;">默认</li> -->
 		</ul>
-		<!-- 左边菜单栏 -->
 		<div class="foodList">
-			<ul>
-				<li v-for="(item, index) in foodList.data" :key="index">
-					<table border="0" cellpadding="0" cellspacing="0" style="border:#FFFFFF;">
-						<tr>
-							<td style="width: 25%;"><img :src="item.img_url" style="width: 100%;height: 60px;" /></td>
-							<td style="width: 25%;">{{item.name}}</td>
-							<td style="width: 10%;">{{item.price}}</td>
-							<td style="width: 15%;" @click="changeStatus(item,index)">
-								<van-checkbox v-model="item.status"></van-checkbox>
-							</td>
-							<!-- 							<td style="width: 15%;" @click="changeDefault(item,index)">
+			<van-list v-model="loading" :finished="finished" @load="onLoad">
+				<ul>
+					<li v-for="(item, index) in foodList" :key="index">
+						<table border="0" cellpadding="0" cellspacing="0" style="border:#FFFFFF;">
+							<tr>
+								<td style="width: 25%;">
+									<van-image fix="contain" style="width: 100%;" :src="item.img_url" />
+								</td>
+								<td style="width: 25%;">{{item.name}}</td>
+								<td style="width: 10%;">{{item.price}}</td>
+								<td style="width: 15%;" @click="changeStatus(item,index)">
+									<van-checkbox class="flex-row flex-center" v-model="item.status"></van-checkbox>
+								</td>
+								<!-- 							<td style="width: 15%;" @click="changeDefault(item,index)">
 								<van-checkbox v-model="item.default"></van-checkbox>
 							</td> -->
-						</tr>
-					</table>
-				</li>
-			</ul>
+							</tr>
+						</table>
+					</li>
+				</ul>
+			</van-list>
 		</div>
 
 		<!-- 弹出层&时间选择器 -->
@@ -47,7 +49,7 @@
 		</van-popup>
 		<!-- 弹出层&饭堂选择器 -->
 		<van-popup v-model="show1" position="bottom">
-			<van-picker show-toolbar :columns="dinnerList" @cancel="show1 = false;" @confirm="dinnerEvent" />
+			<van-picker show-toolbar :columns="dinnerList" value-key="name" @cancel="show1 = false;" @confirm="dinnerEvent" />
 		</van-popup>
 		<!-- 弹出层&菜类型选择器 -->
 		<van-popup v-model="show2" position="bottom">
@@ -81,23 +83,28 @@
 				foodList: {},
 				date: '', //时间显示文字
 				currentDate: new Date(), //临时时间
-				type: '', //类型按钮显示
+				type: '菜类', //类型按钮显示
 				typeList: [], //picker类型显示列表
 				menuInfo: [], //请求返回的菜品类型
-				dinner: '', //餐次类型按钮显示
+				dinner: '餐次', //餐次类型按钮显示
 				dinnerList: [],
 				dinnerInfo: [], //请求返回的餐次数据
 				show: false,
 				show1: false,
 				show2: false,
+				total: 0, //总数
+				current_page: 1, //当前页
+				last_page: null, //最后一页
+				per_page: 10, //当前页码显示数量
+				loading: false,
+				finished: false,
+				menu_id: '', //类型id
 			}
 		},
 		methods: {
 			// 时间选择器事件
 			timeEvent(e) {
-				if (!e) {} else if (e.isTrusted) {} else {
-					this.date = this.currentDate
-				}
+				this.date = this.currentDate
 				this.show = !this.show
 			},
 			// 选择餐次
@@ -107,39 +114,39 @@
 					forbidClick: true,
 					duration: 0
 				});
-				this.dinnerInfo.forEach((item, index) => {
-					if (item.name == e) {
-						this.dinner = item.id
-					}
-				});
+				this.dinner = e.name;
 				this.show1 = false;
 				//调用获取菜类型接口
 				//2、获取可选择的菜类型（荤菜、素菜、汤）
 				const result = await getMenuId({
-					dinner_id: this.dinner
+					dinner_id: e.id
 				});
 				if (result.errorCode == 0) {
 					this.menuInfo = result.data
-					console.log('返回值', result);
-					this.typeList = [];
-					result.data.forEach((item, index) => {
-						this.typeList[index] = item
-					});
+					this.typeList = result.data;
 				};
 				this.type = '菜类';
-				Toast.clear();
+				this.total = 0, //总数
+					this.current_page = 1, //当前页
+					this.last_page = null, //最后一页
+					Toast.clear();
 			},
 			//类型选择
 			async typeEvent(e) {
-				Toast.loading({
-					message: '加载中...',
-					forbidClick: true,
-					duration: 0
-				});
+				this.menu_id = e.id;
+				this.type = '菜类';
+				this.total = 0, //总数
+					this.current_page = 1, //当前页
+					this.last_page = null, //最后一页
+					Toast.loading({
+						message: '加载中...',
+						forbidClick: true,
+						duration: 0
+					});
 				//调用获取菜品列表
 				const result = await getFoodList({
-					page: 1,
-					size: 12,
+					page: this.current_page,
+					size: this.per_page,
 					food_type: 1,
 					menu_id: e.id,
 					day: this.$moment(this.date).format("YYYY-MM-DD"),
@@ -150,17 +157,16 @@
 					//将结果配置成匹配的格式
 					result.data.data.forEach((item, index) => {
 						item.status == 1 ? item.status = true : item.status = false;
-						// item.default == 1 ? item.default = true : item.default = false;
 					});
 				};
-				this.foodList = result.data;
+				this.foodList = result.data.data;
+				this.total = result.data.total;
+				this.current_page = result.data.current_page;
+				this.last_page = result.data.last_page;
 				this.show2 = !this.show2;
+				this.type = e.name;
 				Toast.clear();
 			},
-			shelfClick(e, k) {
-				console.log(e, ',', k);
-			},
-			//上架
 			changeStatus(e, index) {
 				this.$dialog.confirm({
 					title: '设置',
@@ -214,6 +220,35 @@
 					this.foodList.data[index].default = !this.foodList.data[index].default;
 				});
 			},
+			//分页
+			async onLoad() {
+				if (this.last_page != null && this.total == 0) {
+					this.finished = true;
+				} else if (this.last_page != null && this.current_page < this.last_page) {
+					this.current_page += 1;
+					//调用获取菜品列表
+					const result = await getFoodList({
+						page: this.current_page,
+						size: this.per_page,
+						food_type: 1,
+						menu_id: this.menu_id,
+						day: this.$moment(this.date).format("YYYY-MM-DD"),
+						canteen_id: this.getCanteenId
+					});
+					if (result.errorCode == 0) {
+						//将结果配置成匹配的格式
+						result.data.data.forEach((item, index) => {
+							item.status == 1 ? item.status = true : item.status = false;
+							this.foodList.push(item);
+						});
+					};
+					this.total = result.data.total;
+					this.last_page = result.data.last_page;
+				} else if (this.currentDate == this.last_page) {
+					this.finished = true;
+				}
+				this.loading = false;
+			}
 		},
 		async created() {
 			//1、获取可选择的餐次（餐次信息：早中晚）
@@ -225,42 +260,25 @@
 			const result = await getChooseDinner();
 			if (result.errorCode == 0) {
 				this.dinnerInfo = result.data;
-				result.data.forEach((item, index) => {
-					this.dinnerList[index] = item.name
-				});
+				this.dinnerList = result.data;
+				// result.data.forEach((item, index) => {
+				// 	this.dinnerList[index] = item.name
+				// });
 			};
 
 			//3、用餐次id和菜类型id调用获取菜品信息接口
 			this.date = new Date();
 
 			Toast.clear();
+			this.$dialog.alert({
+				title: '菜谱查询',
+				message: '请选择查询条件！'
+			}).then(() => {})
 		},
 		computed: {
 			...mapGetters('user', {
 				getCanteenId: 'canteenIdGetters'
 			}),
-			dinnerCom: function() {
-				let name = '餐次';
-				if (this.dinnerInfo.length > 0) {
-					this.dinnerInfo.forEach((item, index) => {
-						if (this.dinner == item.id) {
-							name = item.name;
-						};
-					});
-				}
-				return name;
-			},
-			menuCom() {
-				let name = '菜类';
-				if (this.menuInfo.length > 0) {
-					this.menuInfo.forEach((item, index) => {
-						if (this.type == item.id) {
-							name = item.name;
-						};
-					});
-				}
-				return name;
-			},
 		},
 		mounted() {
 			this.$bus.$on('updatePage', async () => {

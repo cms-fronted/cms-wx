@@ -39,7 +39,8 @@
 			Toast.loading({
 				forbidClick: true,
 				duration: 0
-			})
+			});
+			//获取用户可选择的饭堂
 			const result = await canChooseCant();
 			if (result.errorCode == 0) {
 				this.list = result.data;
@@ -88,7 +89,4 @@
 </script>
 
 <style>
-	. {
-		color: #26A2FF;
-	}
 </style>

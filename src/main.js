@@ -41,6 +41,17 @@ Vue.use(_bus);
 
 Vue.config.productionTip = false;
 
+// 路由拦截器
+// router.beforeEach((to,from,next)=>{
+// 	const token = localStorage.getItem('token');
+// 	const openid= localStorage.getItem('openid');
+// 	if(!openid && !token){
+// 		next()
+// 	}else{
+// 		localStorage.setItem('now_url',to.fullPath)
+// 	}
+// })
+
 new Vue({
 	router,
 	store,

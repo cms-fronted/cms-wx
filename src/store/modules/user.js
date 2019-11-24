@@ -1,31 +1,18 @@
-import {
-	getcompanies,
-	getUserToken,
-	// bindCanteen
-} from '@/api/user.js';
 import { Toast } from 'vant';
 
 const state = {
-	token: 'b9b73f6ddc12636f92d5b55f38e02c7a',
+	token: 'e153a1ade59c76f23eb357cb0406ba4c',
 	canteen_id: '',
 	canteenList: [],
 }
 
 const mutations = {
-	async setToken(state) {
-		//调用接口获取token
-		const result = await getUserToken();
-		console.log(result);
-		if (result.errorCode == 0) {
-			state.token = result.data.token
-		}
+	async setToken(state, data) {
+		state.token = data
 	},
 
 	async setCanteen(state, data) {
 		state.canteen_id = data
-		// const result = await bindCanteen({canteen_id:data});
-		// console.log(data);
-		// Toast.success('成功进入饭堂！');
 	},
 
 	setCanteenList(state, data) {
