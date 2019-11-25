@@ -108,32 +108,27 @@ export default {
       this.$router.replace("/");
     }
     //获取用户信息判断该用户是否绑定手机或饭堂
-    // const result = await getUserToken();
-    const result = {
-      data: {
-        token: "35fd062c8b2c546c2a684f506ba21cb5",
-        phone: 1,
-        canteen_selected: 1,
-        canteen_id: 6
-      }
-    };
+    const result = await getUserToken();
+    console.log(result, "===========");
     //缓存token
-    this.$store.commit("user/setToken", result.data.token);
-    if (result.data.phone == 2) {
-      //用户未绑定手机
-      this.$router.push("entry");
-      Toast.clear();
-      return;
-    } else if (result.data.canteen_selected == 2) {
-      //未选择饭堂进入饭堂选择页
-      this.$router.push("setting");
-      Toast.clear();
-      return;
+    if (result.errorCode == 0) {
+      this.$store.commit("user/setToken", result.data.token);
+      if (result.data.phone == 2) {
+        //用户未绑定手机
+        this.$router.push("entry");
+        Toast.clear();
+        return;
+      } else if (result.data.canteen_selected == 2) {
+        //未选择饭堂进入饭堂选择页
+        this.$router.push("setting");
+        Toast.clear();
+        return;
+      }
+      //已选择饭堂 缓存饭堂id
+      this.$store.commit("user/setCanteen", result.data.canteen_id);
+      //设置显示已选饭堂 缓存获取
+      this.radio = this.canteen_id;
     }
-    //已选择饭堂 缓存饭堂id
-    this.$store.commit("user/setCanteen", result.data.canteen_id);
-    //设置显示已选饭堂 缓存获取
-    this.radio = this.canteen_id;
     //设置显示可选饭堂 获取用户可进入饭堂
     var canteens = new Array();
     const result2 = await canChooseCant();
