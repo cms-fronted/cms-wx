@@ -1,10 +1,11 @@
 import request from '@/utils/request.js';
 
 // 获取用户登录token
-export function getUserToken() {
+export function getUserToken(data) {
 	return request({
 		url: '/v1/token/official',
-		method: 'get'
+		method: 'get',
+		params:data
 	});
 };
 //发送验证码
