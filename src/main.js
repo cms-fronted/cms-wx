@@ -9,6 +9,8 @@ import 'vant/lib/index.css';
 import moment from 'moment';
 import BScroll from 'better-scroll';
 import axios from 'axios';
+import VConsole from 'vconsole';
+let vConsole = new VConsole();
 Vue.prototype.$moment = moment;
 Vue.prototype.$http = axios;
 //模块中使用
