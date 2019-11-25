@@ -106,18 +106,13 @@ export default {
       duration: 0
     });
     if (this.$router.path !== "/") {
-      this.$router.replace("/");
+      // this.$router.replace("/");
     }
     //获取用户信息判断该用户是否绑定手机或饭堂
+    
+
     const result = await getUserToken();
-    // const result = {
-    //   data: {
-    //     token: "35fd062c8b2c546c2a684f506ba21cb5",
-    //     phone: 1,
-    //     canteen_selected: 1,
-    //     canteen_id: 6
-    //   }
-    // };
+    
     //缓存token
     this.$store.commit("user/setToken", result.data.token);
     if (result.data.phone == 2) {

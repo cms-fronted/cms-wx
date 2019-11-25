@@ -29,6 +29,9 @@
         </li>
       </ul>
     </div>
+    <div>
+      <input type="button">
+    </div>
     <router-link to="/ecard">
       <div class="m-foot flex-row flex-center">
         <img src="../../assets/code.png" />
