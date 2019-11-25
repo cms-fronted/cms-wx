@@ -1,7 +1,7 @@
 import { Toast } from 'vant';
 
 const state = {
-	token: 'e153a1ade59c76f23eb357cb0406ba4c',
+	token: '',
 	canteen_id: '',
 	canteenList: [],
 }

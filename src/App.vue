@@ -15,7 +15,7 @@
           style="width: auto;align-items: flex-end;padding-right: 20px;"
           @click="showCanteen"
         >
-          <van-icon size="32px" :name="!show?'arrow-up':'arrow-down'" />
+          <van-icon size="32px" :name="!show ? 'arrow-up' : 'arrow-down'" />
         </div>
         <div v-bind:hidden="show">
           <van-radio-group
@@ -27,10 +27,11 @@
               class="flex-row flex-center"
               :name="item.id"
               icon-size="12px"
-              v-for="(item,index) in canteenList"
+              v-for="(item, index) in canteenList"
               :key="index"
               style="width: 33%; margin: 10px 0"
-            >{{item.name}}</van-radio>
+              >{{ item.name }}</van-radio
+            >
           </van-radio-group>
         </div>
       </div>
@@ -70,13 +71,13 @@ export default {
       this.$router.go(-1);
     },
     //用户选择饭堂
-    chooseCanteen(e) {
+    async chooseCanteen(e) {
       Toast.loading({
         forbidClick: true,
         message: "加载中...",
         buration: 0
       });
-      bindCanteen({
+      await bindCanteen({
         canteen_id: e
       })
         .then(result => {
