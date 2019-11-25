@@ -1,17 +1,17 @@
 import { Toast } from 'vant';
 
 const state = {
-	token: '',
+	token: '4626773b1095c517bc33d071626a7c74',
 	canteen_id: '',
 	canteenList: [],
 }
 
 const mutations = {
-	async setToken(state, data) {
+	setToken(state, data) {
 		state.token = data
 	},
 
-	async setCanteen(state, data) {
+	setCanteen(state, data) {
 		state.canteen_id = data
 	},
 

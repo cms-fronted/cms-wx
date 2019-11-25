@@ -108,8 +108,18 @@ export default {
       this.$router.replace("/");
     }
     //获取用户信息判断该用户是否绑定手机或饭堂
-    const result = await getUserToken();
-    console.log(result, "===========");
+    // const result = await getUserToken();
+    // console.log(result, "===========");
+    const result = {
+      msg: "ok",
+      errorCode: 0,
+      code: 200,
+      data: {
+        token: "cee0da5c51455a58a52e620b221cb59e",
+        phone: 1,
+        canteen_selected: 1
+      }
+    };
     //缓存token
     if (result.errorCode == 0) {
       this.$store.commit("user/setToken", result.data.token);

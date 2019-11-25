@@ -36,14 +36,14 @@ export function getCard() {
 //获取所属企业列表
 export function getCompanies() {
 	return request({
-		url: 'v1/user/companies',
+		url: '/v1/user/companies',
 		method: 'get'
 	});
 };
 //获取用户可见模块
 export function getModules() {
 	return request({
-		url: 'v1/modules/user',
+		url: '/v1/modules/user',
 		method: 'get'
 	});
 };
