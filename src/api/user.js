@@ -3,14 +3,14 @@ import request from '@/utils/request.js';
 // 获取用户登录token
 export function getUserToken() {
 	return request({
-		url: '/v1/token/official',
+		url: 'http://canteen.tonglingok.com/api/v1/token/official',
 		method: 'get'
 	});
 };
 //发送验证码
 export function getSmsCode(data) {
 	return request({
-		url: '/v1/sms/send',
+		url: 'http://canteen.tonglingok.com/api/v1/sms/send',
 		method: 'post',
 		data
 	});
@@ -19,7 +19,7 @@ export function getSmsCode(data) {
 //绑定手机
 export function bindPhone(data) {
 	return request({
-		url: '/v1/user/bindPhone',
+		url: 'http://canteen.tonglingok.com/api/v1/user/bindPhone',
 		method: 'post',
 		data
 	});
@@ -28,7 +28,7 @@ export function bindPhone(data) {
 //获取用户该饭堂电子饭卡
 export function getCard() {
 	return request({
-		url: '/v1/user/card',
+		url: 'http://canteen.tonglingok.com/api/v1/user/card',
 		method: 'get'
 	});
 };
@@ -51,7 +51,7 @@ export function getModules() {
 //用户选择进入饭堂接口
 export function bindCanteen(data) {
 	return request({
-		url: '/v1/user/bindCanteen',
+		url: 'http://canteen.tonglingok.com/api/v1/user/bindCanteen',
 		method: 'post',
 		data
 	});
@@ -60,7 +60,7 @@ export function bindCanteen(data) {
 //获取用户可选择饭堂
 export function canChooseCant() {
 	return request({
-		url: '/v1/user/canteens',
+		url: 'http://canteen.tonglingok.com/api/v1/user/canteens',
 		method: 'get',
 	});
 };
@@ -68,7 +68,7 @@ export function canChooseCant() {
 //获取用户地址
 export function getUserAddress() {
 	return request({
-		url: '/v1/addresses',
+		url: 'http://canteen.tonglingok.com/api/v1/addresses',
 		method: 'get',
 	});
 };
@@ -76,7 +76,7 @@ export function getUserAddress() {
 //新增用户地址
 export function addUserAddress(data) {
 	return request({
-		url: '/v1/address/save',
+		url: 'http://canteen.tonglingok.com/api/v1/address/save',
 		method: 'post',
 		data
 	});
@@ -85,7 +85,7 @@ export function addUserAddress(data) {
 //更新用户地址
 export function updateUserAddress(data) {
 	return request({
-		url: '/v1/address/update',
+		url: 'http://canteen.tonglingok.com/api/v1/address/update',
 		method: 'post',
 		data
 	});
@@ -94,7 +94,7 @@ export function updateUserAddress(data) {
 //用户所选饭堂可选餐次
 export function getChooseDinner() {
 	return request({
-		url: '/v1/canteen/dinners/user',
+		url: 'http://canteen.tonglingok.com/api/v1/canteen/dinners/user',
 		method: 'get'
 	});
 };
@@ -102,7 +102,7 @@ export function getChooseDinner() {
 //用户充值
 export function recharge(data) {
 	return request({
-		url: '/v1/wallet/pay',
+		url: 'http://canteen.tonglingok.com/api/v1/wallet/pay',
 		method: 'post',
 		data
 	});
@@ -111,7 +111,7 @@ export function recharge(data) {
 //获取微信支付信息
 export function getPayInfo() {
 	return request({
-		url: '/v1/wallet/pay/getPreOrder',
+		url: 'http://canteen.tonglingok.com/api/v1/wallet/pay/getPreOrder',
 		method: 'get',
 	});
 };
@@ -119,7 +119,7 @@ export function getPayInfo() {
 //当前用户绑定的手机
 export function getUserPhone() {
 	return request({
-		url: '/v1/user/phone',
+		url: 'http://canteen.tonglingok.com/api/v1/user/phone',
 		method: 'get'
 	});
 };
