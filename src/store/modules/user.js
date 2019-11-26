@@ -1,8 +1,7 @@
 import { Toast } from 'vant';
 
 const state = {
-	// token: '4626773b1095c517bc33d071626a7c74',
-	token: '',
+	// token: 'f3f19eaa36a99dd25fd1392ba2725c40',
 	canteen_id: '',
 	canteenList: [],
 	token: localStorage['site_current_token'] ? localStorage['site_current_token'] : '',             //token

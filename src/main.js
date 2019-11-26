@@ -14,7 +14,7 @@ let vConsole = new VConsole();
 Vue.prototype.$moment = moment;
 Vue.prototype.$http = axios;
 //模块中使用
-import Router from 'vue-router';
+// import Router from 'vue-router';
 
 // const originalPush = Router.prototype.push
 // Router.prototype.push = function push(location, onResolve, onReject) {

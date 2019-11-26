@@ -42,12 +42,13 @@
     <!-- 		<keep-alive>
 			<router-view v-if="!$route.meta.noCache" />
     </keep-alive>-->
-    <button @click="test">测试</button>
+    <!-- <button @click="test">测试</button> -->
     <router-view />
   </div>
 </template>
 <script>
 import { mapGetters } from "vuex";
+import { getQueryVarible } from "@/utils/getUrlParams";
 import {
   getUserToken,
   canChooseCant,
@@ -72,7 +73,10 @@ export default {
       this.$router.go(-1);
     },
     async test() {
-      const result = await getUserToken()
+      let code = getQueryVarible("code");
+      console.log(code);
+      localStorage["code"] = code;
+      const result = await getUserToken({ code: code });
     },
     //用户选择饭堂
     async chooseCanteen(e) {
@@ -109,7 +113,7 @@ export default {
       }
     }
   },
-  async created() {
+  async mounted() {
     if (this.$router.path !== "/") {
       // this.$router.replace("/");
     }
@@ -126,6 +130,7 @@ export default {
         code: code,
         state: state
       });
+      console.log(result);
       // const result = {
       //   msg: "ok",
       //   errorCode: 0,

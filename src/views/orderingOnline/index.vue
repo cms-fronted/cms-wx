@@ -167,15 +167,13 @@ export default {
     this.orderList = this.computeOrderList(
       res2.data.filter(item => item.ordering_type === "online")
     );
-    this.$bus.$on("updatePage", () => {
-      setTimeout(async () => {
+    this.$bus.$on("updatePage", async() => {
         Toast.loading({
           forbidClick: true,
           message: "加载中...",
           buration: 0
         });
         await this.selectCanteen();
-      }, 2000);
     });
 		Toast.clear()
   },

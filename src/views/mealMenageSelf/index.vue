@@ -4,15 +4,15 @@
     <!-- 选择器 -->
     <div class="picker flex-row">
       <van-button class="btn" type="default" @click="timeEvent">
-        {{$moment(date).format("YYYY-MM-DD")}}
+        {{ $moment(date).format("YYYY-MM-DD") }}
         <van-icon name="arrow-down" />
       </van-button>
       <van-button class="btn" type="default" @click="show1 = true">
-        {{dinner}}
+        {{ dinner }}
         <van-icon name="arrow-down" />
       </van-button>
       <van-button class="btn" type="default" @click="show2 = true">
-        {{menu}}
+        {{ menu }}
         <van-icon name="arrow-down" />
       </van-button>
     </div>
@@ -27,24 +27,29 @@
     <div class="foodList">
       <ul>
         <li v-for="(item, index) in foodList.data" :key="index">
-          <table border="0" cellpadding="0" cellspacing="0" style="border:#FFFFFF;">
+          <table
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            style="border:#FFFFFF;"
+          >
             <tr>
               <td style="width: 25%;">
                 <img :src="item.img_url" style="width: 100%;height: 60px;" />
               </td>
-              <td style="width: 25%;">{{item.name}}</td>
-              <td style="width: 10%;">{{item.price}}</td>
+              <td style="width: 25%;">{{ item.name }}</td>
+              <td style="width: 10%;">{{ item.price }}</td>
               <td
                 style="width: 15%;"
                 class="flex-row flex-center"
-                @click="changeStatus(item,index)"
+                @click="changeStatus(item, index)"
               >
                 <van-checkbox v-model="item.status" />
               </td>
               <td
                 style="width: 15%;"
                 class="flex-row flex-center"
-                @click="changeDefault(item,index)"
+                @click="changeDefault(item, index)"
               >
                 <van-checkbox v-model="item.default" />
               </td>
@@ -69,7 +74,7 @@
         show-toolbar
         :columns="dinnerList"
         value-key="name"
-        @cancel="show1 = false;"
+        @cancel="show1 = false"
         @confirm="dinnerEvent"
       />
     </van-popup>
@@ -317,12 +322,10 @@ export default {
       this.foodList = {};
       //1、获取可选择的餐次（餐次信息：早中晚）
 
-      setTimeout(async () => {
-        const result = await getChooseDinner();
-        if (result.errorCode == 0) {
-          this.dinnerList = result.data;
-        }
-      }, 2000);
+      const result = await getChooseDinner();
+      if (result.errorCode == 0) {
+        this.dinnerList = result.data;
+      }
 
       Toast.clear();
     });
