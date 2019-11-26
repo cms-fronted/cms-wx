@@ -70,14 +70,13 @@ export default {
           order_id: result.data.id
         });
         if (result2.errorCode == 0) {
-          let params = JSON.parse(result2.jsApiParameters);
           data = {
-            appId: params.appId, //公众号名称，由商户传入
-            timeStamp: params.timeStamp, //时间戳
-            nonceStr: params.nonceStr, //随机串
-            package: params.package, //预支付id
-            signType: params.signType, //微信签名方式
-            paySign: params.paySign //微信签名
+            appId: result2.data.appid, //公众号名称，由商户传入
+            timeStamp: new Date().getTime().toString(), //时间戳
+            nonceStr: result2.data.nonce_str, //随机串
+            package: "prepay_id=" + result2.data.prepay_id, //预支付id
+            signType: "MD5", //微信签名方式
+            paySign: result2.data.sign //微信签名
           };
           await this.onBridgeReady(data);
         }

@@ -1,10 +1,11 @@
 import request from '@/utils/request.js';
 
 // 获取用户登录token
-export function getUserToken() {
+export function getUserToken(data) {
 	return request({
 		url: '/v1/token/official',
-		method: 'get'
+		method: 'get',
+		params:data
 	});
 };
 //发送验证码
@@ -36,14 +37,14 @@ export function getCard() {
 //获取所属企业列表
 export function getCompanies() {
 	return request({
-		url: 'v1/user/companies',
+		url: '/v1/user/companies',
 		method: 'get'
 	});
 };
 //获取用户可见模块
 export function getModules() {
 	return request({
-		url: 'v1/modules/user',
+		url: '/v1/modules/user',
 		method: 'get'
 	});
 };
