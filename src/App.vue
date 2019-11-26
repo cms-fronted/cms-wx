@@ -30,8 +30,7 @@
               v-for="(item, index) in canteenList"
               :key="index"
               style="width: 33%; margin: 10px 0"
-              >{{ item.name }}</van-radio
-            >
+            >{{ item.name }}</van-radio>
           </van-radio-group>
         </div>
       </div>
@@ -56,6 +55,7 @@ import {
   getModules
 } from "./api/user.js";
 import { Toast } from "vant";
+import store from "@/store";
 
 export default {
   data() {
@@ -143,7 +143,8 @@ export default {
       // };
       //缓存token
       if (result.errorCode == 0) {
-        this.$store.commit("user/setToken", result.data.token);
+        sessionStorage.setItem("user_token", result.data.token);
+        store.commit("user/setToken", result.data.token);
         //本地缓存token
         // window.localStorage.setItem('token',result.data.token);
         if (result.data.phone == 2) {
@@ -158,7 +159,7 @@ export default {
           return;
         }
         //已选择饭堂 缓存饭堂id
-        this.$store.commit("user/setCanteen", result.data.canteen_id);
+        store.commit("user/setCanteen", result.data.canteen_id);
         //设置显示已选饭堂 缓存获取
         this.radio = this.canteen_id;
       }
