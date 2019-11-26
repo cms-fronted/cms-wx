@@ -37,19 +37,23 @@
 </template>
 
 <script>
+// import { getToken } from '@/api/index.js'
+import img1 from "../../assets/index1.jpg";
+import img2 from "../../assets/index2.jpg";
+import img3 from "../../assets/index3.jpg";
 export default {
   name: "index",
   data() {
     return {
       imgs: [
         {
-          imgSrc: require("../../assets/1.jpg")
+          imgSrc: img1
         },
         {
-          imgSrc: require("../../assets/2.jpg")
+          imgSrc: img2
         },
         {
-          imgSrc: require("../../assets/3.jpg")
+          imgSrc: img3
         }
       ],
       grid: [

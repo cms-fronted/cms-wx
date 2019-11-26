@@ -15,7 +15,7 @@
           style="width: auto;align-items: flex-end;padding-right: 20px;"
           @click="showCanteen"
         >
-          <van-icon size="32px" :name="!show?'arrow-up':'arrow-down'" />
+          <van-icon size="32px" :name="!show ? 'arrow-up' : 'arrow-down'" />
         </div>
         <div v-bind:hidden="show">
           <van-radio-group
@@ -27,10 +27,11 @@
               class="flex-row flex-center"
               :name="item.id"
               icon-size="12px"
-              v-for="(item,index) in canteenList"
+              v-for="(item, index) in canteenList"
               :key="index"
               style="width: 33%; margin: 10px 0"
-            >{{item.name}}</van-radio>
+              >{{ item.name }}</van-radio
+            >
           </van-radio-group>
         </div>
       </div>
@@ -41,6 +42,7 @@
     <!-- 		<keep-alive>
 			<router-view v-if="!$route.meta.noCache" />
     </keep-alive>-->
+    <button @click="test">测试</button>
     <router-view />
   </div>
 </template>
@@ -69,14 +71,17 @@ export default {
     back() {
       this.$router.go(-1);
     },
+    async test() {
+      const result = await getUserToken()
+    },
     //用户选择饭堂
-    chooseCanteen(e) {
+    async chooseCanteen(e) {
       Toast.loading({
         forbidClick: true,
         message: "加载中...",
         buration: 0
       });
-      bindCanteen({
+      await bindCanteen({
         canteen_id: e
       })
         .then(result => {
@@ -106,7 +111,7 @@ export default {
   },
   async created() {
     if (this.$router.path !== "/") {
-      this.$router.replace("/");
+      // this.$router.replace("/");
     }
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
@@ -116,7 +121,7 @@ export default {
         forbidClick: true,
         duration: 0
       });
-      //获取用户信息判断该用户是否绑定手机或饭堂
+      //获取用户token信息，判断该用户是否绑定手机或饭堂
       const result = await getUserToken({
         code: code,
         state: state

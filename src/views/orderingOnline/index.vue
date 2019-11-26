@@ -156,7 +156,7 @@ export default {
 		});
     let res1 = await getOrderDetail();
     let res2 = await request({
-      url: "/v1/order/userOrdering",
+      url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
       method: "get",
       params: {
         consumption_time: moment().format("YYYY-MM")
@@ -244,7 +244,7 @@ export default {
       let date = this.currentDate;
       let res1 = await getOrderDetail();
       let res2 = await request({
-        url: "/v1/order/userOrdering",
+        url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
         method: "get",
         params: {
           consumption_time: moment(date).format("YYYY-MM")
@@ -365,7 +365,7 @@ export default {
       console.log(data);
       if (action === "confirm") {
         const res = await request({
-          url: "/v1/order/cancel",
+          url: "http://canteen.tonglingok.com/api/v1/order/cancel",
           method: "post",
           data: QS.stringify(data)
         });
@@ -393,7 +393,7 @@ export default {
       };
       if (action === "confirm") {
         const res = await request({
-          url: "/v1/order/changeCount",
+          url: "http://canteen.tonglingok.com/api/v1/order/changeCount",
           method: "post",
           data: QS.stringify(data)
         });
@@ -433,7 +433,7 @@ export default {
           detail
         };
         const res = await request({
-          url: "/v1/order/online/save",
+          url: "http://canteen.tonglingok.com/api/v1/order/online/save",
           method: "post",
           data: QS.stringify(data)
         });
