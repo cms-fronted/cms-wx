@@ -130,26 +130,19 @@ export default {
         code: code,
         state: state
       });
-      console.log(result);
-      // const result = {
-      //   msg: "ok",
-      //   errorCode: 0,
-      //   code: 200,
-      //   data: {
-      //     token: "cee0da5c51455a58a52e620b221cb59e",
-      //     phone: 1,
-      //     canteen_selected: 1
-      //   }
-      // };
+
       //缓存token
       if (result.errorCode == 0) {
-        sessionStorage.setItem("user_token", result.data.token);
         store.commit("user/setToken", result.data.token);
+        console.log(this.token);
+        // let user_token = String(result.data.token);
+        // sessionStorage["user_token"] = user_token;
         //本地缓存token
         // window.localStorage.setItem('token',result.data.token);
         if (result.data.phone == 2) {
           //用户未绑定手机
           this.$router.push("entry");
+          console.log(this.token);
           Toast.clear();
           return;
         } else if (result.data.canteen_selected == 2) {
