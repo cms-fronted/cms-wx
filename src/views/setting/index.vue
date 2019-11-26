@@ -71,7 +71,8 @@
 						console.log(result);
 						if (result.errorCode == 0) {
 							Toast.success('选择成功！');
-							this.$store.commit('user/setCanteen', e.canteen_id)
+							this.$store.commit('user/setCanteen', e.canteen_id);
+							window.localStorage.setItem('canteen_id',e.canteen_id);
 							this.$router.push({
 								path: '/'
 							});
