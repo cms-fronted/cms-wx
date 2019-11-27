@@ -25,7 +25,6 @@ import OrderingOnline from '../views/orderingOnline'
 import SelectCanteen from '../views/selectcanteen'
 import SelectStaffs from '@/views/notice/selectStaffs'
 import EditSelfOrder from '@/views/editSelfOrder'
-import Authorize from '@/views/authorize'
 
 Vue.use(Router)
 
@@ -172,11 +171,6 @@ export default new Router({
 		path: '/editselforder',
 		name: 'editselforder',
 		component: EditSelfOrder
-	}, {
-		//授权重定向页面
-		path: '/authorize',
-		name: 'authorize',
-		component: Authorize
 	}
 		// {
 		// 	path: '/',

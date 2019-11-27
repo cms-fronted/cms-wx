@@ -220,7 +220,7 @@ export default {
       //授权重定向
       this.getToken(code, state);
       //修改当前url 使得刷新当前页面不再获取微信授权
-      window.location.href = window.location.host + window.location.hostname;
+      window.location.href = window.location.host + window.location.pathname;
       this.$router.push("index");
     } else if (token && !code && !state) {
       //非第一次进入 非重定向进入
