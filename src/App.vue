@@ -50,7 +50,8 @@ import {
   getUserToken,
   canChooseCant,
   bindCanteen,
-  getModules
+  getModules,
+  getChooseDinner
 } from "./api/user.js";
 import { Toast } from "vant";
 
@@ -93,7 +94,9 @@ export default {
     getCode() {
       window.location.href =
         "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2Findex.html&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
-    }
+    },
+    //初始化信息
+    init() {}
   },
   watch: {
     $route(now, old) {
@@ -108,6 +111,14 @@ export default {
     if (this.$router.path !== "/") {
       this.$router.replace("/");
     }
+
+    //检查token是否过期
+
+    // const res = await getChooseDinner();
+    // if (res.errorCode == 1001) {
+    //   //token已过期 获取code
+    //   this.getCode();
+
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
@@ -121,16 +132,6 @@ export default {
         code: code,
         state: state
       });
-      // const result = {
-      //   msg: "ok",
-      //   errorCode: 0,
-      //   code: 200,
-      //   data: {
-      //     token: "cee0da5c51455a58a52e620b221cb59e",
-      //     phone: 1,
-      //     canteen_selected: 1
-      //   }
-      // };
       //缓存token
       if (result.errorCode == 0) {
         this.$store.commit("user/setToken", result.data.token);
