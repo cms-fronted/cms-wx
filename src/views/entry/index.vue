@@ -97,6 +97,7 @@ export default {
         code: this.smsCode
       });
       if (result.errorCode == 0) {
+        window.localStorage.setItem('phone',1);
         this.$router.push({
           name: "setting",
           params: {
