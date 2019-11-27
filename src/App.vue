@@ -19,7 +19,7 @@
         </div>
         <div v-bind:hidden="show">
           <van-radio-group
-            v-model="radio"
+            v-model="canteen_id"
             @change="chooseCanteen"
             style="width: 100%;display: flex;flex-wrap: wrap;"
           >
