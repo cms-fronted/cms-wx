@@ -30,7 +30,8 @@
               v-for="(item, index) in canteenList"
               :key="index"
               style="width: 33%; margin: 10px 0"
-            >{{ item.name }}</van-radio>
+              >{{ item.name }}</van-radio
+            >
           </van-radio-group>
         </div>
       </div>
@@ -47,7 +48,6 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
-import { getQueryVarible } from "@/utils/getUrlParams";
 import {
   getUserToken,
   canChooseCant,
@@ -101,7 +101,7 @@ export default {
     //跳转微信授权页面获取code
     getCode() {
       window.location.href =
-        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2Findex.html&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
     }
   },
   watch: {
@@ -114,7 +114,27 @@ export default {
     }
   },
   async mounted() {
-    if (this.$router.path !== "/") {
+    const params = new URLSearchParams(window.location.search.substring(1)); //查询url
+    const code = params.get("code"); //获取url中的code
+    const state = params.get("state");
+    if (!localStorage.getItem("user_token") && !code) {
+      this.getCode();
+    } else {
+      if (localStorage.getItem("user_token")) {
+        this.radio = this.canteen_id;
+        var canteens = new Array();
+        const result2 = await canChooseCant();
+        if (result2.errorCode == 0) {
+          result2.data.forEach((items, index) => {
+            items.canteens.forEach((item, key) => {
+              canteens.push(item.info);
+            });
+          });
+          this.$store.commit("user/setCanteenList", canteens);
+        }
+      }
+    }
+    /*     if (this.$router.path !== "/") {
       // this.$router.replace("/");
     }
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
@@ -175,7 +195,7 @@ export default {
       Toast.clear();
     } else {
       this.getCode();
-    }
+    } */
   },
   computed: {
     ...mapGetters("user", {

@@ -3,12 +3,13 @@ import { Toast } from 'vant';
 const state = {
 	canteen_id: '',
 	canteenList: [],
-	token: '',             //token
+	token: localStorage["user_token"] ? localStorage["user_token"] : "",             //token
 }
 
 const mutations = {
 	setToken(state, data) {
 		state.token = data;
+		localStorage.setItem("user_token", data)
 	},
 	setCanteen(state, data) {
 		state.canteen_id = data
