@@ -26,6 +26,12 @@
       </div>
       <van-button type="info" @click="submitOrder">完成</van-button>
     </div>
+
+    <van-divider
+      v-if="goods.length==0"
+      :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"
+    >暂无数据</van-divider>
+
     <!-- 菜品及数量选择 -->
     <div class="flex-row" :style="'height:'+scrollH+'px'" style="overflow: hidden;padding: 10px 0;">
       <!-- 左边随动菜单栏 -->
@@ -313,7 +319,6 @@ export default {
         page: this.current_page,
         size: this.per_page
       });
-      console.log("获取的评论：", result);
       if (result.errorCode == 0) {
         this.total = result.data.comments.total;
         this.per_page = result.data.comments.per_page;
@@ -322,10 +327,6 @@ export default {
         this.productScore = result.data.productScore;
       }
       this.showComment = true;
-      // const myComment = Object.assign(this.myComment, {
-      // 	product_id: e.id
-      // })
-      // this.myComment = myComment;
       Toast.clear();
     },
     /* 
@@ -435,7 +436,7 @@ export default {
   },
   mounted() {
     this.scrollH =
-      window.innerHeight - this.$refs.info.getBoundingClientRect().bottom + 74;
+	  window.innerHeight - (this.$refs.info.getBoundingClientRect().bottom + 74);
   },
   async created() {
     Toast.loading({
