@@ -33,7 +33,7 @@
     >暂无数据</van-divider>
 
     <!-- 菜品及数量选择 -->
-    <div class="flex-row" :style="'height:'+scrollH+'px'" style="overflow: hidden;padding: 10px 0;">
+    <div class="flex-row myscroll" :style="'height:'+scrollH+'px'">
       <!-- 左边随动菜单栏 -->
       <div class="category" ref="category">
         <ul>
@@ -435,8 +435,11 @@ export default {
     }
   },
   mounted() {
-    this.scrollH =
-	  window.innerHeight - (this.$refs.info.getBoundingClientRect().bottom + 74);
+    setTimeout(() => {
+      this.scrollH =
+        window.innerHeight -
+        (Math.abs(this.$refs.info.getBoundingClientRect().bottom) + 74);
+    }, 200);
   },
   async created() {
     Toast.loading({
@@ -541,5 +544,9 @@ export default {
 
 h4 {
   margin: 0;
+}
+.myscroll {
+  overflow: hidden;
+  padding: 10px 0;
 }
 </style>

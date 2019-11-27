@@ -25,7 +25,7 @@
           >
             <van-radio
               class="flex-row flex-center"
-              :name="item.id"
+              :name="item.canteen_id"
               icon-size="12px"
               v-for="(item, index) in canteenList"
               :key="index"
