@@ -19,13 +19,13 @@
         </div>
         <div v-bind:hidden="show">
           <van-radio-group
-            v-model="canteen_id"
+            v-model="radio"
             @change="chooseCanteen"
             style="width: 100%;display: flex;flex-wrap: wrap;"
           >
             <van-radio
               class="flex-row flex-center"
-              :name="item.id"
+              :name="item.canteen_id"
               icon-size="12px"
               v-for="(item, index) in canteenList"
               :key="index"
