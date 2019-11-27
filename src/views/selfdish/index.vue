@@ -777,9 +777,12 @@ export default {
     }
   },
   mounted() {
-    this.scrollH =
-      window.innerHeight -
-      (this.$refs.mealType.getBoundingClientRect().bottom + 74);
+    setTimeout(() => {
+      this.scrollH =
+        window.innerHeight -
+        (Math.abs(this.$refs.mealType.getBoundingClientRect().bottom) + 74);
+    }, 200);
+
     this.$bus.$on("updatePage", async () => {
       Toast.loading({
         message: "加载中",
