@@ -3,26 +3,13 @@
   <div class="flex-column" style="margin-top: 20px;">
     <van-cell-group>
       <van-field v-model="phone" label="手机号码" readonly />
-      <van-field
-        v-model="money"
-        label="充值金额"
-        placeholder="请输入10的倍数的金额"
-        label-align="left"
-      />
+      <van-field v-model="money" label="充值金额" placeholder="请输入10的倍数的金额" label-align="left" />
     </van-cell-group>
     <div style="position: fixed; bottom: 0;width: 90%;padding: 90px 5%;">
-      <van-button type="primary" size="large" @click="show = true"
-        >充值</van-button
-      >
+      <van-button type="primary" size="large" @click="show = true">充值</van-button>
     </div>
 
-    <van-dialog
-      v-model="show"
-      title="充值确认"
-      show-cancel-button
-      @confirm="recharge"
-      @cancel="cancel"
-    >
+    <van-dialog v-model="show" title="充值确认" show-cancel-button @confirm="recharge" @cancel="cancel">
       <div style="padding-left: 30px;text-align: left;">
         <p>姓名：{{ name }}</p>
         <p>手机号码：{{ phone }}</p>
@@ -136,7 +123,7 @@ export default {
           // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
           if (res.err_msg == "get_brand_wcpay_request:ok") {
             Toast.success("支付成功！");
-            vm.$router.push("index");
+            vm.$router.push({ name: "index" });
           } else {
             //alert("支付失败,请跳转页面"+res.err_msg);
             Toast.fail("支付失败！");
