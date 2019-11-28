@@ -18,6 +18,7 @@ export default {
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
     if (code && state) {
+      localStorage.clear();
       Toast.loading({
         forbidClick: true,
         duration: 0
