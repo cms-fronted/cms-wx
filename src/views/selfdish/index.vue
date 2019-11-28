@@ -38,7 +38,8 @@
       </van-radio-group>
       <div style="font-size: 15px;color: #EE0A24;">
         <p style="margin:0 0 10px 0;">数量：{{dishCount}}</p>
-        <p v-if="fixed != 1" style="margin: 0;">金额：{{amount}}元</p>
+        <!-- <p v-if="fixed != 1" style="margin: 0;">金额：{{amount}}元</p> -->
+        <p style="margin: 0;">金额：{{amount}}元</p>
       </div>
     </div>
 
@@ -259,7 +260,7 @@ import {
   saveFoodComment,
   saveCanteenComment
 } from "@/api/selfDish.js";
-import { Toast } from "vant";
+import { Toast, CellGroup } from "vant";
 import Bscroll from "better-scroll";
 export default {
   data() {
@@ -316,6 +317,7 @@ export default {
       chooseFoodId: null, //当前评论选中菜品id
       products: [], //已选商品列表
       dayMap: null, //整好配置
+      copyDayMap: null, //复制份
       isInsert: false, //是否已插入
       isSimilar: false, //是否为同类
       submitValidate: "", //当前添加商品的日期
@@ -394,7 +396,8 @@ export default {
               }
             });
           });
-          this.dayMap = dayMap;
+          this.dayMap = new Map(dayMap);
+          this.copyDayMap = new Map(this.dayMap);
           //将日期放入数组中
           for (var [key, value] of dayMap) {
             this.currentDate.push(key);
@@ -438,14 +441,15 @@ export default {
 			 */
     chooseDate(index, title) {
       this.date = this.currentDate[index];
-      // this.submitValidate = this.currentDate[index];
-
-      // this.list = this.dayMap.get(this.currentDate[index]);
+      this.dayMap = new Map(this.copyDayMap);
+      this.products = [];
+      this.list.length = 0;
       this.list = this.unique(this.dayMap.get(this.currentDate[index]));
       //调用日期选择接口（date为当前日期）
     },
     /* 去重 */
-    unique(arr) {
+    unique(arr1) {
+      let arr = JSON.parse(JSON.stringify(arr1));
       for (var i = 0; i < arr.length; i++) {
         for (var j = i + 1; j < arr.length; j++) {
           if (arr[i].id == arr[j].id) {
@@ -471,7 +475,6 @@ export default {
               if (item.id == e.id) {
                 //同类已存在
                 this.products[index].foods[key] = e;
-                console.log("已存在");
                 this.isInsert = true;
               }
             }
@@ -479,7 +482,6 @@ export default {
           //同类不存在
           if (this.isSimilar && !this.isInsert) {
             this.products[index].foods.push(e);
-            console.log("同类不存在");
             this.isInsert = true;
           }
         });
@@ -489,7 +491,6 @@ export default {
             menu_id: menu_id,
             foods: [e]
           });
-          console.log("不同类不存在");
         }
       } else {
         //已选商品列表为空
@@ -497,7 +498,6 @@ export default {
           menu_id: menu_id,
           foods: [e]
         });
-        console.log("空");
       }
       this.submitValidate = this.date;
       this.isInsert = false;
@@ -996,6 +996,9 @@ export default {
       return index > 0 ? index : 0;
     },
     dishCount() {
+      if (this.products.length == 0) {
+        return 0;
+      }
       let sum = 0;
       this.products.forEach((items, index) => {
         items.foods.forEach((item, key) => {
@@ -1006,6 +1009,9 @@ export default {
     },
     amount() {
       let sum = 0;
+      if (this.products.length == 0) {
+        return 0;
+      }
       this.products.forEach((items, index) => {
         items.foods.forEach((item, key) => {
           sum += item.price * item.count;
@@ -1034,7 +1040,7 @@ export default {
       if (this.date == this.submitValidate || this.submitValidate == "") {
         return false;
       }
-      return true;
+      return false;
     }
   }
 };

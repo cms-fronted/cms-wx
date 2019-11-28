@@ -5,7 +5,8 @@ const state = {
 	canteenList: [],
 	canteen_selected: '',
 	phone: '',
-	token: localStorage["user_token"] ? localStorage["user_token"] : "",             //token
+	// token: localStorage["user_token"] ? localStorage["user_token"] : "",             //token
+	token:"d575740d0b84f0bd2bb3e1aaaabe6b32",             //token
 }
 
 const mutations = {
