@@ -3,26 +3,13 @@
   <div class="flex-column" style="margin-top: 20px;">
     <van-cell-group>
       <van-field v-model="phone" label="手机号码" readonly />
-      <van-field
-        v-model="money"
-        label="充值金额"
-        placeholder="请输入10的倍数的金额"
-        label-align="left"
-      />
+      <van-field v-model="money" label="充值金额" placeholder="请输入10的倍数的金额" label-align="left" />
     </van-cell-group>
     <div style="position: fixed; bottom: 0;width: 90%;padding: 90px 5%;">
-      <van-button type="primary" size="large" @click="show = true"
-        >充值</van-button
-      >
+      <van-button type="primary" size="large" @click="show = true">充值</van-button>
     </div>
 
-    <van-dialog
-      v-model="show"
-      title="充值确认"
-      show-cancel-button
-      @confirm="recharge"
-      @cancel="cancel"
-    >
+    <van-dialog v-model="show" title="充值确认" show-cancel-button @confirm="recharge" @cancel="cancel">
       <div style="padding-left: 30px;text-align: left;">
         <p>姓名：{{ name }}</p>
         <p>手机号码：{{ phone }}</p>
@@ -85,7 +72,7 @@ export default {
         if (result2.errorCode == 0) {
           const data = {
             appId: result2.data.appid, //公众号名称，由商户传入
-            timestamp: new Date().getTime().toString(), //时间戳
+            timeStamp: new Date().getTime().toString(), //时间戳
             nonceStr: result2.data.nonce_str, //随机串
             package: "prepay_id=" + result2.data.prepay_id, //预支付id
             signType: "MD5", //微信签名方式
@@ -102,7 +89,7 @@ export default {
     //调用微信js api 支付
     onBridgeReady(data) {
       var vm = this;
-      WeixinJSBridge.invoke(
+      wx.invoke(
         "getBrandWCPayRequest",
         {
           debug: true,
