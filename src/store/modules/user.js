@@ -1,7 +1,7 @@
 import { Toast } from 'vant';
 
 const state = {
-	canteen_id: '',
+	canteen_id: localStorage["canteen_id"] ? localStorage["canteen_id"] : "",
 	canteenList: [],
 	canteen_selected: '',
 	phone: '',
