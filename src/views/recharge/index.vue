@@ -70,7 +70,7 @@ export default {
         if (result2.errorCode == 0) {
           const data = {
             appId: result2.data.appid, //公众号名称，由商户传入
-            timeStamp: new Date().getTime().toString(), //时间戳
+            timeStamp: new Date().getTime().toString().substr(0,10), //时间戳
             nonceStr: result2.data.nonce_str, //随机串
             package: "prepay_id=" + result2.data.prepay_id, //预支付id
             signType: "HMAC-SHA256", //微信签名方式
