@@ -22,8 +22,6 @@
 import { Dialog, CellGroup, Toast } from "vant";
 import { getRechargeId, getPayInfo, getUserPhone } from "@/api/user.js";
 
-import wx from "weixin-js-sdk";
-
 // var vm = this;
 // if (typeof WeixinJSBridge == "undefined") {
 //   //微信浏览器内置对象。参考微信官方文档
@@ -89,7 +87,7 @@ export default {
     //调用微信js api 支付
     onBridgeReady(data) {
       var vm = this;
-      wx.invoke(
+      WeixinJSBridge.invoke(
         "getBrandWCPayRequest",
         {
           debug: true,
@@ -106,9 +104,10 @@ export default {
           // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
           if (res.err_msg == "get_brand_wcpay_request：ok") {
             alert("支付成功");
-            //vm.$router.push("/reservedBerth");
+            vm.$router.push("index");
           } else {
             //alert("支付失败,请跳转页面"+res.err_msg);
+            vm.$router.push("recharge");
           }
         }
       );
