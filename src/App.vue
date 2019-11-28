@@ -118,7 +118,7 @@ export default {
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
     if (!localStorage.getItem("user_token") && !code) {
-      // this.getCode();
+      this.getCode();
     } else {
       if (localStorage.getItem("user_token")) {
         this.radio = this.canteen_id;
