@@ -73,7 +73,7 @@ export default {
             timeStamp: new Date().getTime().toString().substr(0,10), //时间戳
             nonceStr: result2.data.nonce_str, //随机串
             package: "prepay_id=" + result2.data.prepay_id, //预支付id
-            signType: "HMAC-SHA256", //微信签名方式
+            signType: "MD5", //微信签名方式
             paySign: result2.data.sign //微信签名
           };
           Toast.clear();
