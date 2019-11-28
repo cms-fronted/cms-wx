@@ -83,9 +83,9 @@ export default {
           order_id: result.data.id
         });
         if (result2.errorCode == 0) {
-          data = {
+          const data = {
             appId: result2.data.appid, //公众号名称，由商户传入
-            timeStamp: new Date().getTime().toString(), //时间戳
+            timestamp: new Date().getTime().toString(), //时间戳
             nonceStr: result2.data.nonce_str, //随机串
             package: "prepay_id=" + result2.data.prepay_id, //预支付id
             signType: "MD5", //微信签名方式
@@ -114,7 +114,7 @@ export default {
           paySign: data.paySign //微信签名
         },
         function(res) {
-          console.log(res.err_msg);
+          console.log(res);
           //debugger;
           // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
           if (res.err_msg == "get_brand_wcpay_request：ok") {
