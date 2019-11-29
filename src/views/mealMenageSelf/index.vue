@@ -27,31 +27,18 @@
     <div class="foodList">
       <ul>
         <li v-for="(item, index) in foodList.data" :key="index">
-          <table
-            border="0"
-            cellpadding="0"
-            cellspacing="0"
-            style="border:#FFFFFF;"
-          >
+          <table border="0" cellpadding="0" cellspacing="0" style="border:#FFFFFF;">
             <tr>
               <td style="width: 25%;">
                 <img :src="item.img_url" style="width: 100%;height: 60px;" />
               </td>
               <td style="width: 25%;">{{ item.name }}</td>
               <td style="width: 10%;">{{ item.price }}</td>
-              <td
-                style="width: 15%;"
-                class="flex-row flex-center"
-                @click="changeStatus(item, index)"
-              >
-                <van-checkbox v-model="item.status" />
+              <td style="width: 15%;" @click="changeStatus(item, index)">
+                <van-checkbox class="flex-row flex-center" v-model="item.status" />
               </td>
-              <td
-                style="width: 15%;"
-                class="flex-row flex-center"
-                @click="changeDefault(item, index)"
-              >
-                <van-checkbox v-model="item.default" />
+              <td style="width: 15%;" @click="changeDefault(item, index)">
+                <van-checkbox class="flex-row flex-center" v-model="item.default" />
               </td>
             </tr>
           </table>

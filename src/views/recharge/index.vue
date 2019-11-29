@@ -48,7 +48,7 @@ export default {
       phone: "",
       money: 0,
       show: false,
-      name: "陈琅斌"
+      name: ""
     };
   },
   methods: {
@@ -138,6 +138,7 @@ export default {
     const result = await getUserPhone();
     if (result.errorCode == 0) {
       this.phone = result.data.phone;
+      this.name = result.data.username;
     }
     Toast.clear();
   }
