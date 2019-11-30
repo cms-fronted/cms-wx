@@ -30,8 +30,7 @@
               v-for="(item, index) in canteenList"
               :key="index"
               style="width: 33%; margin: 10px 0"
-              >{{ item.name }}</van-radio
-            >
+            >{{ item.name }}</van-radio>
           </van-radio-group>
         </div>
       </div>
@@ -72,12 +71,6 @@ export default {
     back() {
       this.$router.go(-1);
     },
-    async test() {
-      let code = getQueryVarible("code");
-      console.log(code);
-      localStorage["code"] = code;
-      const result = await getUserToken({ code: code });
-    },
     //用户选择饭堂
     async chooseCanteen(e) {
       Toast.loading({
@@ -85,18 +78,15 @@ export default {
         message: "加载中...",
         buration: 0
       });
-      await bindCanteen({
+      const result = await bindCanteen({
         canteen_id: e
-      })
-        .then(result => {
-          if (result.errorCode == 0) {
-            this.$store.commit("user/setCanteen", e);
-            this.$bus.$emit("updatePage"); //注册全局事件
-            Toast.clear();
-            Toast.success("成功进入饭堂!");
-          }
-        })
-        .then(() => {});
+      });
+      if (result.errorCode == 0) {
+        Toast.clear();
+        Toast.success("成功进入饭堂!");
+        this.$store.commit("user/setCanteen", e);
+        this.$bus.$emit("updatePage"); //注册全局事件
+      }
     },
     //跳转微信授权页面获取code
     getCode() {
@@ -124,7 +114,6 @@ export default {
       this.getCode();
     } else {
       if (localStorage.getItem("user_token")) {
-        this.radio = this.canteen_id;
         var canteens = new Array();
         const result2 = await canChooseCant();
         if (result2.errorCode == 0) {
@@ -137,68 +126,6 @@ export default {
         }
       }
     }
-    /*     if (this.$router.path !== "/") {
-      // this.$router.replace("/");
-    }
-    const params = new URLSearchParams(window.location.search.substring(1)); //查询url
-    const code = params.get("code"); //获取url中的code
-    const state = params.get("state");
-    if (code && state) {
-      Toast.loading({
-        forbidClick: true,
-        duration: 0
-      });
-      //获取用户token信息，判断该用户是否绑定手机或饭堂
-      const result = await getUserToken({
-        code: code,
-        state: state
-      });
-
-      //缓存token
-      if (result.errorCode == 0) {
-        store.commit("user/setToken", result.data.token);
-        console.log(this.token);
-        // let user_token = String(result.data.token);
-        // sessionStorage["user_token"] = user_token;
-        //本地缓存token
-        // window.localStorage.setItem('token',result.data.token);
-        if (result.data.phone == 2) {
-          //用户未绑定手机
-          this.$router.push("entry");
-          console.log(this.token);
-          Toast.clear();
-          return;
-        } else if (result.data.canteen_selected == 2) {
-          //未选择饭堂进入饭堂选择页
-          this.$router.push("setting");
-          Toast.clear();
-          return;
-        }
-        //已选择饭堂 缓存饭堂id
-        store.commit("user/setCanteen", result.data.canteen_id);
-        //设置显示已选饭堂 缓存获取
-        this.radio = this.canteen_id;
-      }
-      //设置显示可选饭堂 获取用户可进入饭堂
-      var canteens = new Array();
-      const result2 = await canChooseCant();
-      if (result2.errorCode == 0) {
-        result2.data.forEach((items, index) => {
-          items.canteens.forEach((item, key) => {
-            canteens.push(item.info);
-          });
-        });
-        this.$store.commit("user/setCanteenList", canteens);
-      }
-
-      //获取用户可见模块
-      // const result3 = await getModules({ c_id: this.canteen_id });
-      // console.log("用户可见模块：", result3);
-
-      Toast.clear();
-    } else {
-      this.getCode();
-    } */
   },
   computed: {
     ...mapGetters("user", {

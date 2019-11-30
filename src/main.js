@@ -15,7 +15,6 @@ Vue.prototype.$moment = moment;
 
 Vue.use(Vant);
 Vue.use(MintUI);
-window.addEventListener("onunload", () => { localStorage.clear() })
 
 // 解决移动端滑动后触发 touchend事件
 function stopTouchendPropagationAfterScroll() {

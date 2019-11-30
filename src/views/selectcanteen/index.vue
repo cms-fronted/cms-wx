@@ -36,7 +36,6 @@
 		},
 		methods: {
 			async seleCanteen(e) {
-				console.log('饭堂id', e);
 				//调用用户选择进入饭堂接口
 				const result = await bindCanteen({
 					"canteen_id": e
