@@ -73,6 +73,7 @@ export default {
     },
     //用户选择饭堂
     async chooseCanteen(e) {
+      console.log("调用chooseCanteen");
       Toast.loading({
         forbidClick: true,
         message: "加载中...",
@@ -82,6 +83,7 @@ export default {
         canteen_id: e
       });
       if (result.errorCode == 0) {
+        console.log("调用bindCanteen");
         Toast.clear();
         Toast.success("成功进入饭堂!");
         this.$store.commit("user/setCanteen", e);
