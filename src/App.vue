@@ -20,7 +20,6 @@
         <div v-bind:hidden="show">
           <van-radio-group
             v-model="radio"
-            @change="chooseCanteen"
             style="width: 100%;display: flex;flex-wrap: wrap;"
           >
             <van-radio
@@ -29,6 +28,7 @@
               icon-size="12px"
               v-for="(item, index) in canteenList"
               :key="index"
+              @click="chooseCanteen(item.id)"
               style="width: 33%; margin: 10px 0"
             >{{ item.name }}</van-radio>
           </van-radio-group>
@@ -73,7 +73,9 @@ export default {
     },
     //用户选择饭堂
     async chooseCanteen(e) {
-      console.log("调用chooseCanteen");
+      if(this.canteen_id == e){
+        return;
+      }
       Toast.loading({
         forbidClick: true,
         message: "加载中...",
