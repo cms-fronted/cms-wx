@@ -26,7 +26,6 @@ const service = axios.create({
 service.interceptors.request.use(
 	config => {
 		const token = store.state.user.token;
-		console.log(token)
 		// Do something before request is sent
 		if (token) {
 			// 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
