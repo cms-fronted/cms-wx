@@ -102,7 +102,6 @@ import request from "../../utils/request";
 import { getOrderDetail, getUserOrder } from "@/api/orderingOnline";
 import moment from "moment";
 import { Dialog, Stepper, Toast } from "vant";
-import { async } from "q";
 import QS from "qs";
 
 export default {
