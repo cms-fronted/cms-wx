@@ -818,7 +818,7 @@ export default {
         this.products.length = 0;
         this.submitValidate = "";
         if (result3.data.length > 0) {
-          resul3t.data.forEach(items => {
+          result3.data.forEach(items => {
             items.foods.forEach(item => {
               item = Object.assign(item, {
                 food_id: item.f_id,
@@ -894,14 +894,15 @@ export default {
     //初始化
     //获取用户可选餐次
     const result = await getChooseDinner();
-    if (result.errorCode == 0) {
+    if (result.errorCode == 0 && result.data.length != 0) {
       this.dinner = result.data[0].name;
       this.dinner_id = result.data[0].id;
       this.dinnerList = result.data;
+    } else {
+      return;
     }
     //获取当前饭堂就餐类型
     const result2 = await getDiningType();
-    console.log(result2);
     if (result2.errorCode == 0) {
       this.dining_mode = result2.data.dining_mode;
     }
@@ -919,7 +920,7 @@ export default {
       this.products.length = 0;
       this.submitValidate = "";
       if (result3.data.length > 0) {
-        resul3t.data.forEach(items => {
+        result3.data.forEach(items => {
           items.foods.forEach(item => {
             item = Object.assign(item, {
               food_id: item.f_id,
