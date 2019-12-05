@@ -976,7 +976,7 @@ export default {
           day: this.date
         });
         result2.data.forEach(item => {
-          if (item.id == e.id) {
+          if (item.id == this.dinner_id) {
             this.fixed = item.fixed;
           }
         });
