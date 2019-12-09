@@ -7,7 +7,7 @@
     </van-cell-group>
     <div
       id="mybtn"
-      style="position: static; bottom: 0;width: 90%;padding: 90% 0 5% 5%;z-index=-100;"
+      style="position: static; bottom: 0;width: 90%;padding: 90% 0 5% 5%;"
     >
       <van-button type="primary" size="large" @click="show = true">充值</van-button>
     </div>
