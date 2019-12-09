@@ -5,7 +5,10 @@
       <van-field v-model="phone" label="手机号码" readonly />
       <van-field v-model="money" label="充值金额" placeholder="请输入10的倍数的金额" label-align="left" />
     </van-cell-group>
-    <div style="position: fixed; bottom: 0;width: 90%;padding: 90px 5%;">
+    <div
+      id="mybtn"
+      style="position: static; bottom: 0;width: 90%;padding: 90% 0 5% 5%;z-index=-100;"
+    >
       <van-button type="primary" size="large" @click="show = true">充值</van-button>
     </div>
 
@@ -48,7 +51,8 @@ export default {
       phone: "",
       money: 0,
       show: false,
-      name: ""
+      name: "",
+      scrollTop: 0
     };
   },
   methods: {
