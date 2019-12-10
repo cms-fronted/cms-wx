@@ -409,14 +409,7 @@ export default {
           this.list = this.unique(dayMap.get(this.currentDate[0]));
           this.date = this.currentDate[0];
 
-          const result2 = await getDinnerInfo({
-            day: this.date
-          });
-          result2.data.forEach(item => {
-            if (item.id == e.id) {
-              this.fixed = item.fixed;
-            }
-          });
+          this.invalidDate();//过滤日期
         }
       } else {
         this.list.length = 0;
@@ -442,6 +435,7 @@ export default {
     chooseDate(index, title) {
       this.date = this.currentDate[index];
       this.dayMap = new Map(this.copyDayMap);
+      this.submitValidate = "";
       this.products = [];
       this.list.length = 0;
       this.list = this.unique(this.dayMap.get(this.currentDate[index]));
@@ -683,7 +677,7 @@ export default {
         // dinner.type 时间设置类别：day | week
         // dinner.limit_time 订餐限制时间
         //dinner.type_number 订餐时间类别对应数量（week：0-6；周日-周六）
-        dinner.type == "week" && diner.type_number == 0
+        dinner.type == "week" && dinner.type_number == 0
           ? (dinner.type_number = 7)
           : dinner.type_number;
         if (
@@ -774,6 +768,32 @@ export default {
         }
       });
       Toast.clear();
+    },
+    // 去除重复日期
+    invalidDate(){
+      const result = await getDinnerInfo({
+        day: this.date
+      });
+      if (result.errorCode == 0 && result.data.length != 0) {
+        let nowDay = new Date(); //当前日期
+        let fixed = result2.data[0].fixed; //餐次金额
+        let dinner = null; //当前所选餐次的配置信息
+        let menus = null; //当前菜品配置信息
+        result.data.forEach((item, index) => {
+          if (item.id == this.dinner_id) {
+            this.fixed = item.fixed;
+            fixed = item.fixed;
+            dinner = item;
+            menus = item.menus;
+          };
+        }); //格式化数据
+        dinner.type == "week" && dinner.type_number == 0 ? (dinner.type_number = 7) : dinner.type_number;//日期转换
+        this.currentDate.forEach((item, index) => {
+        if (this.$moment(item).subtract(dinner.type_number, dinner.type).isBefore(nowDay)) {//过滤不能选菜的日期
+          this.currentDate.splice(index);
+          };
+        });
+      };
     }
   },
   mounted() {
@@ -870,14 +890,7 @@ export default {
           this.list = this.unique(dayMap.get(this.currentDate[0]));
           this.date = this.currentDate[0];
 
-          const result2 = await getDinnerInfo({
-            day: this.date
-          });
-          result2.data.forEach(item => {
-            if (item.id == e.id) {
-              this.fixed = item.fixed;
-            }
-          });
+        this.invalidDate();//过滤日期
         }
       }
 
@@ -971,15 +984,7 @@ export default {
         });
         this.list = this.unique(dayMap.get(this.currentDate[0]));
         this.date = this.currentDate[0];
-
-        const result2 = await getDinnerInfo({
-          day: this.date
-        });
-        result2.data.forEach(item => {
-          if (item.id == this.dinner_id) {
-            this.fixed = item.fixed;
-          }
-        });
+        this.invalidDate();//过滤日期
       }
     }
 
