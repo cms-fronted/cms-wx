@@ -113,6 +113,7 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
+    window.localStorage.setItem("user_token","e9ef13457b024e7bb6dfd21763ba87e7");
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {

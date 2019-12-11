@@ -49,7 +49,7 @@
     >暂无数据</van-divider>
 
     <!-- 日期选择 -->
-    <div class="dateMenu" v-if="currentDate.length !=0">
+    <div class="dateMenu" v-if="currentDate.length !=0 && showDate">
       <van-tabs color="#1989fa" @click="chooseDate">
         <van-tab
           v-for="(item,index) in currentDate"
@@ -328,7 +328,8 @@ export default {
       total: 0, //评论总数
       current_page: 1, //当前页码
       per_page: 6, //一页显示多少条数据
-      last_page: null //最后的页码
+      last_page: null, //最后的页码
+      showDate: false //展示日期
     };
   },
   methods: {
@@ -348,6 +349,7 @@ export default {
       });
       if (result.errorCode == 0 && result.data.length != 0) {
         //初始化
+        this.showDate = false;
         this.dayMap = null;
         this.currentDate.length = 0;
         this.list.length = 0;
@@ -399,17 +401,17 @@ export default {
           this.dayMap = new Map(dayMap);
           this.copyDayMap = new Map(this.dayMap);
           //将日期放入数组中
-          for (var [key, value] of dayMap) {
+          for (var [key, value] of this.dayMap) {
             this.currentDate.push(key);
           }
           //将日期排序
           this.currentDate.sort((a, b) => {
             return a > b ? 1 : -1;
           });
-          this.list = this.unique(dayMap.get(this.currentDate[0]));
-          this.date = this.currentDate[0];
+          // this.list = this.unique(dayMap.get(this.currentDate[0]));
+          // this.date = this.currentDate[0];
 
-          this.invalidDate();//过滤日期
+          await this.invalidDate(); //过滤日期
         }
       } else {
         this.list.length = 0;
@@ -770,13 +772,13 @@ export default {
       Toast.clear();
     },
     // 去除重复日期
-    invalidDate(){
+    async invalidDate() {
       const result = await getDinnerInfo({
         day: this.date
       });
       if (result.errorCode == 0 && result.data.length != 0) {
         let nowDay = new Date(); //当前日期
-        let fixed = result2.data[0].fixed; //餐次金额
+        let fixed = result.data[0].fixed; //餐次金额
         let dinner = null; //当前所选餐次的配置信息
         let menus = null; //当前菜品配置信息
         result.data.forEach((item, index) => {
@@ -785,15 +787,29 @@ export default {
             fixed = item.fixed;
             dinner = item;
             menus = item.menus;
-          };
+          }
         }); //格式化数据
-        dinner.type == "week" && dinner.type_number == 0 ? (dinner.type_number = 7) : dinner.type_number;//日期转换
+        dinner.type == "week" && dinner.type_number == 0
+          ? (dinner.type_number = 7)
+          : dinner.type_number; //日期转换
+        let timeArray = [];
         this.currentDate.forEach((item, index) => {
-        if (this.$moment(item).subtract(dinner.type_number, dinner.type).isBefore(nowDay)) {//过滤不能选菜的日期
-          this.currentDate.splice(index);
-          };
+          console.log(1);
+          if (
+            !this.$moment(item)
+              .subtract(dinner.type_number, dinner.type)
+              .isBefore(nowDay)
+          ) {
+            //过滤不能选菜的日期
+            timeArray.push(item);
+          }
         });
+        this.currentDate = timeArray;
+        if (this.currentDate.length != 0) {
+          this.list = this.unique(this.dayMap.get(this.currentDate[0]));
+        };
       };
+      this.showDate = true;
     }
   },
   mounted() {
@@ -802,7 +818,7 @@ export default {
         window.innerHeight -
         (Math.abs(this.$refs.mealType.getBoundingClientRect().bottom) + 74);
     }, 200);
-
+    console.log("000000000000000000000");
     this.$bus.$on("updatePage", async () => {
       Toast.loading({
         message: "加载中",
@@ -832,6 +848,7 @@ export default {
       if (result3.errorCode == 0 && result3.data.length != 0) {
         //初始化
         this.dayMap = null;
+        this.showDate = false;
         this.currentDate.length = 0;
         this.list.length = 0;
         this.date = "";
@@ -887,10 +904,10 @@ export default {
           this.currentDate.sort((a, b) => {
             return a > b ? 1 : -1;
           });
-          this.list = this.unique(dayMap.get(this.currentDate[0]));
-          this.date = this.currentDate[0];
+          // this.list = this.unique(dayMap.get(this.currentDate[0]));
+          // this.date = this.currentDate[0];
 
-        this.invalidDate();//过滤日期
+          await this.invalidDate(); //过滤日期
         }
       }
 
@@ -982,9 +999,11 @@ export default {
         this.currentDate.sort((a, b) => {
           return a > b ? 1 : -1;
         });
-        this.list = this.unique(dayMap.get(this.currentDate[0]));
-        this.date = this.currentDate[0];
-        this.invalidDate();//过滤日期
+        console.log("111");
+        // this.list = this.unique(dayMap.get(this.currentDate[0]));
+        // this.date = this.currentDate[0];
+        await this.invalidDate(); //过滤日期
+        console.log("222");
       }
     }
 
