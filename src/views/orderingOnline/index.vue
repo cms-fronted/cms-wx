@@ -149,10 +149,10 @@ export default {
     }
   },
   async mounted() {
-		Toast.loading({
-			forbidClick:true,
-			duration:0
-		});
+    Toast.loading({
+      forbidClick: true,
+      duration: 0
+    });
     let res1 = await getOrderDetail();
     let res2 = await request({
       url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
@@ -166,15 +166,15 @@ export default {
     this.orderList = this.computeOrderList(
       res2.data.filter(item => item.ordering_type === "online")
     );
-    this.$bus.$on("updatePage", async() => {
-        Toast.loading({
-          forbidClick: true,
-          message: "加载中...",
-          buration: 0
-        });
-        await this.selectCanteen();
+    this.$bus.$on("updatePage", async () => {
+      Toast.loading({
+        forbidClick: true,
+        message: "加载中...",
+        buration: 0
+      });
+      await this.selectCanteen();
     });
-		Toast.clear()
+    Toast.clear();
   },
   methods: {
     computeDate() {
@@ -359,7 +359,6 @@ export default {
       const data = {
         id: id
       };
-      console.log(data);
       if (action === "confirm") {
         const res = await request({
           url: "http://canteen.tonglingok.com/api/v1/order/cancel",
@@ -478,12 +477,12 @@ export default {
           const now = moment();
           const today = moment().format("YYYY-MM-DD");
           const date = moment(); //创建 今日时间戳
-          if (
-            moment(order_date).day() === 0 ||
-            moment(order_date).day() === 6
-          ) {
-            return false;
-          }
+          // if (
+          //   moment(order_date).day() === 0 ||
+          //   moment(order_date).day() === 6
+          // ) {
+          //   return false;
+          // }
           if (type === "day") {
             date.set("hour", hour);
             date.set("minute", minute);
