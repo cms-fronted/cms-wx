@@ -326,7 +326,6 @@ export default {
 			点击订餐数量
 			 */
     async getOrdersAmount(data) {
-      console.log(data);
       Toast.loading({
         message: "加载中...",
         forbidClick: true,
@@ -363,14 +362,16 @@ export default {
           duration: 1500
         });
       }
-      Toast.clear();
+      setTimeout(() => {
+        Toast.clear();
+      }, 1000);
     },
     /* 
 			订餐就餐人员明细
 			 */
     async dining(data) {
       if (data.used == 0) {
-        Toast("暂无数据！");
+        Toast.fail("暂无数据！");
         return;
       }
       Toast.loading({
@@ -394,7 +395,9 @@ export default {
           list: result.data.data
         };
       }
-      Toast.clear();
+      setTimeout(() => {
+        Toast.clear();
+      }, 1000);
       this.personDetail = true;
     },
     /* 
@@ -402,7 +405,7 @@ export default {
 			 */
     async noOrdering(data) {
       if (data.noOrdering == 0) {
-        Toast("暂无数据！");
+        Toast.fail("暂无数据！");
         return;
       }
       Toast.loading({
@@ -426,7 +429,9 @@ export default {
           list: result.data.data
         };
       }
-      Toast.clear();
+      setTimeout(() => {
+        Toast.clear();
+      }, 1000);
       this.personDetail1 = true;
     },
     /* 
@@ -434,7 +439,7 @@ export default {
 			 */
     async noDining(data) {
       if (data.orderingNoMeal == 0) {
-        Toast("暂无数据！");
+        Toast.fail("暂无数据！");
         return;
       }
       Toast.loading({
@@ -458,7 +463,9 @@ export default {
           list: result.data.data
         };
       }
-      Toast.clear();
+      setTimeout(() => {
+        Toast.clear();
+      }, 1000);
       this.personDetail2 = true;
     },
     /* 
