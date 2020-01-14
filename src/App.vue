@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <!-- 导航栏 -->
-    <mt-header title="云饭堂" style="padding:0;">
+    <mt-header :title="canteen_name" style="padding:0;">
       <div @click="back" slot="left" v-show="isShow">
         <mt-button icon="back">返回</mt-button>
       </div>
@@ -18,16 +18,13 @@
           <van-icon size="32px" :name="!show ? 'arrow-up' : 'arrow-down'" />
         </div>
         <div v-bind:hidden="show">
-          <van-radio-group
-            v-model="radio"
-            style="width: 100%;display: flex;flex-wrap: wrap;"
-          >
+          <van-radio-group v-model="radio" style="width: 100%;display: flex;flex-wrap: wrap;">
             <van-radio
               class="flex-row flex-center"
-              :name="item.id"
               icon-size="12px"
               v-for="(item, index) in canteenList"
               :key="index"
+              :name="item.id"
               @click="chooseCanteen(item.id)"
               style="width: 33%; margin: 10px 0"
             >{{ item.name }}</van-radio>
@@ -60,8 +57,9 @@ export default {
   data() {
     return {
       isShow: false,
-      show: true,
-      radio: ""
+      show: true, //展示选择饭堂
+      radio: null, //当前所选饭堂
+      canteen_name: "" //当前所选饭堂名称
     };
   },
   methods: {
@@ -73,7 +71,7 @@ export default {
     },
     //用户选择饭堂
     async chooseCanteen(e) {
-      if(this.canteen_id == e){
+      if (this.canteen_id == e) {
         return;
       }
       Toast.loading({
@@ -85,7 +83,6 @@ export default {
         canteen_id: e
       });
       if (result.errorCode == 0) {
-        console.log("调用bindCanteen");
         Toast.clear();
         Toast.success("成功进入饭堂!");
         this.$store.commit("user/setCanteen", e);
@@ -96,6 +93,14 @@ export default {
     getCode() {
       window.location.href =
         "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+    },
+    setTitle() {
+      //设置当前标题
+      this.canteenList.forEach((item, index) => {
+        if (item.id == this.canteen_id) {
+          this.canteen_name = item.name;
+        }
+      });
     }
   },
   watch: {
@@ -107,25 +112,26 @@ export default {
       }
     },
     canteen_id(val) {
-      this.radio = val;
+      this.radio = parseInt(val);
+      this.setTitle();
     }
   },
   async mounted() {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    // localStorage.setItem("phone",1);
-    // localStorage.setItem("user_token","281317dd8f963016b521118f0e3ced6d");
-    // localStorage.setItem("canteen_selected",1);
-    // localStorage.setItem("canteen_id",6);
-
+    // localStorage.setItem("phone", 1);
+    // localStorage.setItem("user_token", "4f8e3b112f68e80098962858772725a3");
+    // localStorage.setItem("user_token", "281317dd8f963016b521118f0e3ced6d");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 6);
 
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
       if (localStorage.getItem("user_token")) {
         var canteens = new Array();
-        const result2 = await canChooseCant();
+        const result2 = await canChooseCant(); //返回用户可选饭堂
         if (result2.errorCode == 0) {
           result2.data.forEach((items, index) => {
             items.canteens.forEach((item, key) => {
@@ -136,6 +142,9 @@ export default {
         }
       }
     }
+
+    this.radio = parseInt(this.canteen_id);
+    this.setTitle();
   },
   computed: {
     ...mapGetters("user", {
