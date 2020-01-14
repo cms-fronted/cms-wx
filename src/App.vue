@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <!-- 导航栏 -->
-    <mt-header :title="canteen_name" style="padding:0;">
+    <mt-header :title="title" style="padding:0;">
       <div @click="back" slot="left" v-show="isShow">
         <mt-button icon="back">返回</mt-button>
       </div>
@@ -59,7 +59,8 @@ export default {
       isShow: false,
       show: true, //展示选择饭堂
       radio: null, //当前所选饭堂
-      canteen_name: "" //当前所选饭堂名称
+      canteen_name: "", //当前所选饭堂名称
+      title: "",
     };
   },
   methods: {
@@ -114,6 +115,9 @@ export default {
     canteen_id(val) {
       this.radio = parseInt(val);
       this.setTitle();
+    },
+    canteen_name(val) {
+      this.title = "当前饭堂:" +val;
     }
   },
   async mounted() {
