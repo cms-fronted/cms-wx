@@ -486,8 +486,9 @@ export default {
           if (type === "day") {
             date.set("hour", hour);
             date.set("minute", minute);
-            date.add(type_number, type); //  加上需提前的天数
-            if (!moment(order_date).isAfter(date)) {
+            date.add(type_number-1, type); //  加上需提前的天数
+            console.log(date);
+            if (!moment(order_date).isAfter(date) && now.isAfter(date) ) {
               // 如果选中 订餐日期 符合 提前天数
               Dialog({
                 message: "已超过订餐截止时间"
@@ -500,7 +501,7 @@ export default {
             const prevDate = moment(order_date).day(-type_number); //选中日期 提前 一周的周 几，根据实际情况
             prevDate.set("hour", hour);
             prevDate.set("minute", minute);
-            if (!moment(now).isBefore(prevDate)) {
+            if (!moment(now).isBefore(prevDate) && now.isAfter(prevDate)) {
               Dialog({
                 message: "已超过订餐截止时间"
               }).then(() => {

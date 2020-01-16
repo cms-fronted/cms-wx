@@ -409,9 +409,9 @@ export default {
             return a > b ? 1 : -1;
           });
           // this.list = this.unique(dayMap.get(this.currentDate[0]));
-          // this.date = this.currentDate[0];
 
           await this.invalidDate(); //过滤日期
+          this.date = this.currentDate[0];
         }
       } else {
         this.list.length = 0;
@@ -638,6 +638,8 @@ export default {
 
     //提交订单
     async submitOrder(e) {
+      console.log('当前选餐日期：',this.submitValidate)
+      console.log('当前选餐日期：',this.date)
       Toast.loading({
         message: "加载中...",
         forbidClick: true,
@@ -709,9 +711,12 @@ export default {
         //dinner.ordering_count已定餐数量
         if (
           fixed == 2 &&
-          dinner.ordering_count - dinner.ordered_count < this.count
+          dinner.ordered_count - dinner.ordering_count > this.count
         ) {
-          if (dinner.ordering_count - dinner.ordered_count == 0) {
+          console.log(dinner.ordered_count,'可订餐数量')
+          console.log(dinner.ordering_count,'已订餐数量')
+          console.log(fixed);
+          if (dinner.ordering_count - dinner.ordered_count <= 0) {
             Toast.fail("今日可订餐数量已达上限");
           } else {
             Toast.fail(
@@ -805,6 +810,7 @@ export default {
           }
         });
         this.currentDate = timeArray;
+        // console.log('日期列表',this.currentDate);
         if (this.currentDate.length != 0) {
           this.list = this.unique(this.dayMap.get(this.currentDate[0]));
         };
@@ -905,9 +911,9 @@ export default {
             return a > b ? 1 : -1;
           });
           // this.list = this.unique(dayMap.get(this.currentDate[0]));
-          // this.date = this.currentDate[0];
 
           await this.invalidDate(); //过滤日期
+          this.date = this.currentDate[0];
         }
       }
 
@@ -1001,9 +1007,8 @@ export default {
         });
         console.log("111");
         // this.list = this.unique(dayMap.get(this.currentDate[0]));
-        // this.date = this.currentDate[0];
         await this.invalidDate(); //过滤日期
-        console.log("222");
+        this.date = this.currentDate[0];
       }
     }
 
