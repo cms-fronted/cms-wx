@@ -169,8 +169,8 @@ export default {
       this.grid = result.data;
     }
   },
-  mounted() {
-    this.setModule();
+  async mounted() {
+    await this.setModule();
   }
 };
 </script>
