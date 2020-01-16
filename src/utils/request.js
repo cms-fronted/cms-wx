@@ -8,11 +8,6 @@ import {
 } from 'vant'
 // import { getToken } from '@/utils/auth'
 
-Toast.loading({
-	message: '获取数据中...',
-	forbidClick: true,
-	duration: 0
-});
 // create an axios instance
 const service = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API, // api 的 base_url
@@ -55,7 +50,10 @@ service.interceptors.response.use(
 	 */
 	response => {
 		const res = response.data
-		if (res.errorCode === 0) { return res; }
+		if (res.errorCode === 0) {
+			Toast.clear();
+			return res;
+		 }
 		else if (res.errorCode == 10001) {
 			window.location.href =
 				"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
@@ -105,7 +103,5 @@ service.interceptors.response.use(
 		// return Promise.reject(error)
 	}
 )
-
-Toast.clear();
 
 export default service

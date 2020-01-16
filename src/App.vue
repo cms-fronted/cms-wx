@@ -126,7 +126,7 @@ export default {
     const state = params.get("state");
     // localStorage.setItem("phone", 1);
     // localStorage.setItem("user_token", "4f8e3b112f68e80098962858772725a3");
-    // localStorage.setItem("user_token", "281317dd8f963016b521118f0e3ced6d");
+    // localStorage.setItem("user_token", "7e4a1e737b2c356bfdf7a6371b55fd57");
     // localStorage.setItem("canteen_selected", 1);
     // localStorage.setItem("canteen_id", 6);
 

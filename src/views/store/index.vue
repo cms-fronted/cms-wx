@@ -449,8 +449,9 @@ export default {
     });
     //获取小卖部提货方式
     const res = await getTakingMode();
+    console.log('小卖部',res)
     //取货方式：1｜到店取；2｜送货上门；3｜全部都显示
-    if (res.errorCode == 0) {
+    if (res.errorCode == 0 && res.data) {
       this.taking_mode = res.data.taking_mode;
     }
     //获取商品列表初始值
