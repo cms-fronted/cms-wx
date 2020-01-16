@@ -42,6 +42,17 @@ module.exports = {
     }
   },
   chainWebpack: config => {
+    config.module
+    .rule('images')
+    .test(/\.(png|jpe?g|gif|webp)(\?.*)?$/)
+    .use('url-loader')
+    .loader('url-loader')
+    .tap(options => {
+        // 修改它的选项...
+        options.fallback.options.name = 'img/[name].[ext]?' //去除图片hash
+        options.limit = 1024; //这是字节(Byte)限制，1KB = 1024Byte ,当图片的大小小于 1KB ,则会被转为 base64格式，打包进js文件，大于1KB,则会被打包进 img 文件夹，供链接请求获取。 
+        return options
+    });
     if (IS_PROD) {
       config.optimization.delete('splitChunks')
     }
