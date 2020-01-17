@@ -128,17 +128,17 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    // localStorage.setItem("phone", 1);
-    // localStorage.setItem("user_token", "5b9b94299d379be2ea94809577ba132b");
-    // localStorage.setItem("canteen_selected", 1);
-    // localStorage.setItem("canteen_id", 6);
+    localStorage.setItem("phone", 1);
+    localStorage.setItem("user_token", "5b9b94299d379be2ea94809577ba132b");
+    localStorage.setItem("canteen_selected", 1);
+    localStorage.setItem("canteen_id", 130);
 
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
       if (
         localStorage.getItem("user_token") &&
-        localStorage.getItem("phone") === 1
+        localStorage.getItem("phone") == 1
       ) {
         var canteens = new Array();
         const result2 = await canChooseCant(); //返回用户可选饭堂
