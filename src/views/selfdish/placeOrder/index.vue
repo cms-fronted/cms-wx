@@ -28,7 +28,7 @@
 		</table>
 		<div style="position: fixed;left: 10px;right: 10px; bottom: 20px;" v-if="orderType!=4">
 			<van-button type="info" size="large" @click="submit">提交</van-button>
-			<van-button style="margin-top: 10px;" type="info" size="large">微信结账</van-button>
+			<!-- <van-button style="margin-top: 10px;" type="info" size="large">微信结账</van-button> -->
 		</div>
 		<div style="position: fixed;left: 10px;right: 10px; bottom: 20px;" v-else>
 			<van-button type="info" size="large" @click="changeAddress">修改</van-button>
@@ -129,6 +129,7 @@
 						Toast.fail('请选择地址！');
 					};
 				} else if (this.orderType == 1) {
+					console.log(this.selfDish,'====================')
 					//个人选菜订单
 					this.selfDish.detail = JSON.stringify(this.selfDish.detail);
 					if (this.dining_mode == 2) {

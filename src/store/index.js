@@ -10,6 +10,6 @@ export default new Vuex.Store({
 	modules: {
 		user,
 		notice,
-		noticeid
+		noticeid,
 	}
 });

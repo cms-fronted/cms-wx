@@ -102,7 +102,6 @@ import request from "../../utils/request";
 import { getOrderDetail, getUserOrder } from "@/api/orderingOnline";
 import moment from "moment";
 import { Dialog, Stepper, Toast } from "vant";
-import { async } from "q";
 import QS from "qs";
 
 export default {
@@ -150,13 +149,13 @@ export default {
     }
   },
   async mounted() {
-		Toast.loading({
-			forbidClick:true,
-			duration:0
-		});
+    Toast.loading({
+      forbidClick: true,
+      duration: 0
+    });
     let res1 = await getOrderDetail();
     let res2 = await request({
-      url: "/v1/order/userOrdering",
+      url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
       method: "get",
       params: {
         consumption_time: moment().format("YYYY-MM")
@@ -167,17 +166,15 @@ export default {
     this.orderList = this.computeOrderList(
       res2.data.filter(item => item.ordering_type === "online")
     );
-    this.$bus.$on("updatePage", () => {
-      setTimeout(async () => {
-        Toast.loading({
-          forbidClick: true,
-          message: "加载中...",
-          buration: 0
-        });
-        await this.selectCanteen();
-      }, 2000);
+    this.$bus.$on("updatePage", async () => {
+      Toast.loading({
+        forbidClick: true,
+        message: "加载中...",
+        buration: 0
+      });
+      await this.selectCanteen();
     });
-		Toast.clear()
+    Toast.clear();
   },
   methods: {
     computeDate() {
@@ -244,7 +241,7 @@ export default {
       let date = this.currentDate;
       let res1 = await getOrderDetail();
       let res2 = await request({
-        url: "/v1/order/userOrdering",
+        url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
         method: "get",
         params: {
           consumption_time: moment(date).format("YYYY-MM")
@@ -362,10 +359,9 @@ export default {
       const data = {
         id: id
       };
-      console.log(data);
       if (action === "confirm") {
         const res = await request({
-          url: "/v1/order/cancel",
+          url: "http://canteen.tonglingok.com/api/v1/order/cancel",
           method: "post",
           data: QS.stringify(data)
         });
@@ -393,7 +389,7 @@ export default {
       };
       if (action === "confirm") {
         const res = await request({
-          url: "/v1/order/changeCount",
+          url: "http://canteen.tonglingok.com/api/v1/order/changeCount",
           method: "post",
           data: QS.stringify(data)
         });
@@ -433,7 +429,7 @@ export default {
           detail
         };
         const res = await request({
-          url: "/v1/order/online/save",
+          url: "http://canteen.tonglingok.com/api/v1/order/online/save",
           method: "post",
           data: QS.stringify(data)
         });
@@ -481,17 +477,18 @@ export default {
           const now = moment();
           const today = moment().format("YYYY-MM-DD");
           const date = moment(); //创建 今日时间戳
-          if (
-            moment(order_date).day() === 0 ||
-            moment(order_date).day() === 6
-          ) {
-            return false;
-          }
+          // if (
+          //   moment(order_date).day() === 0 ||
+          //   moment(order_date).day() === 6
+          // ) {
+          //   return false;
+          // }
           if (type === "day") {
             date.set("hour", hour);
             date.set("minute", minute);
-            date.add(type_number, type); //  加上需提前的天数
-            if (!moment(order_date).isAfter(date)) {
+            date.add(type_number-1, type); //  加上需提前的天数
+            console.log(date);
+            if (!moment(order_date).isAfter(date) && now.isAfter(date) ) {
               // 如果选中 订餐日期 符合 提前天数
               Dialog({
                 message: "已超过订餐截止时间"
@@ -504,7 +501,7 @@ export default {
             const prevDate = moment(order_date).day(-type_number); //选中日期 提前 一周的周 几，根据实际情况
             prevDate.set("hour", hour);
             prevDate.set("minute", minute);
-            if (!moment(now).isBefore(prevDate)) {
+            if (!moment(now).isBefore(prevDate) && now.isAfter(prevDate)) {
               Dialog({
                 message: "已超过订餐截止时间"
               }).then(() => {

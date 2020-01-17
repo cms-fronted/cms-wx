@@ -1,6 +1,6 @@
 <template>
   <div class="content">
-    <img src="../../assets/u5178.png" />
+    <img :src="bg" />
     <van-field
       v-model="phone"
       left-icon="phone-o"
@@ -27,7 +27,7 @@
 <script>
 import { getSmsCode, bindPhone } from "@/api/user.js";
 import { Toast } from "vant";
-
+import bgicon from "@/assets/u5178.png"
 export default {
   data() {
     return {
@@ -36,7 +36,8 @@ export default {
       errorMsg: "",
       check: false, //信息校验
       firstJump: false,
-      btntext: ""
+      btntext: "",
+      bg: bgicon
     };
   },
   methods: {
