@@ -162,7 +162,7 @@ export default {
       const result = await getModules();
       if (result.errorCode == 0) {
         // console.log(result.data);
-        this.mGrid.forEach((item, index) => {
+        result.data.forEach((item, index) => {
           item.icon = require("../.." + item.icon);
         });
         this.grid = result.data;
