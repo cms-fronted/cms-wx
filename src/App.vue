@@ -98,12 +98,6 @@ export default {
     //跳转微信授权页面获取code
     getCode() {
       window.location.href =
-<<<<<<< HEAD
-        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2Findex.html&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
-    },
-    //初始化信息
-    init() {}
-=======
         "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
     },
     setTitle() {
@@ -114,7 +108,6 @@ export default {
         }
       });
     }
->>>>>>> version2
   },
   watch: {
     $route(now, old) {
@@ -132,61 +125,6 @@ export default {
       this.title = "当前饭堂:" + val;
     }
   },
-<<<<<<< HEAD
-  async created() {
-    if (this.$router.path !== "/") {
-      this.$router.replace("/");
-    }
-
-    //检查token是否过期
-
-    // const res = await getChooseDinner();
-    // if (res.errorCode == 1001) {
-    //   //token已过期 获取code
-    //   this.getCode();
-
-    const params = new URLSearchParams(window.location.search.substring(1)); //查询url
-    const code = params.get("code"); //获取url中的code
-    const state = params.get("state");
-    if (code && state) {
-      Toast.loading({
-        forbidClick: true,
-        duration: 0
-      });
-      //获取用户信息判断该用户是否绑定手机或饭堂
-      const result = await getUserToken({
-        code: code,
-        state: state
-      });
-      //缓存token
-      if (result.errorCode == 0) {
-        this.$store.commit("user/setToken", result.data.token);
-        //本地缓存token
-        // window.localStorage.setItem('token',result.data.token);
-        if (result.data.phone == 2) {
-          //用户未绑定手机
-          this.$router.push("entry");
-          Toast.clear();
-          return;
-        } else if (result.data.canteen_selected == 2) {
-          //未选择饭堂进入饭堂选择页
-          this.$router.push("setting");
-          Toast.clear();
-          return;
-        }
-        //已选择饭堂 缓存饭堂id
-        this.$store.commit("user/setCanteen", result.data.canteen_id);
-        //设置显示已选饭堂 缓存获取
-        this.radio = this.canteen_id;
-      }
-      //设置显示可选饭堂 获取用户可进入饭堂
-      var canteens = new Array();
-      const result2 = await canChooseCant();
-      if (result2.errorCode == 0) {
-        result2.data.forEach((items, index) => {
-          items.canteens.forEach((item, key) => {
-            canteens.push(item.info);
-=======
   async mounted() {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
@@ -210,7 +148,6 @@ export default {
             items.canteens.forEach((item, key) => {
               canteens.push(item.info);
             });
->>>>>>> version2
           });
           this.$store.commit("user/setCanteenList", canteens);
         }
