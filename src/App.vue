@@ -150,7 +150,7 @@ export default {
           });
           this.$store.commit("user/setCanteenList", canteens);
         }
-      } else if (localStorage.getItem("phone") === 1) {
+      } else if (localStorage.getItem("phone") === 2) {
         this.$router.push({
           name: "entry"
         });
