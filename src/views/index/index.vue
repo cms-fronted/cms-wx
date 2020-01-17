@@ -2,18 +2,18 @@
   <div id="index">
     <!-- 轮播图 -->
     <van-swipe :autoplay="4000" class="swip">
-      <van-swipe-item v-for="(item,index) in imgs" :key="index">
+      <van-swipe-item v-for="(item, index) in imgs" :key="index">
         <van-image :src="item.imgSrc" />
       </van-swipe-item>
     </van-swipe>
     <div class="list">
       <!-- <p style="line-height: 5px;">个人应用</p> -->
       <ul style="margin-bottom: 60px;">
-        <li v-for="(item,index) in grid" :key="index">
+        <li v-for="(item, index) in grid" :key="index">
           <!-- 设置路由 -->
           <router-link :to="item.url" style="width: 100%;">
             <img :src="item.icon" />
-            <p>{{item.name}}</p>
+            <p>{{ item.name }}</p>
           </router-link>
         </li>
       </ul>
@@ -140,7 +140,7 @@ export default {
         //   icon: "/assets/search.png",
         //   type: 0,
         //   url: "totalorder"
-        // }
+        // },
         // {
         //   category: "4",
         //   name: "公告发布",
@@ -161,16 +161,17 @@ export default {
       //设置当前可见模块
       const result = await getModules();
       if (result.errorCode == 0) {
-        // console.log(result.data);
-        result.data.forEach((item, index) => {
-          item.icon = require("../.." + item.icon);
+        console.log(result);
+        this.mGrid = result.data;
+        this.mGrid.forEach((item, index) => {
+          item.icon = "http://yuncanteen3.51canteen.com/canteen3" + item.icon;
         });
-        this.grid = result.data;
       }
+      this.grid = this.mGrid;
     }
   },
-  mounted() {
-    this.setModule();
+  async mounted() {
+    await this.setModule();
   }
 };
 </script>
