@@ -18,7 +18,10 @@
           <van-icon size="32px" :name="!show ? 'arrow-up' : 'arrow-down'" />
         </div>
         <div v-bind:hidden="show">
-          <van-radio-group v-model="radio" style="width: 100%;display: flex;flex-wrap: wrap;">
+          <van-radio-group
+            v-model="radio"
+            style="width: 100%;display: flex;flex-wrap: wrap;"
+          >
             <van-radio
               class="flex-row flex-center"
               icon-size="12px"
@@ -27,7 +30,8 @@
               :name="item.id"
               @click="chooseCanteen(item.id)"
               style="width: 33%; margin: 10px 0"
-            >{{ item.name }}</van-radio>
+              >{{ item.name }}</van-radio
+            >
           </van-radio-group>
         </div>
       </div>
@@ -60,7 +64,7 @@ export default {
       show: true, //展示选择饭堂
       radio: null, //当前所选饭堂
       canteen_name: "", //当前所选饭堂名称
-      title: "",
+      title: ""
     };
   },
   methods: {
@@ -117,7 +121,7 @@ export default {
       this.setTitle();
     },
     canteen_name(val) {
-      this.title = "当前饭堂:" +val;
+      this.title = "当前饭堂:" + val;
     }
   },
   async mounted() {
@@ -132,7 +136,10 @@ export default {
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
-      if (localStorage.getItem("user_token")) {
+      if (
+        localStorage.getItem("user_token") &&
+        localStorage.getItem("phone") === 1
+      ) {
         var canteens = new Array();
         const result2 = await canChooseCant(); //返回用户可选饭堂
         if (result2.errorCode == 0) {
@@ -143,6 +150,10 @@ export default {
           });
           this.$store.commit("user/setCanteenList", canteens);
         }
+      } else if (localStorage.getItem("phone") === 2) {
+        this.$router.push({
+          name: "entry"
+        });
       }
     }
 

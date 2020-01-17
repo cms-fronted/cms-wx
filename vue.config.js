@@ -45,6 +45,6 @@ module.exports = {
     if (IS_PROD) {
       config.optimization.delete('splitChunks')
     }
-    return config
+    return config;
   }
 };
