@@ -128,10 +128,10 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    localStorage.setItem("phone", 1);
-    localStorage.setItem("user_token", "5b9b94299d379be2ea94809577ba132b");
-    localStorage.setItem("canteen_selected", 1);
-    localStorage.setItem("canteen_id", 130);
+    // localStorage.setItem("phone", 1);
+    // localStorage.setItem("user_token", "e1541b80101d5fb327b60d7867fffef0");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 130);
 
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
@@ -150,7 +150,7 @@ export default {
           });
           this.$store.commit("user/setCanteenList", canteens);
         }
-      } else if (localStorage.getItem("phone") === 2) {
+      } else if (localStorage.getItem("phone") == 2) {
         this.$router.push({
           name: "entry"
         });
