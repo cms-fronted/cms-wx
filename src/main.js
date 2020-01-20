@@ -9,7 +9,16 @@ import 'vant/lib/index.css';
 import moment from 'moment';
 import BScroll from 'better-scroll';
 import VConsole from 'vconsole';
-let vConsole = new VConsole();
+
+(function () {
+	let time = 0;
+	setInterval(() => {
+		time = 0;
+	}, 1000)
+	if (time == 6) {
+		let vConsole = new VConsole();
+	}
+})()
 Vue.prototype.$moment = moment;
 
 
