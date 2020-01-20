@@ -15,6 +15,9 @@ import VConsole from 'vconsole';
 	setInterval(() => {
 		time = 0;
 	}, 1000)
+	document.addEventListener('click', ()=>{
+		time++
+	})
 	if (time == 6) {
 		let vConsole = new VConsole();
 	}
