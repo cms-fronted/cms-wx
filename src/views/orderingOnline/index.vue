@@ -9,7 +9,7 @@
         {{ $moment(currentDate).format("YYYY-MM") }}
         <div class="mIcon" />
       </van-button>
-      <p>订餐数量：8</p>
+      <p>订餐数量：{{ orderCount }}</p>
     </div>
     <table width="100%" ref="tableForm">
       <tr>
@@ -45,7 +45,7 @@
           v-for="(order, orderIndex) in item.orderOfMeal"
           @touchstart="e => gotouchstart(e, item)"
           @touchmove.stop="gotouchmove"
-          @touchend="e => gotouchend(e, item)"
+          @touchend.stop="e => gotouchend(e, item)"
           :key="orderIndex"
         >
           <p v-for="canteen in order.canteens" :key="canteen.canteen_id">
@@ -65,6 +65,7 @@
       />
     </van-popup>
     <van-dialog
+      :overlay="true"
       v-model="editShow"
       title="修改数量"
       :before-close="(action, done) => confirmEdit(action, done)"
@@ -80,6 +81,7 @@
       />
     </van-dialog>
     <van-dialog
+      :overlay="true"
       v-model="addShow"
       title="订餐数量"
       :before-close="(action, done) => confirmAdd(action, done)"
@@ -120,6 +122,7 @@ export default {
       addCount: "", //下单时订餐数量
       ordering_date: "", //下单时点击单元格对应的时间
       dateList: [],
+      orderCount: 0,
       orderDataList: [],
       // 饭餐类型
       mealList: [],
@@ -166,6 +169,7 @@ export default {
     this.orderList = this.computeOrderList(
       res2.data.filter(item => item.ordering_type === "online")
     );
+    this.orderCount = res2.data.count || 0;
     this.$bus.$on("updatePage", async () => {
       Toast.loading({
         forbidClick: true,
@@ -252,6 +256,7 @@ export default {
       this.orderList = this.computeOrderList(
         res2.data.filter(item => item.ordering_type === "online")
       );
+      this.orderCount = res2.data.count || 0;
       Toast.clear();
     },
     async timeConf(e) {
@@ -459,7 +464,9 @@ export default {
           dataset = this.$refs.tableForm.rows[0].cells[
             e.target.parentNode.cellIndex
           ].dataset;
-          this.editShow = true;
+          setTimeout(() => {
+            this.editShow = true;
+          }, 350);
           cellIndex = e.target.parentNode.cellIndex;
           id = row.orderOfMeal[cellIndex - 1].id;
           this.nowId = id; //保存 订单id 供修改使用
@@ -486,9 +493,9 @@ export default {
           if (type === "day") {
             date.set("hour", hour);
             date.set("minute", minute);
-            date.add(type_number-1, type); //  加上需提前的天数
+            date.add(type_number - 1, type); //  加上需提前的天数
             console.log(date);
-            if (!moment(order_date).isAfter(date) && now.isAfter(date) ) {
+            if (!moment(order_date).isAfter(date) && now.isAfter(date)) {
               // 如果选中 订餐日期 符合 提前天数
               Dialog({
                 message: "已超过订餐截止时间"
@@ -513,7 +520,9 @@ export default {
           this.ordering_date = row.date;
           this.dinner_id = dataset.d_id;
           this.maxCount = dataset.count;
-          this.addShow = true;
+          setTimeout(() => {
+            this.addShow = true;
+          }, 350);
         }
       }
     },

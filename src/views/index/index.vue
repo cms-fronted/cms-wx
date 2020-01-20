@@ -162,15 +162,19 @@ export default {
       const result = await getModules();
       if (result.errorCode == 0) {
         console.log(result);
-        this.mGrid = result.data
+        this.mGrid = result.data;
         this.mGrid.forEach((item, index) => {
-          item.icon = "http://yuncanteen3.51canteen.com/canteen3"+ item.icon
-        });}
+          item.icon = "http://yuncanteen3.51canteen.com/canteen3" + item.icon;
+        });
+      }
       this.grid = this.mGrid;
     }
   },
   async mounted() {
     await this.setModule();
+    this.$bus.$on("updatePage", async () => {
+      await this.setModule();
+    });
   }
 };
 </script>
