@@ -165,11 +165,17 @@ export default {
       }
     });
     this.computeDate();
-    this.mealList = res1.data; //数据的 渲染必须同步， 同时生成mealList，orderList
-    this.orderList = this.computeOrderList(
-      res2.data.filter(item => item.ordering_type === "online")
-    );
-    this.orderCount = res2.data.count || 0;
+    if (res1.msg === "ok") {
+      this.mealList = res1.data; //数据的 渲染必须同步， 同时生成mealList，orderList
+    }
+    if (res2.msg === "ok") {
+      this.orderList = this.computeOrderList(
+        res2.data.filter(item => item.ordering_type === "online")
+      );
+      res2.data.forEach(item => {
+        this.orderCount += item.count;
+      });
+    }
     this.$bus.$on("updatePage", async () => {
       Toast.loading({
         forbidClick: true,
@@ -216,7 +222,7 @@ export default {
             create_time
           } = data[i];
           // 订餐数据条目不为今日则跳过这一条
-          if (date !== ordering_date) continue;
+          if (date != ordering_date) continue;
           // 如果 餐次信息与当前饭堂餐次信息不匹配则跳过这一条
           if (!order[dinner]) continue;
           // 这个根据dinner的中文名还是id，根据实际改变
@@ -252,11 +258,18 @@ export default {
         }
       });
       this.initDate(date);
-      this.mealList = res1.data;
-      this.orderList = this.computeOrderList(
-        res2.data.filter(item => item.ordering_type === "online")
-      );
-      this.orderCount = res2.data.count || 0;
+      if (res1.msg === "ok") {
+        this.mealList = res1.data;
+      }
+      if (res2.msg === "ok") {
+        this.orderCount = 0;
+        this.orderList = this.computeOrderList(
+          res2.data.filter(item => item.ordering_type === "online")
+        );
+        res2.data.forEach(item => {
+          this.orderCount += item.count;
+        });
+      }
       Toast.clear();
     },
     async timeConf(e) {
@@ -264,15 +277,29 @@ export default {
       this.timeShow = false;
       this.dateList = [];
       this.orderList = [];
-      // await this.getUserOrdered(e);
       const consumption_time = this.$moment(e).format("YYYY-MM");
       const res = await getUserOrder({
         consumption_time
       });
-      this.initDate(e);
-      this.orderList = this.computeOrderList(
-        res.data.filter(item => item.ordering_type === "online")
-      );
+      if (res.msg === "ok") {
+        this.initDate(e);
+        this.orderCount = 0;
+        this.orderList = this.computeOrderList(
+          res.data.filter(item => item.ordering_type === "online")
+        );
+        res.data.forEach(item => {
+          this.orderCount += item.count;
+        });
+      }
+      // if (res.data.length > 1) {
+      //   this.orderCount = res.data.reduce((prev, curr) => {
+      //     return prev.count + curr.count;
+      //   });
+      // } else if (res.data.length == 1) {
+      //   this.orderCount = res.data[0].count;
+      // } else {
+      //   this.orderCount = 0;
+      // }
     },
     //初始化事件数组
     initDate(date) {
@@ -280,6 +307,8 @@ export default {
       let dates = [];
       let year = this.$moment(date).year();
       let chooseMonth = date.getMonth() + 1; //保存选中的月份
+      chooseMonth =
+        chooseMonth.toString().length === 2 ? chooseMonth : "0" + chooseMonth;
       let nowMonth = new Date().getMonth() + 1; // 保存当前月份
       let isCurrentMonth = chooseMonth === nowMonth; // 判断所选中的月份是否为当前月份
       let startD, endD, restDay, _date;
@@ -296,8 +325,9 @@ export default {
       endD = Number(endD);
       // restDay = endD - startD;
       for (let i = startD; i < endD + 1; i++) {
+        let day = i.toString().length === 2 ? i : "0" + i;
         // 循环插入每一天的数据
-        _date = "" + year + "-" + chooseMonth + "-" + i;
+        _date = "" + year + "-" + chooseMonth + "-" + day;
         dates.push(_date);
       }
       this.dateList = dates;
@@ -319,10 +349,14 @@ export default {
         consumption_time
       });
       if (res.msg === "ok") {
+        this.orderCount = 0;
         const data = res.data;
         this.orderList = this.computeOrderList(
           data.filter(item => item.ordering_type === "online")
         );
+        data.forEach(item => {
+          this.orderCount += item.count;
+        });
       }
     },
     gotouchstart(e, row) {
@@ -405,7 +439,7 @@ export default {
           }).then(async () => {
             Dialog.close();
           });
-          await this.getUserOrdered();
+          await this.getUserOrdered(this.currentDate);
         } else {
           done();
         }
@@ -445,7 +479,7 @@ export default {
           }).then(async () => {
             Dialog.close();
           });
-          await this.getUserOrdered();
+          await this.getUserOrdered(ordering_date);
         } else {
           done();
         }
@@ -494,7 +528,6 @@ export default {
             date.set("hour", hour);
             date.set("minute", minute);
             date.add(type_number - 1, type); //  加上需提前的天数
-            console.log(date);
             if (!moment(order_date).isAfter(date) && now.isAfter(date)) {
               // 如果选中 订餐日期 符合 提前天数
               Dialog({
