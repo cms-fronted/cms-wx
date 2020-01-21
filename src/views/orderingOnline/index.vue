@@ -582,57 +582,89 @@ export default {
     //全选编辑
     async confirmAddAll(action, done) {
       if (action == "confirm") {
-        // let d_id = this.dinner_id;
-        // let count = this.addCount;
-        // let ordering_date = this.ordering_date;
-        // let detail = [
-        //   {
-        //     d_id: d_id,
-        //     ordering: [
-        //       {
-        //         ordering_date,
-        //         count
-        //       }
-        //     ]
-        //   }
-        // ];
         //确认全选订餐
         if (this.dinner_id == undefined) {
-          console.log("1111");
           //若按下为全选
           // this.mealList.id 全选餐次id列表
           //this.tableData.data 全选日期列表
           //this.addCount //订餐数量
 
           let detail = [];
-          let ordering = [];
-          this.tableData.forEach((items, index) => {
-            ordering.push({
-              ordering_date: items.date,
-              count: this.addCount
-            });
+          let res2 = await request({
+            url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
+            method: "get",
+            params: {
+              consumption_time: moment(this.currentDate).format("YYYY-MM")
+            }
           });
-
-          this.mealList.forEach((items, index) => {
-            detail.push({
-              d_id: items.id,
-              ordering: ordering
+          if (res2.errorCode == 0 && res2.data.length > 0) {
+            this.mealList.forEach((items, index) => {
+              let order = this.tableData.concat(); //复制数组
+              let ordering = []; //订餐日期及数量数组
+              //去除重复订餐信息
+              res2.data.forEach((item, i) => {
+                if (items.id == item.d_id) {
+                  order.forEach((j, k) => {
+                    if (j.date == item.ordering_date) {
+                      order.splice(k, 1);
+                    }
+                  });
+                }
+              });
+              //整理数据结构
+              order.forEach((a, b) => {
+                ordering.push({
+                  ordering_date: a.date,
+                  count: this.addCount
+                });
+              });
+              //整理数据结构
+              detail.push({
+                d_id: items.id,
+                ordering: ordering
+              });
             });
-          });
-          console.log("提交数据：", detail);
-          // await this.submitOrder(detail);
+            console.log("提交数据：", detail);
+            await this.submitOrder(detail, done);
+          }
         } else {
           //按下对应餐次全选
-          // this.dinner_id 对应餐次id
-          let ordering = [];
           let detail = [];
-          this.tableData.forEach((items, index) => {
-            ordering.push({
-              ordering_date: items.date,
-              count: this.addCount
-            });
+          let order = this.tableData.concat();
+          let ordering = [];
+          //获取用户已订餐信息
+          let res2 = await request({
+            url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
+            method: "get",
+            params: {
+              consumption_time: moment(this.currentDate).format("YYYY-MM")
+            }
           });
+          if (res2.errorCode == 0 && res2.data.length > 0) {
+            res2.data.forEach((items, index) => {
+              if (items.d_id == this.dinner_id) {
+                order.forEach((i, j) => {
+                  if (i.date == items.ordering_date) {
+                    order.splice(j, 1);
+                  }
+                });
+              }
+            });
+            order.forEach((item, index) => {
+              ordering.push({
+                ordering_date: item.date,
+                count: this.addCount
+              });
+            });
+            detail = {
+              d_id: this.dinner_id,
+              ordering: ordering
+            };
+            console.log("提交的数据：", detail);
+            await this.submitOrder(detail, done);
+          }
         }
+        done();
       } else {
         this.dinner_id = "";
         done();
@@ -641,10 +673,9 @@ export default {
     selectAll(e) {
       this.addAllShow = true;
       this.dinner_id = e; //设置当前选中餐次
-      console.log(this.dinner_id);
     },
     //发起订餐请求
-    async submitOrder(e) {
+    async submitOrder(e, done) {
       let detail = JSON.stringify(e);
       const data = {
         detail
