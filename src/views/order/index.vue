@@ -99,7 +99,7 @@
           border="1"
           cellpadding="0"
           cellspacing="0"
-          v-if="orderDetail.foods"
+          v-if="ordering_type == 'personal_choice' && !orderDetail.foods"
         >
           <tr>
             <td>名称</td>
@@ -349,7 +349,6 @@ export default {
     },
     // 显示订单详情
     async showOrder(e) {
-      console.log(e);
       Toast.loading({
         message: "加载中...",
         forbidClick: true,
@@ -380,7 +379,6 @@ export default {
       const result2 = await deliveryCode({
         id: this.orderDetail.id
       });
-      console.log(result2);
       if (result2.errorCode == 0) {
         this.sTime = result2.data.url.time_begin;
         this.eTime = result2.data.url.time_end;

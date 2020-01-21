@@ -1,7 +1,10 @@
 <template>
   <!-- 线上订餐 -->
   <div>
-    <div class="flex-row" style="align-items: center;justify-content: space-around;margin: 20px 0;">
+    <div
+      class="flex-row"
+      style="align-items: center;justify-content: space-around;margin: 20px 0;"
+    >
       <van-button class="myBtn" @click="timeShow = true">
         {{ $moment(currentDate).format("YYYY-MM") }}
         <div class="mIcon" />
@@ -19,21 +22,29 @@
           :data-time="item.limit_time"
           :data-count="item.ordered_count"
           :key="index"
-        >{{ item.name }}</th>
+        >
+          {{ item.name }}
+        </th>
       </tr>
       <!--TODO: 全选功能待添加-->
       <tr>
-        <td @click="selectAll()">全选</td>
+        <td>全选</td>
         <td
           v-for="(item, index) in mealList"
           :data-d_id="item.id"
           :key="index"
-          @click="selectAll(item.id)"
-        >全{{ item.name }}</td>
+          @click="selectAll(item.id, $event)"
+        >
+          全{{ item.name }}
+        </td>
         <!-- <td>全午</td>
         <td>全晚</td>-->
       </tr>
-      <tr v-for="(item, index) in tableData" :key="index" :class="{ weekend: item.isWeekend }">
+      <tr
+        v-for="(item, index) in tableData"
+        :key="index"
+        :class="{ weekend: item.isWeekend }"
+      >
         <td>{{ item.date | showTime }}</td>
         <td
           v-for="(order, orderIndex) in item.orderOfMeal"
@@ -42,10 +53,9 @@
           @touchend.stop="e => gotouchend(e, item)"
           :key="orderIndex"
         >
-          <p
-            v-for="canteen in order.canteens"
-            :key="canteen.canteen_id"
-          >{{ canteen.canteen }}*{{ canteen.count }}</p>
+          <p v-for="canteen in order.canteens" :key="canteen.canteen_id">
+            {{ canteen.canteen }}*{{ canteen.count }}
+          </p>
         </td>
       </tr>
     </table>
@@ -670,9 +680,13 @@ export default {
         done();
       }
     },
-    selectAll(e) {
+    selectAll(d_id, e) {
       this.addAllShow = true;
-      this.dinner_id = e; //设置当前选中餐次
+      console.log(
+        this.$refs.tableForm.rows[0].cells[e.target.cellIndex].dataset
+      );
+
+      this.dinner_id = d_id; //设置当前选中餐次
     },
     //发起订餐请求
     async submitOrder(e, done) {
