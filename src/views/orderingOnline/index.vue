@@ -591,6 +591,14 @@ export default {
         } else {
           //按下对应餐次全选
           // this.dinner_id 对应餐次id
+          let ordering = [];
+          let detail = [];
+          this.tableData.forEach((items, index) => {
+            ordering.push({
+              ordering_date: items.date,
+              count: this.addCount
+            });
+          });
         }
       } else {
         this.dinner_id = "";
