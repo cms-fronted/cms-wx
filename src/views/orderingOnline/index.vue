@@ -1,10 +1,7 @@
 <template>
   <!-- 线上订餐 -->
   <div>
-    <div
-      class="flex-row"
-      style="align-items: center;justify-content: space-around;margin: 20px 0;"
-    >
+    <div class="flex-row" style="align-items: center;justify-content: space-around;margin: 20px 0;">
       <van-button class="myBtn" @click="timeShow = true">
         {{ $moment(currentDate).format("YYYY-MM") }}
         <div class="mIcon" />
@@ -22,24 +19,21 @@
           :data-time="item.limit_time"
           :data-count="item.ordered_count"
           :key="index"
-        >
-          {{ item.name }}
-        </th>
+        >{{ item.name }}</th>
       </tr>
       <!--TODO: 全选功能待添加-->
       <tr>
-        <td>全选</td>
-        <td v-for="(item, index) in mealList" :data-d_id="item.id" :key="index">
-          全{{ item.name }}
-        </td>
+        <td @click="selectAll()">全选</td>
+        <td
+          v-for="(item, index) in mealList"
+          :data-d_id="item.id"
+          :key="index"
+          @click="selectAll(item.id)"
+        >全{{ item.name }}</td>
         <!-- <td>全午</td>
         <td>全晚</td>-->
       </tr>
-      <tr
-        v-for="(item, index) in tableData"
-        :key="index"
-        :class="{ weekend: item.isWeekend }"
-      >
+      <tr v-for="(item, index) in tableData" :key="index" :class="{ weekend: item.isWeekend }">
         <td>{{ item.date | showTime }}</td>
         <td
           v-for="(order, orderIndex) in item.orderOfMeal"
@@ -48,9 +42,10 @@
           @touchend.stop="e => gotouchend(e, item)"
           :key="orderIndex"
         >
-          <p v-for="canteen in order.canteens" :key="canteen.canteen_id">
-            {{ canteen.canteen }}*{{ canteen.count }}
-          </p>
+          <p
+            v-for="canteen in order.canteens"
+            :key="canteen.canteen_id"
+          >{{ canteen.canteen }}*{{ canteen.count }}</p>
         </td>
       </tr>
     </table>
@@ -85,6 +80,22 @@
       v-model="addShow"
       title="订餐数量"
       :before-close="(action, done) => confirmAdd(action, done)"
+      :show-cancel-button="true"
+    >
+      <van-stepper
+        style="padding:10px 0"
+        input-width="40px"
+        button-size="32px"
+        v-model="addCount"
+        min="1"
+        :max="maxCount"
+      />
+    </van-dialog>
+    <van-dialog
+      :overlay="true"
+      v-model="addAllShow"
+      title="全选订餐数量"
+      :before-close="(action, done) => confirmAddAll(action, done)"
       :show-cancel-button="true"
     >
       <van-stepper
@@ -131,7 +142,8 @@ export default {
       // 订单列表
       orderList: [],
       longPress: false,
-      isMove: false
+      isMove: false,
+      addAllShow: false
     };
   },
   computed: {
@@ -178,6 +190,8 @@ export default {
       });
       await this.selectCanteen();
     });
+    console.log("数据tableData:", this.tableData);
+    console.log("数据mealList:", this.mealList);
     Toast.clear();
   },
   methods: {
@@ -531,6 +545,85 @@ export default {
       clearTimeout(this.timeOutEvent); //清除定时器
       this.timeOutEvent = 0;
       this.isMove = true;
+    },
+    //全选编辑
+    async confirmAddAll(action, done) {
+      if (action == "confirm") {
+        // let d_id = this.dinner_id;
+        // let count = this.addCount;
+        // let ordering_date = this.ordering_date;
+        // let detail = [
+        //   {
+        //     d_id: d_id,
+        //     ordering: [
+        //       {
+        //         ordering_date,
+        //         count
+        //       }
+        //     ]
+        //   }
+        // ];
+        //确认全选订餐
+        if (this.dinner_id == undefined) {
+          console.log("1111");
+          //若按下为全选
+          // this.mealList.id 全选餐次id列表
+          //this.tableData.data 全选日期列表
+          //this.addCount //订餐数量
+
+          let detail = [];
+          let ordering = [];
+          this.tableData.forEach((items, index) => {
+            ordering.push({
+              ordering_date: items.date,
+              count: this.addCount
+            });
+          });
+
+          this.mealList.forEach((items, index) => {
+            detail.push({
+              d_id: items.id,
+              ordering: ordering
+            });
+          });
+          console.log("提交数据：", detail);
+          // await this.submitOrder(detail);
+        } else {
+          //按下对应餐次全选
+          // this.dinner_id 对应餐次id
+        }
+      } else {
+        this.dinner_id = "";
+        done();
+      }
+    },
+    selectAll(e) {
+      this.addAllShow = true;
+      this.dinner_id = e; //设置当前选中餐次
+      console.log(this.dinner_id);
+    },
+    //发起订餐请求
+    async submitOrder(e) {
+      let detail = JSON.stringify(e);
+      const data = {
+        detail
+      };
+      const res = await request({
+        url: "http://canteen.tonglingok.com/api/v1/order/online/save",
+        method: "post",
+        data: QS.stringify(data)
+      });
+      if (res.msg === "ok") {
+        done();
+        Dialog({
+          message: "操作成功！"
+        }).then(async () => {
+          Dialog.close();
+        });
+        await this.getUserOrdered();
+      } else {
+        done();
+      }
     }
   },
   filters: {

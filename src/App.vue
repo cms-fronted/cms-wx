@@ -130,7 +130,7 @@ export default {
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
     // localStorage.setItem("phone", 1);
-    // localStorage.setItem("user_token", "e1541b80101d5fb327b60d7867fffef0");
+    // localStorage.setItem("user_token", "78c15ba064d384d2288196bbe5319e5c");
     // localStorage.setItem("canteen_selected", 1);
     // localStorage.setItem("canteen_id", 130);
 

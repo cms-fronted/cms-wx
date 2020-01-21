@@ -160,6 +160,7 @@ export default {
     async setModule() {
       //设置当前可见模块
       const result = await getModules();
+      // console.log('......................',result)
       if (result.errorCode == 0) {
         console.log(result);
         this.mGrid = result.data;
