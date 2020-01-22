@@ -130,16 +130,16 @@ export default {
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
     // localStorage.setItem("phone", 1);
-    // localStorage.setItem("user_token", "78c15ba064d384d2288196bbe5319e5c");
+    localStorage.setItem("user_token", "3961dd8ef8d5854cf7ced64ba997b961");
     // localStorage.setItem("canteen_selected", 1);
     // localStorage.setItem("canteen_id", 130);
 
     if (!localStorage.getItem("user_token") && !code) {
       // this.getCode();
-    localStorage.setItem("phone", 1);
-    localStorage.setItem("user_token", "2c69f7e39e9097170a733921fbaf4e8c");
-    localStorage.setItem("canteen_selected", 1);
-    localStorage.setItem("canteen_id", 130);
+    // localStorage.setItem("phone", 1);
+    // localStorage.setItem("user_token", "3961dd8ef8d5854cf7ced64ba997b961");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 130);
 
     } else {
       if (localStorage.getItem("user_token")) {

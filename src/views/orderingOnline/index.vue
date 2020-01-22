@@ -1,10 +1,7 @@
 <template>
   <!-- 线上订餐 -->
   <div>
-    <div
-      class="flex-row"
-      style="align-items: center;justify-content: space-around;margin: 20px 0;"
-    >
+    <div class="flex-row" style="align-items: center;justify-content: space-around;margin: 20px 0;">
       <van-button class="myBtn" @click="timeShow = true">
         {{ $moment(currentDate).format("YYYY-MM") }}
         <div class="mIcon" />
@@ -22,9 +19,7 @@
           :data-time="item.limit_time"
           :data-count="item.ordered_count"
           :key="index"
-        >
-          {{ item.name }}
-        </th>
+        >{{ item.name }}</th>
       </tr>
       <!--TODO: 全选功能待添加-->
       <tr>
@@ -34,17 +29,11 @@
           :data-d_id="item.id"
           :key="index"
           @click="selectAll(item.id, $event)"
-        >
-          全{{ item.name }}
-        </td>
+        >全{{ item.name }}</td>
         <!-- <td>全午</td>
         <td>全晚</td>-->
       </tr>
-      <tr
-        v-for="(item, index) in tableData"
-        :key="index"
-        :class="{ weekend: item.isWeekend }"
-      >
+      <tr v-for="(item, index) in tableData" :key="index" :class="{ weekend: item.isWeekend }">
         <td>{{ item.date | showTime }}</td>
         <td
           v-for="(order, orderIndex) in item.orderOfMeal"
@@ -53,9 +42,10 @@
           @touchend.stop="e => gotouchend(e, item)"
           :key="orderIndex"
         >
-          <p v-for="canteen in order.canteens" :key="canteen.canteen_id">
-            {{ canteen.canteen }}*{{ canteen.count }}
-          </p>
+          <p
+            v-for="canteen in order.canteens"
+            :key="canteen.canteen_id"
+          >{{ canteen.canteen }}*{{ canteen.count }}</p>
         </td>
       </tr>
     </table>
@@ -153,7 +143,8 @@ export default {
       orderList: [],
       longPress: false,
       isMove: false,
-      addAllShow: false
+      addAllShow: false,
+      e: ""
     };
   },
   computed: {
@@ -537,6 +528,7 @@ export default {
             .dataset;
           let { type, type_number, time } = dataset;
           const order_date = row.date; //选中的 订餐日期
+          console.log("选中日期：", order_date);
           const hour = moment(time, "HH:mm:ss").get("hour");
           const minute = moment(time, "HH:mm:ss").get("minute");
           const now = moment();
@@ -652,6 +644,7 @@ export default {
           });
           if (res2.errorCode == 0 && res2.data.length > 0) {
             res2.data.forEach((items, index) => {
+              //过滤已订餐日期
               if (items.d_id == this.dinner_id) {
                 order.forEach((i, j) => {
                   if (i.date == items.ordering_date) {
@@ -660,7 +653,19 @@ export default {
                 });
               }
             });
+            //过滤不可订餐日期
+            let order2 = [];
             order.forEach((item, index) => {
+              let date = this.cleanDate(item.date);
+              if (date != undefined) {
+                order2.push({
+                  date: date
+                });
+              }
+            });
+            console.log("过滤不可订餐日期：", order);
+
+            order2.forEach((item, index) => {
               ordering.push({
                 ordering_date: item.date,
                 count: this.addCount
@@ -671,7 +676,7 @@ export default {
               ordering: ordering
             };
             console.log("提交的数据：", detail);
-            await this.submitOrder(detail, done);
+            // await this.submitOrder(detail, done);
           }
         }
         done();
@@ -685,7 +690,7 @@ export default {
       console.log(
         this.$refs.tableForm.rows[0].cells[e.target.cellIndex].dataset
       );
-
+      this.e = this.$refs.tableForm.rows[0].cells[e.target.cellIndex].dataset;
       this.dinner_id = d_id; //设置当前选中餐次
     },
     //发起订餐请求
@@ -709,6 +714,43 @@ export default {
         await this.getUserOrdered();
       } else {
         done();
+      }
+    },
+    //过滤不可订餐日期
+    cleanDate(dateTime) {
+      const dataset = this.e;
+      let { type, type_number, time } = dataset;
+      type = "week";
+      type_number = 1;
+      const order_date = moment(dateTime).format("YYYY-MM-DD HH:mm:ss"); //选中的 订餐日期
+      const hour = moment(time, "HH:mm:ss").get("hour");
+      const minute = moment(time, "HH:mm:ss").get("minute");
+      const now = moment(); //当前时间戳
+      const date = moment(); //创建 界限时间戳
+      if (type === "day") {
+        date.set("hour", hour);
+        date.set("minute", minute);
+        date.add(type_number, type); //  加上需提前的天数
+        if (moment(order_date).isAfter(date)) {
+          if (moment(order_date).diff(date, "second") < 216000) {
+            if (!now.isBefore(date.add(-type_number, type))) {
+              return dateTime;
+            }
+          } else {
+            return dateTime;
+          }
+        }
+      } else if (type === "week") {
+        const prevDate = moment(order_date).day(-type_number); //选中日期 提前 一周的周 几，根据实际情况
+        prevDate.set("hour", hour);
+        prevDate.set("minute", minute);
+        console.log(prevDate.format("YYYY-MM-DD HH:mm:ss"));
+        console.log(now.isAfter(prevDate));
+        // console.log(moment(now).isBefore(prevDate) , now.isAfter(prevDate), '==============',order_date);
+        if (!moment(now).isBefore(prevDate) && now.isAfter(prevDate)) {
+          // console.log(22222);
+          return dateTime;
+        } // 是否有提前
       }
     }
   },
