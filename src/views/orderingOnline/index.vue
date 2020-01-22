@@ -676,7 +676,7 @@ export default {
               ordering: ordering
             };
             console.log("提交的数据：", detail);
-            // await this.submitOrder(detail, done);
+            await this.submitOrder(detail, done);
           }
         }
         done();
@@ -720,8 +720,6 @@ export default {
     cleanDate(dateTime) {
       const dataset = this.e;
       let { type, type_number, time } = dataset;
-      type = "week";
-      type_number = 1;
       const order_date = moment(dateTime).format("YYYY-MM-DD HH:mm:ss"); //选中的 订餐日期
       const hour = moment(time, "HH:mm:ss").get("hour");
       const minute = moment(time, "HH:mm:ss").get("minute");
@@ -732,8 +730,11 @@ export default {
         date.set("minute", minute);
         date.add(type_number, type); //  加上需提前的天数
         if (moment(order_date).isAfter(date)) {
+          //订餐日期是否在界限之后
           if (moment(order_date).diff(date, "second") < 216000) {
+            //是否离界限24小时
             if (!now.isBefore(date.add(-type_number, type))) {
+              //判断当前时间是否超过订餐时间限制
               return dateTime;
             }
           } else {
@@ -741,14 +742,38 @@ export default {
           }
         }
       } else if (type === "week") {
-        const prevDate = moment(order_date).day(-type_number); //选中日期 提前 一周的周 几，根据实际情况
+        // console.log(moment(order_date).format("YYYY-MM-DD HH:mm:ss"));
+        /**
+         * 0 上周日
+         * -1上周六
+         * -2上周五
+         * -6上周一
+         */
+        let day;
+        switch (type_number) {
+          case 1:
+            day = 6;
+            break;
+          case 2:
+            day = 5;
+            break;
+          case 3:
+            day = 4;
+            break;
+          case 4:
+            day = 3;
+            break;
+          case 5:
+            day = 2;
+            break;
+          case 6:
+            day = 1;
+            break;
+        }
+        const prevDate = moment(order_date).day(-day); //选中日期 提前 一周的周 几，根据实际情况
         prevDate.set("hour", hour);
         prevDate.set("minute", minute);
-        console.log(prevDate.format("YYYY-MM-DD HH:mm:ss"));
-        console.log(now.isAfter(prevDate));
-        // console.log(moment(now).isBefore(prevDate) , now.isAfter(prevDate), '==============',order_date);
-        if (!moment(now).isBefore(prevDate) && now.isAfter(prevDate)) {
-          // console.log(22222);
+        if (now.isBefore(prevDate)) {
           return dateTime;
         } // 是否有提前
       }
