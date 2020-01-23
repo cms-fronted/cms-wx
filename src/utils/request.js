@@ -8,29 +8,24 @@ import {
 } from 'vant'
 // import { getToken } from '@/utils/auth'
 
-Toast.loading({
-	message: '获取数据中...',
-	forbidClick: true,
-	duration: 0
-});
 // create an axios instance
 const service = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API, // api 的 base_url
+	// baseURL: 'http://canteen.tonglingok.com/api/', // api 的 base_url
 	// withCredentials: true, // 跨域请求时发送 cookies
 	timeout: 5000, // request timeout
-	headers: {
-		'token': store.state.user.token
-	}
+
 })
 
 // request interceptor
 service.interceptors.request.use(
 	config => {
+		const token = store.state.user.token;
 		// Do something before request is sent
-		// if (store.getters.token) {
-		//   // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
-		//   config.headers['X-Token'] = getToken()
-		// }
+		if (token) {
+			// 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
+			config.headers.token = token
+		}
 		return config
 	},
 	error => {
@@ -55,7 +50,14 @@ service.interceptors.response.use(
 	 */
 	response => {
 		const res = response.data
-		if (res.errorCode === 0) return res
+		if (res.errorCode === 0) {
+			Toast.clear();
+			return res;
+		 }
+		else if (res.errorCode == 10001) {
+			window.location.href =
+				"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+		}
 		else {
 			console.log('错误码：', res.errorCode);
 			Toast.clear();
@@ -101,7 +103,5 @@ service.interceptors.response.use(
 		// return Promise.reject(error)
 	}
 )
-
-Toast.clear();
 
 export default service

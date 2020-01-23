@@ -1,10 +1,11 @@
 import request from '@/utils/request.js';
 
 // 获取用户登录token
-export function getUserToken() {
+export function getUserToken(data) {
 	return request({
 		url: 'http://canteen.tonglingok.com/api/v1/token/official',
-		method: 'get'
+		method: 'get',
+		params: data
 	});
 };
 //发送验证码
@@ -36,14 +37,14 @@ export function getCard() {
 //获取所属企业列表
 export function getCompanies() {
 	return request({
-		url: 'v1/user/companies',
+		url: 'http://canteen.tonglingok.com/api/v1/user/companies',
 		method: 'get'
 	});
 };
 //获取用户可见模块
 export function getModules() {
 	return request({
-		url: 'v1/modules/user',
+		url: 'http://canteen.tonglingok.com/api/v1/modules/user',
 		method: 'get'
 	});
 };
@@ -100,7 +101,7 @@ export function getChooseDinner() {
 };
 
 //用户充值
-export function recharge(data) {
+export function getRechargeId(data) {
 	return request({
 		url: 'http://canteen.tonglingok.com/api/v1/wallet/pay',
 		method: 'post',
@@ -109,10 +110,11 @@ export function recharge(data) {
 };
 
 //获取微信支付信息
-export function getPayInfo() {
+export function getPayInfo(data) {
 	return request({
 		url: 'http://canteen.tonglingok.com/api/v1/wallet/pay/getPreOrder',
 		method: 'get',
+		params: data
 	});
 };
 

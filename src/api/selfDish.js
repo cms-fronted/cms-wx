@@ -54,7 +54,7 @@ export function saveCanteenComment(data) {
 	});
 };
 
-//提交订单 http://canteen.tonglingok.com/api/v1/order/personChoice/save
+//提交订单 http://canteen.tonglingok.com/apihttp://canteen.tonglingok.com/api/v1/order/personChoice/save
 export function saveOrder(data) {
 	return request({
 		url: 'http://canteen.tonglingok.com/api/v1/order/personChoice/save',
@@ -84,8 +84,8 @@ export function changeFoods(data) {
 //修改订单地址
 export function changeOrderAddress(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/order/changeAddress',
-		method: 'post',
+		url:'http://canteen.tonglingok.com/api/v1/order/changeAddress',
+		method:'post',
 		data
 	})
 }

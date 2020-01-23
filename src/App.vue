@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <!-- 导航栏 -->
-    <mt-header title="云饭堂" style="padding:0;">
+    <mt-header :title="title" style="padding:0;">
       <div @click="back" slot="left" v-show="isShow">
         <mt-button icon="back">返回</mt-button>
       </div>
@@ -15,22 +15,23 @@
           style="width: auto;align-items: flex-end;padding-right: 20px;"
           @click="showCanteen"
         >
-          <van-icon size="32px" :name="!show?'arrow-up':'arrow-down'" />
+          <van-icon size="32px" :name="!show ? 'arrow-up' : 'arrow-down'" />
         </div>
         <div v-bind:hidden="show">
           <van-radio-group
             v-model="radio"
-            @change="chooseCanteen"
             style="width: 100%;display: flex;flex-wrap: wrap;"
           >
             <van-radio
               class="flex-row flex-center"
-              :name="item.id"
               icon-size="12px"
-              v-for="(item,index) in canteenList"
+              v-for="(item, index) in canteenList"
               :key="index"
+              :name="item.id"
+              @click="chooseCanteen(item.id)"
               style="width: 33%; margin: 10px 0"
-            >{{item.name}}</van-radio>
+              >{{ item.name }}</van-radio
+            >
           </van-radio-group>
         </div>
       </div>
@@ -41,6 +42,7 @@
     <!-- 		<keep-alive>
 			<router-view v-if="!$route.meta.noCache" />
     </keep-alive>-->
+    <!-- <button @click="test">测试</button> -->
     <router-view />
   </div>
 </template>
@@ -50,16 +52,20 @@ import {
   getUserToken,
   canChooseCant,
   bindCanteen,
-  getModules
+  getModules,
+  getChooseDinner
 } from "./api/user.js";
 import { Toast } from "vant";
+import store from "@/store";
 
 export default {
   data() {
     return {
       isShow: false,
-      show: true,
-      radio: ""
+      show: true, //展示选择饭堂
+      radio: null, //当前所选饭堂
+      canteen_name: "", //当前所选饭堂名称
+      title: ""
     };
   },
   methods: {
@@ -70,24 +76,37 @@ export default {
       this.$router.go(-1);
     },
     //用户选择饭堂
-    chooseCanteen(e) {
+    async chooseCanteen(e) {
+      if (this.canteen_id == e) {
+        return;
+      }
       Toast.loading({
         forbidClick: true,
         message: "加载中...",
         buration: 0
       });
-      bindCanteen({
+      const result = await bindCanteen({
         canteen_id: e
-      })
-        .then(result => {
-          if (result.errorCode == 0) {
-            this.$store.commit("user/setCanteen", e);
-            this.$bus.$emit("updatePage"); //注册全局事件
-            Toast.clear();
-            Toast.success("成功进入饭堂!");
-          }
-        })
-        .then(() => {});
+      });
+      if (result.errorCode == 0) {
+        Toast.clear();
+        Toast.success("成功进入饭堂!");
+        this.$store.commit("user/setCanteen", e);
+        this.$bus.$emit("updatePage"); //注册全局事件
+      }
+    },
+    //跳转微信授权页面获取code
+    getCode() {
+      window.location.href =
+        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+    },
+    setTitle() {
+      //设置当前标题
+      this.canteenList.forEach((item, index) => {
+        if (item.id == this.canteen_id) {
+          this.canteen_name = item.name;
+        }
+      });
     }
   },
   watch: {
@@ -97,60 +116,50 @@ export default {
       } else {
         this.isShow = true;
       }
+    },
+    canteen_id(val) {
+      this.radio = parseInt(val);
+      this.setTitle();
+    },
+    canteen_name(val) {
+      this.title = "当前饭堂:" + val;
     }
   },
-  async created() {
-    Toast.loading({
-      forbidClick: true,
-      duration: 0
-    });
-    if (this.$router.path !== "/") {
-      this.$router.replace("/");
-    }
-    //获取用户信息判断该用户是否绑定手机或饭堂
-    // const result = await getUserToken();
-    const result = {
-      data: {
-        token: "35fd062c8b2c546c2a684f506ba21cb5",
-        phone: 1,
-        canteen_selected: 1,
-        canteen_id: 6
-      }
-    };
-    //缓存token
-    this.$store.commit("user/setToken", result.data.token);
-    if (result.data.phone == 2) {
-      //用户未绑定手机
-      this.$router.push("entry");
-      Toast.clear();
-      return;
-    } else if (result.data.canteen_selected == 2) {
-      //未选择饭堂进入饭堂选择页
-      this.$router.push("setting");
-      Toast.clear();
-      return;
-    }
-    //已选择饭堂 缓存饭堂id
-    this.$store.commit("user/setCanteen", result.data.canteen_id);
-    //设置显示已选饭堂 缓存获取
-    this.radio = this.canteen_id;
-    //设置显示可选饭堂 获取用户可进入饭堂
-    var canteens = new Array();
-    const result2 = await canChooseCant();
-    if (result2.errorCode == 0) {
-      result2.data.forEach((items, index) => {
-        items.canteens.forEach((item, key) => {
-          canteens.push(item.info);
+  async mounted() {
+    const params = new URLSearchParams(window.location.search.substring(1)); //查询url
+    const code = params.get("code"); //获取url中的code
+    const state = params.get("state");
+    // localStorage.setItem("phone", 1);
+    // localStorage.setItem("user_token", "e1541b80101d5fb327b60d7867fffef0");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 130);
+
+    if (!localStorage.getItem("user_token") && !code) {
+      this.getCode();
+    } else {
+      if (
+        localStorage.getItem("user_token") &&
+        localStorage.getItem("phone") == 1
+      ) {
+        var canteens = new Array();
+        const result2 = await canChooseCant(); //返回用户可选饭堂
+        if (result2.errorCode == 0) {
+          result2.data.forEach((items, index) => {
+            items.canteens.forEach((item, key) => {
+              canteens.push(item.info);
+            });
+          });
+          this.$store.commit("user/setCanteenList", canteens);
+        }
+      } else if (localStorage.getItem("phone") == 2) {
+        this.$router.push({
+          name: "entry"
         });
-      });
-      this.$store.commit("user/setCanteenList", canteens);
+      }
     }
 
-    //获取用户可见模块
-    const result3 = await getModules({ c_id: this.canteen_id });
-    console.log("用户可见模块：", result3);
-
-    Toast.clear();
+    this.radio = parseInt(this.canteen_id);
+    this.setTitle();
   },
   computed: {
     ...mapGetters("user", {
