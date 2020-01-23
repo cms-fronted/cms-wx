@@ -18,10 +18,7 @@
           <van-icon size="32px" :name="!show ? 'arrow-up' : 'arrow-down'" />
         </div>
         <div v-bind:hidden="show">
-          <van-radio-group
-            v-model="radio"
-            style="width: 100%;display: flex;flex-wrap: wrap;"
-          >
+          <van-radio-group v-model="radio" style="width: 100%;display: flex;flex-wrap: wrap;">
             <van-radio
               class="flex-row flex-center"
               icon-size="12px"
@@ -30,8 +27,7 @@
               :name="item.id"
               @click="chooseCanteen(item.id)"
               style="width: 33%; margin: 10px 0"
-              >{{ item.name }}</van-radio
-            >
+            >{{ item.name }}</van-radio>
           </van-radio-group>
         </div>
       </div>
@@ -135,12 +131,7 @@ export default {
     // localStorage.setItem("canteen_id", 130);
 
     if (!localStorage.getItem("user_token") && !code) {
-      // this.getCode();
-    // localStorage.setItem("phone", 1);
-    // localStorage.setItem("user_token", "3961dd8ef8d5854cf7ced64ba997b961");
-    // localStorage.setItem("canteen_selected", 1);
-    // localStorage.setItem("canteen_id", 130);
-
+      this.getCode();
     } else {
       if (localStorage.getItem("user_token")) {
         if (localStorage.getItem("phone") == 1) {

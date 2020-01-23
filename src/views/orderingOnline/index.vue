@@ -106,6 +106,7 @@
         min="1"
         :max="maxCount"
       />
+      <van-checkbox v-model="selectWeekend" class="select_all_dialog">包括周末</van-checkbox>
     </van-dialog>
   </div>
 </template>
@@ -144,7 +145,8 @@ export default {
       longPress: false,
       isMove: false,
       addAllShow: false,
-      e: ""
+      e: "",
+      selectWeekend: false
     };
   },
   computed: {
@@ -554,7 +556,28 @@ export default {
               return false;
             }
           } else if (type === "week") {
-            const prevDate = moment(order_date).day(-type_number); //选中日期 提前 一周的周 几，根据实际情况
+            let day;
+            switch (type_number) {
+              case 1:
+                day = 6;
+                break;
+              case 2:
+                day = 5;
+                break;
+              case 3:
+                day = 4;
+                break;
+              case 4:
+                day = 3;
+                break;
+              case 5:
+                day = 2;
+                break;
+              case 6:
+                day = 1;
+                break;
+            }
+            const prevDate = moment(order_date).day(-day); //选中日期 提前 一周的周 几，根据实际情况
             prevDate.set("hour", hour);
             prevDate.set("minute", minute);
             if (!moment(now).isBefore(prevDate) && now.isAfter(prevDate)) {
@@ -671,10 +694,10 @@ export default {
                 count: this.addCount
               });
             });
-            detail = {
+            detail.push({
               d_id: this.dinner_id,
               ordering: ordering
-            };
+            });
             console.log("提交的数据：", detail);
             await this.submitOrder(detail, done);
           }
@@ -735,14 +758,21 @@ export default {
             //是否离界限24小时
             if (!now.isBefore(date.add(-type_number, type))) {
               //判断当前时间是否超过订餐时间限制
-              return dateTime;
+              if (
+                moment(order_date).day() != 0 &&
+                moment(order_date).day() != 6 &&
+                this.selectWeekend
+              ) {
+                return dateTime;
+              } else {
+                return dateTime;
+              }
             }
           } else {
             return dateTime;
           }
         }
       } else if (type === "week") {
-        // console.log(moment(order_date).format("YYYY-MM-DD HH:mm:ss"));
         /**
          * 0 上周日
          * -1上周六
@@ -774,7 +804,15 @@ export default {
         prevDate.set("hour", hour);
         prevDate.set("minute", minute);
         if (now.isBefore(prevDate)) {
-          return dateTime;
+          if (
+            moment(order_date).day() != 0 &&
+            moment(order_date).day() != 6 &&
+            this.selectWeekend
+          ) {
+            return dateTime;
+          } else {
+            return dateTime;
+          }
         } // 是否有提前
       }
     }
@@ -802,5 +840,10 @@ td {
 }
 .weekend {
   background: rgba(128, 128, 128, 0.2);
+}
+.select_all_dialog {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 </style>
