@@ -638,8 +638,8 @@ export default {
 
     //提交订单
     async submitOrder(e) {
-      console.log('当前选餐日期：',this.submitValidate)
-      console.log('当前选餐日期：',this.date)
+      console.log("当前选餐日期：", this.submitValidate);
+      console.log("当前选餐日期：", this.date);
       Toast.loading({
         message: "加载中...",
         forbidClick: true,
@@ -689,13 +689,6 @@ export default {
             .subtract(dinner.type_number, dinner.type)
             .isBefore(nowDay)
         ) {
-          console.log(
-            "请选择" +
-              this.$moment(nowDay)
-                .add(dinner.type, dinner.type_number)
-                .format("MM-DD") +
-              "之后的菜品"
-          );
           Toast.fail(
             "请选择" +
               this.$moment(nowDay)
@@ -713,9 +706,6 @@ export default {
           fixed == 2 &&
           dinner.ordered_count - dinner.ordering_count > this.count
         ) {
-          console.log(dinner.ordered_count,'可订餐数量')
-          console.log(dinner.ordering_count,'已订餐数量')
-          console.log(fixed);
           if (dinner.ordering_count - dinner.ordered_count <= 0) {
             Toast.fail("今日可订餐数量已达上限");
           } else {
@@ -799,7 +789,6 @@ export default {
           : dinner.type_number; //日期转换
         let timeArray = [];
         this.currentDate.forEach((item, index) => {
-          console.log(1);
           if (
             !this.$moment(item)
               .subtract(dinner.type_number, dinner.type)
@@ -810,11 +799,10 @@ export default {
           }
         });
         this.currentDate = timeArray;
-        // console.log('日期列表',this.currentDate);
         if (this.currentDate.length != 0) {
           this.list = this.unique(this.dayMap.get(this.currentDate[0]));
-        };
-      };
+        }
+      }
       this.showDate = true;
     }
   },
@@ -824,7 +812,6 @@ export default {
         window.innerHeight -
         (Math.abs(this.$refs.mealType.getBoundingClientRect().bottom) + 74);
     }, 200);
-    console.log("000000000000000000000");
     this.$bus.$on("updatePage", async () => {
       Toast.loading({
         message: "加载中",
@@ -1005,7 +992,6 @@ export default {
         this.currentDate.sort((a, b) => {
           return a > b ? 1 : -1;
         });
-        console.log("111");
         // this.list = this.unique(dayMap.get(this.currentDate[0]));
         await this.invalidDate(); //过滤日期
         this.date = this.currentDate[0];
