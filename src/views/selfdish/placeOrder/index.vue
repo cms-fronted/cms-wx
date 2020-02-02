@@ -9,10 +9,10 @@
 			<p style="font-size: 12px;margin: 0;border-bottom:1px solid #CCCCCC;">{{def.name}}{{def.sex | sexFilter}}
 				{{def.phone}}</p>
 		</div>
-		<div style="display: flex;flex-direction: row;justify-content: space-between;align-items: center;" v-if="orderType ==1||orderType ==2">
+		<!-- <div style="display: flex;flex-direction: row;justify-content: space-between;align-items: center;" v-if="orderType ==1||orderType ==2">
 			<h4>饭点时间送出</h4>
 			<van-icon name="arrow" />
-		</div>
+		</div> -->
 		<p v-if="orderType!=4">订餐清单</p>
 		<table style="width: 100%;text-align: center;" border="1" cellspacing="0" v-if="orderType!=4">
 			<tr v-for="(item,key) in list" :key="key">
