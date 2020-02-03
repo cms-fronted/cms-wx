@@ -54,7 +54,7 @@
         <van-button
           style="position: fixed;left: 10px;"
           size="small"
-          @click="this.newAddressPop = false"
+          @click="newAddressPop = false"
         >取消</van-button>
         <h4 style="width: 100%; margin: 15px 0;">新增送餐地址</h4>
       </div>
