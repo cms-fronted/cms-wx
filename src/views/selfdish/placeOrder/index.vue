@@ -430,4 +430,7 @@ export default {
   align-items: center;
   border-bottom: 1px solid #f2f3f5;
 }
+.van-cell__value--alone {
+  text-align: left !important;
+}
 </style>

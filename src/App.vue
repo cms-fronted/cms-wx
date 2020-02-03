@@ -9,7 +9,7 @@
     <!-- 饭堂选择 -->
     <van-sticky>
       <!-- 饭堂选择下拉箭头 -->
-      <div class="shadow" style="background-color: #FFFFFF;margin-bottom: 10px">
+      <div style="background-color:#fff;margin-bottom: 10px">
         <div
           class="flex-column"
           style="width: auto;align-items: flex-end;padding-right: 20px;"
@@ -89,6 +89,9 @@ export default {
         Toast.success("成功进入饭堂!");
         this.$store.commit("user/setCanteen", e);
         this.$bus.$emit("updatePage"); //注册全局事件
+        // this.$router.push("/");
+        this.$router.replace("/");
+        location.reload();
       }
     },
     //跳转微信授权页面获取code

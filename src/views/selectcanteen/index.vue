@@ -64,9 +64,6 @@
 </script>
 
 <style scope>
-	.van-cell__value--alone {
-		text-align: center !important;
-	}
 
 	.van-collapse-item__content {
 		padding: 0 !important;
