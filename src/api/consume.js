@@ -3,7 +3,7 @@ import request from '@/utils/request.js';
 //获取消费订单列表
 export function getConsumptionRecords(data){
 	return request({
-		url:'http://canteen.tonglingok.com/api/v1/order/consumptionRecords',
+		url:'https://tonglingok.com/canteen/api/v1/order/consumptionRecords',
 		method:'get',
 		params:data
 	});
@@ -12,7 +12,7 @@ export function getConsumptionRecords(data){
 //获取消费订单详情
 export function getConsumeDetail(data){
 	return request({
-		url:'http://canteen.tonglingok.com/api/v1/order/consumptionRecords/detail',
+		url:'https://tonglingok.com/canteen/api/v1/order/consumptionRecords/detail',
 		method:'get',
 		params:data
 	});

@@ -63,7 +63,7 @@
 	}
 </script>
 
-<style scope>
+<style scoped>
 
 	.van-collapse-item__content {
 		padding: 0 !important;

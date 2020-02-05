@@ -173,7 +173,7 @@ export default {
     });
     let res1 = await getOrderDetail();
     let res2 = await request({
-      url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
+      url: "https://tonglingok.com/canteen/api/v1/order/userOrdering",
       method: "get",
       params: {
         consumption_time: moment().format("YYYY-MM")
@@ -268,7 +268,7 @@ export default {
       let date = this.currentDate;
       let res1 = await getOrderDetail();
       let res2 = await request({
-        url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
+        url: "https://tonglingok.com/canteen/api/v1/order/userOrdering",
         method: "get",
         params: {
           consumption_time: moment(date).format("YYYY-MM")
@@ -417,7 +417,7 @@ export default {
       };
       if (action === "confirm") {
         const res = await request({
-          url: "http://canteen.tonglingok.com/api/v1/order/cancel",
+          url: "https://tonglingok.com/canteen/api/v1/order/cancel",
           method: "post",
           data: QS.stringify(data)
         });
@@ -445,7 +445,7 @@ export default {
       };
       if (action === "confirm") {
         const res = await request({
-          url: "http://canteen.tonglingok.com/api/v1/order/changeCount",
+          url: "https://tonglingok.com/canteen/api/v1/order/changeCount",
           method: "post",
           data: QS.stringify(data)
         });
@@ -485,7 +485,7 @@ export default {
           detail
         };
         const res = await request({
-          url: "http://canteen.tonglingok.com/api/v1/order/online/save",
+          url: "https://tonglingok.com/canteen/api/v1/order/online/save",
           method: "post",
           data: QS.stringify(data)
         });
@@ -616,7 +616,7 @@ export default {
 
           let detail = [];
           let res2 = await request({
-            url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
+            url: "https://tonglingok.com/canteen/api/v1/order/userOrdering",
             method: "get",
             params: {
               consumption_time: moment(this.currentDate).format("YYYY-MM")
@@ -659,7 +659,7 @@ export default {
           let ordering = [];
           //获取用户已订餐信息
           let res2 = await request({
-            url: "http://canteen.tonglingok.com/api/v1/order/userOrdering",
+            url: "https://tonglingok.com/canteen/api/v1/order/userOrdering",
             method: "get",
             params: {
               consumption_time: moment(this.currentDate).format("YYYY-MM")
@@ -723,7 +723,7 @@ export default {
         detail
       };
       const res = await request({
-        url: "http://canteen.tonglingok.com/api/v1/order/online/save",
+        url: "https://tonglingok.com/canteen/api/v1/order/online/save",
         method: "post",
         data: QS.stringify(data)
       });
