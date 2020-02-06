@@ -44,13 +44,7 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
-import {
-  getUserToken,
-  canChooseCant,
-  bindCanteen,
-  getModules,
-  getChooseDinner
-} from "./api/user.js";
+import { canChooseCant, bindCanteen } from "./api/user.js";
 import { Toast } from "vant";
 import store from "@/store";
 
@@ -128,10 +122,11 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    // localStorage.setItem("phone", 1);
-    // localStorage.setItem("user_token", "7fe361a611f384ad21aff83354911aea");
-    // localStorage.setItem("canteen_selected", 1);
-    // localStorage.setItem("canteen_id", 146);
+    localStorage.setItem("phone", 1);
+    // localStorage.setItem("user_token", "10144b391afced8cf534434b34006e79");
+    localStorage.setItem("user_token", "3f77ba51c875238e73a1aa261a1a0b61");
+    localStorage.setItem("canteen_selected", 1);
+    localStorage.setItem("canteen_id", 146);
 
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
@@ -147,6 +142,9 @@ export default {
               });
             });
             this.$store.commit("user/setCanteenList", canteens);
+          }
+          if (localStorage.getItem("canteen_selected") == 2) {
+            this.$$router.push({ name: "setting" });
           }
         } else if (localStorage.getItem("phone") == 2) {
           this.$router.push({

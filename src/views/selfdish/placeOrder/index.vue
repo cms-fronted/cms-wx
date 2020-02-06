@@ -20,13 +20,21 @@
     </div>-->
     <p v-if="orderType!=4">订餐清单</p>
     <table style="width: 100%;text-align: center;" border="1" cellspacing="0" v-if="orderType!=4">
+      <tr>
+        <td>名称</td>
+        <td>份数</td>
+        <td>数量</td>
+        <td>金额</td>
+      </tr>
       <tr v-for="(item,key) in list" :key="key">
         <td width="40%">{{item.name}}</td>
+        <td>{{count}}</td>
         <td>{{item.count}}</td>
-        <td>{{item.price * item.count}}元</td>
+        <td>{{item.price * item.count*count}}元</td>
       </tr>
       <tr>
         <td>合计</td>
+        <td></td>
         <td></td>
         <td>{{sum}}元</td>
       </tr>
@@ -392,19 +400,21 @@ export default {
       this.shop = data;
       this.list = data.products;
       this.dining_mode = data.distribution;
+      this.count = data.count;
       this.list.forEach((item, index) => {
-        this.sum += item.count * item.price;
+        this.sum += item.count * item.price * data.count;
       });
     } else if (data.orderType == 1) {
       //若为个人选菜订单
       this.orderType = data.orderType;
       this.dining_mode = data.dining_mode;
       this.selfDish = data;
+      this.count = data.count;
       //处理展示数据的结构 及 总计
       data.detail.forEach((items, index) => {
         items.foods.forEach((item, key) => {
           this.list.push(item);
-          this.sum += item.count * item.price;
+          this.sum += item.count * item.price * data.count;
         });
       });
     }

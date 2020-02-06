@@ -429,7 +429,7 @@ export default {
 			 订餐数量选择
 			 */
     changeCount(e) {
-      this.count = this.$refs.countInput.value;
+      this.count = parseInt(this.$refs.countInput.value);
     },
     /* 
 			 日期选择
