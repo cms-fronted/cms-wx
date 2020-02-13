@@ -3,7 +3,7 @@ import request from '@/utils/request.js';
 //获取小卖部商品列表
 export function getShopList() {
 	return request({
-		url: 'https://tonglingok.com/canteen/api/v1/shop/official/products',
+		url: '/api/v1/shop/official/products',
 		method: 'get',
 	});
 };
@@ -11,7 +11,7 @@ export function getShopList() {
 //获取小卖部获取提货方式
 export function getTakingMode() {
 	return request({
-		url: 'https://tonglingok.com/canteen/api/v1/shop/takingMode',
+		url: '/api/v1/shop/takingMode',
 		method: 'get'
 	});
 };
@@ -19,7 +19,7 @@ export function getTakingMode() {
 //小卖部新增订单
 export function addShopOrder(data) {
 	return request({
-		url: 'https://tonglingok.com/canteen/api/v1/shop/order/save',
+		url: '/api/v1/shop/order/save',
 		method: 'post',
 		data
 	});
@@ -28,7 +28,7 @@ export function addShopOrder(data) {
 //获取评论
 export function getComments(data) {
 	return request({
-		url: 'https://tonglingok.com/canteen/api/v1/shop/product/comments',
+		url: '/api/v1/shop/product/comments',
 		method: 'get',
 		params: data
 	});
@@ -37,7 +37,7 @@ export function getComments(data) {
 //提交评论
 export function saveComment(data) {
 	return request({
-		url: 'https://tonglingok.com/canteen/api/v1/shop/product/saveComment',
+		url: '/api/v1/shop/product/saveComment',
 		method: 'post',
 		data
 	});
