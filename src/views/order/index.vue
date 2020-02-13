@@ -506,14 +506,13 @@ export default {
     }
     this.place.forEach((items, index) => {
       items.canteens.forEach((item, key) => {
-        console.log(item);
+        // console.log(item);
         this.addressList.push({
           name: item.info.name,
           id: item.info.id
         });
       });
     });
-    console.log(this.addressList);
     this.type = 1; //默认就餐
     this.addressId = this.addressList[0].id;
     this.address = this.addressList[0].name
@@ -547,6 +546,7 @@ export default {
       this.last_page = result2.data.last_page;
       this.current_page = result2.data.current_page;
     }
+    console.log('订单列表：',result2);
     Toast.clear();
   }
 };
