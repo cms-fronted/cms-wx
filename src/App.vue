@@ -124,9 +124,9 @@ export default {
     const state = params.get("state");
     localStorage.setItem("phone", 1);
     // localStorage.setItem("user_token", "10144b391afced8cf534434b34006e79");
-    localStorage.setItem("user_token", "3f77ba51c875238e73a1aa261a1a0b61");
-    localStorage.setItem("canteen_selected", 1);
-    localStorage.setItem("canteen_id", 146);
+    // localStorage.setItem("user_token", "3f77ba51c875238e73a1aa261a1a0b61");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 146);
 
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
