@@ -26,6 +26,7 @@ import SelectCanteen from '../views/selectcanteen'
 import SelectStaffs from '@/views/notice/selectStaffs'
 import EditSelfOrder from '@/views/editSelfOrder'
 import Author from '@/views/author'
+import TokeOut from '@/views/tokeOut'
 
 Vue.use(Router)
 
@@ -177,6 +178,11 @@ export default new Router({
 		path: '/author',
 		name: 'author',
 		component: Author
+	},
+	{ //外卖管理
+		path: '/tokeOut',
+		name: 'TokeOut',
+		component: TokeOut
 	},
 		// {
 		// 	path: '/',
