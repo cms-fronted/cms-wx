@@ -122,10 +122,10 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    localStorage.setItem("phone", 1);
-    localStorage.setItem("user_token", "52ae3d59ad1df61871ab701287bbb565");
-    localStorage.setItem("canteen_selected", 1);
-    localStorage.setItem("canteen_id", 130);
+    // localStorage.setItem("phone", 1);
+    // localStorage.setItem("user_token", "52ae3d59ad1df61871ab701287bbb565");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 130);
 
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
