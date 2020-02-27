@@ -143,7 +143,7 @@ export default {
             this.$store.commit("user/setCanteenList", canteens);
           }
           if (localStorage.getItem("canteen_selected") == 2) {
-            this.$$router.push({ name: "setting" });
+            this.$router.push({ name: "setting" });
           }
         } else if (localStorage.getItem("phone") == 2) {
           this.$router.push({
