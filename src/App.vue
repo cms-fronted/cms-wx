@@ -109,6 +109,7 @@ export default {
   },
   watch: {
     async $route(now, old) {
+      this.setTitle();
       if (now.name == "index" || now.name == "entry") {
         this.isShow = false;
       } else {

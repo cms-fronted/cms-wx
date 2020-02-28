@@ -743,6 +743,15 @@ export default {
     },
     //发起订餐请求
     async submitOrder(e, done) {
+      if (e[0].ordering.length === 0) {
+        Dialog({
+          message: "当前剩余日期无可订餐"
+        }).then(async () => {
+          Dialog.close();
+        });
+        done();
+        return;
+      }
       let detail = JSON.stringify(e);
       const data = {
         detail
