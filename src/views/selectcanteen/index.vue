@@ -45,7 +45,7 @@
 					//存储用户选择饭堂
 					this.$store.commit('user/setCanteen', e);
 					setTimeout(()=>{
-						this.$router.push('/');
+						this.$router.push('/index');
 					}, 500);
 				}
 			}

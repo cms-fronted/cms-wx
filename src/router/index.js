@@ -38,11 +38,6 @@ export default new Router({
 		path: '/entry',
 		name: 'entry',
 		component: Entry,
-		beforeLeave: (to, from, next) => {
-			if (localStorage.getItem('phone') == 1) {
-				next();
-			}
-		}
 	}, { //主页
 		path: '/',
 		name: 'index',

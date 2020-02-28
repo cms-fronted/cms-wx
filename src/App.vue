@@ -118,7 +118,7 @@ export default {
         this.title = "绑定手机";
       }
       if (now.name == "index") {
-        if (localStorage.getItem("phone")) {
+        if (localStorage.getItem("phone") == 2) {
           this.$router.replace("/entry");
         }
         if (localStorage.getItem("user_token")) {
