@@ -5,7 +5,7 @@
       <div @click="back" slot="left" v-show="isShow">
         <mt-button icon="back">返回</mt-button>
       </div>
-      <p slot="right" style="margin-right:10px;" @click="logout">退出</p>
+      <p v-if="!isLogin" slot="right" style="margin-right:10px;" @click="logout">退出</p>
     </mt-header>
     <!-- 饭堂选择 -->
     <van-sticky>
@@ -62,7 +62,8 @@ export default {
       show: true, //展示选择饭堂
       radio: null, //当前所选饭堂
       canteen_name: "", //当前所选饭堂名称
-      title: ""
+      title: "",
+      isLogin: false
     };
   },
   methods: {
@@ -119,14 +120,16 @@ export default {
   },
   watch: {
     async $route(now, old) {
-      this.setTitle();
+      if (now.name == "entry" || now.name == "setting") {
+        this.isLogin = true;
+      }
+      if (now.name == "entry") {
+        this.title = "绑定手机";
+      }
       if (now.name == "index" || now.name == "entry") {
         this.isShow = false;
       } else {
         this.isShow = true;
-      }
-      if (now.name == "entry") {
-        this.title = "绑定手机";
       }
       if (now.name == "index") {
         if (localStorage.getItem("phone") == 2) {
