@@ -9,7 +9,7 @@
     <!-- 饭堂选择 -->
     <van-sticky>
       <!-- 饭堂选择下拉箭头 -->
-      <div class="shadow" style="background-color: #FFFFFF;margin-bottom: 10px">
+      <div style="background-color:#fff;margin-bottom: 10px">
         <div
           class="flex-column"
           style="width: auto;align-items: flex-end;padding-right: 20px;"
@@ -44,13 +44,7 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
-import {
-  getUserToken,
-  canChooseCant,
-  bindCanteen,
-  getModules,
-  getChooseDinner
-} from "./api/user.js";
+import { canChooseCant, bindCanteen } from "./api/user.js";
 import { Toast } from "vant";
 import store from "@/store";
 
@@ -89,6 +83,7 @@ export default {
         Toast.success("成功进入饭堂!");
         this.$store.commit("user/setCanteen", e);
         this.$bus.$emit("updatePage"); //注册全局事件
+        // this.$router.push("/");
         this.$router.replace("/");
         location.reload();
       }
@@ -152,7 +147,7 @@ export default {
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
     // localStorage.setItem("phone", 1);
-    // localStorage.setItem("user_token", "e1541b80101d5fb327b60d7867fffef0");
+    // localStorage.setItem("user_token", "52ae3d59ad1df61871ab701287bbb565");
     // localStorage.setItem("canteen_selected", 1);
     // localStorage.setItem("canteen_id", 130);
     if (!localStorage.getItem("user_token") && !code) {
@@ -171,6 +166,9 @@ export default {
             this.$store.commit("user/setCanteenList", canteens);
             this.radio = parseInt(this.canteen_id);
             this.setTitle();
+          }
+          if (localStorage.getItem("canteen_selected") == 2) {
+            this.$router.push({ name: "setting" });
           }
         } else if (localStorage.getItem("phone") == 2) {
           this.$router.push({
