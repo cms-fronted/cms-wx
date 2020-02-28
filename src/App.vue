@@ -89,6 +89,8 @@ export default {
         Toast.success("成功进入饭堂!");
         this.$store.commit("user/setCanteen", e);
         this.$bus.$emit("updatePage"); //注册全局事件
+        this.$router.replace("/");
+        location.reload();
       }
     },
     //跳转微信授权页面获取code
@@ -112,26 +114,30 @@ export default {
       } else {
         this.isShow = true;
       }
-      if(now.name == "entry") {
-        this.title = '绑定手机'
+      if (now.name == "entry") {
+        this.title = "绑定手机";
       }
-      if(now.name == 'index') {
-     if (localStorage.getItem("user_token")) {
-        if (localStorage.getItem("phone") == 1) {
-          var canteens = new Array();
-          const result2 = await canChooseCant(); //返回用户可选饭堂
-          if (result2.errorCode == 0) {
-            result2.data.forEach((items, index) => {
-              items.canteens.forEach((item, key) => {
-                canteens.push(item.info);
+      if (now.name == "index") {
+        if (localStorage.getItem("phone")) {
+          this.$router.replace("/entry");
+        }
+        if (localStorage.getItem("user_token")) {
+          if (localStorage.getItem("phone") == 1) {
+            var canteens = new Array();
+            const result2 = await canChooseCant(); //返回用户可选饭堂
+            if (result2.errorCode == 0) {
+              result2.data.forEach((items, index) => {
+                items.canteens.forEach((item, key) => {
+                  canteens.push(item.info);
+                });
               });
-            });
-            this.$store.commit("user/setCanteenList", canteens);
-            this.radio = parseInt(this.canteen_id);
-            this.setTitle();
+              this.$store.commit("user/setCanteenList", canteens);
+              this.radio = parseInt(this.canteen_id);
+              this.setTitle();
+            }
           }
         }
-      }}
+      }
     },
     canteen_id(val) {
       this.radio = parseInt(val);

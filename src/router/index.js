@@ -27,6 +27,10 @@ import SelectStaffs from '@/views/notice/selectStaffs'
 import EditSelfOrder from '@/views/editSelfOrder'
 import Author from '@/views/author'
 
+const routerPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+	return routerPush.call(this, location).catch(error => error)
+}
 Vue.use(Router)
 
 export default new Router({
@@ -53,7 +57,7 @@ export default new Router({
 				next();
 			}
 			if (localStorage.getItem('phone') == 2) {
-				next({path: '/entry'})
+				next({ path: '/entry' })
 			}
 		}
 	}, { //电子饭卡页
