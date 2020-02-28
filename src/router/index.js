@@ -35,7 +35,6 @@ export default new Router({
 		name: 'entry',
 		component: Entry,
 		beforeLeave: (to, from, next) => {
-
 			if (localStorage.getItem('phone') == 1) {
 				next();
 			}
@@ -54,7 +53,7 @@ export default new Router({
 				next();
 			}
 			if (localStorage.getItem('phone') == 2) {
-				next('/entry')
+				next({path: '/entry'})
 			}
 		}
 	}, { //电子饭卡页

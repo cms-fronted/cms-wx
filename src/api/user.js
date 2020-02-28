@@ -3,7 +3,7 @@ import request from '@/utils/request.js';
 // 获取用户登录token
 export function getUserToken(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/token/official',
+		url: 'https://tonglingok.com/canteen/api/v1/token/official',
 		method: 'get',
 		params: data
 	});
@@ -11,7 +11,7 @@ export function getUserToken(data) {
 //发送验证码
 export function getSmsCode(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/sms/send',
+		url: 'https://tonglingok.com/canteen/api/v1/sms/send',
 		method: 'post',
 		data
 	});
@@ -20,7 +20,7 @@ export function getSmsCode(data) {
 //绑定手机
 export function bindPhone(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/user/bindPhone',
+		url: 'https://tonglingok.com/canteen/api/v1/user/bindPhone',
 		method: 'post',
 		data
 	});
@@ -29,7 +29,7 @@ export function bindPhone(data) {
 //获取用户该饭堂电子饭卡
 export function getCard() {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/user/card',
+		url: 'https://tonglingok.com/canteen/api/v1/user/card',
 		method: 'get'
 	});
 };
@@ -37,14 +37,14 @@ export function getCard() {
 //获取所属企业列表
 export function getCompanies() {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/user/companies',
+		url: 'https://tonglingok.com/canteen/api/v1/user/companies',
 		method: 'get'
 	});
 };
 //获取用户可见模块
 export function getModules() {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/modules/user',
+		url: 'https://tonglingok.com/canteen/api/v1/modules/user',
 		method: 'get'
 	});
 };
@@ -52,7 +52,7 @@ export function getModules() {
 //用户选择进入饭堂接口
 export function bindCanteen(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/user/bindCanteen',
+		url: 'https://tonglingok.com/canteen/api/v1/user/bindCanteen',
 		method: 'post',
 		data
 	});
@@ -61,7 +61,7 @@ export function bindCanteen(data) {
 //获取用户可选择饭堂
 export function canChooseCant() {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/user/canteens',
+		url: 'https://tonglingok.com/canteen/api/v1/user/canteens',
 		method: 'get',
 	});
 };
@@ -69,7 +69,7 @@ export function canChooseCant() {
 //获取用户地址
 export function getUserAddress() {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/addresses',
+		url: 'https://tonglingok.com/canteen/api/v1/addresses',
 		method: 'get',
 	});
 };
@@ -77,7 +77,7 @@ export function getUserAddress() {
 //新增用户地址
 export function addUserAddress(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/address/save',
+		url: 'https://tonglingok.com/canteen/api/v1/address/save',
 		method: 'post',
 		data
 	});
@@ -86,7 +86,7 @@ export function addUserAddress(data) {
 //更新用户地址
 export function updateUserAddress(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/address/update',
+		url: 'https://tonglingok.com/canteen/api/v1/address/update',
 		method: 'post',
 		data
 	});
@@ -95,7 +95,7 @@ export function updateUserAddress(data) {
 //用户所选饭堂可选餐次
 export function getChooseDinner() {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/canteen/dinners/user',
+		url: 'https://tonglingok.com/canteen/api/v1/canteen/dinners/user',
 		method: 'get'
 	});
 };
@@ -103,7 +103,7 @@ export function getChooseDinner() {
 //用户充值
 export function getRechargeId(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/wallet/pay',
+		url: 'https://tonglingok.com/canteen/api/v1/wallet/pay',
 		method: 'post',
 		data
 	});
@@ -112,7 +112,7 @@ export function getRechargeId(data) {
 //获取微信支付信息
 export function getPayInfo(data) {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/wallet/pay/getPreOrder',
+		url: 'https://tonglingok.com/canteen/api/v1/wallet/pay/getPreOrder',
 		method: 'get',
 		params: data
 	});
@@ -121,7 +121,7 @@ export function getPayInfo(data) {
 //当前用户绑定的手机
 export function getUserPhone() {
 	return request({
-		url: 'http://canteen.tonglingok.com/api/v1/user/phone',
+		url: 'https://tonglingok.com/canteen/api/v1/user/phone',
 		method: 'get'
 	});
 };

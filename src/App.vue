@@ -18,10 +18,7 @@
           <van-icon size="32px" :name="!show ? 'arrow-up' : 'arrow-down'" />
         </div>
         <div v-bind:hidden="show">
-          <van-radio-group
-            v-model="radio"
-            style="width: 100%;display: flex;flex-wrap: wrap;"
-          >
+          <van-radio-group v-model="radio" style="width: 100%;display: flex;flex-wrap: wrap;">
             <van-radio
               class="flex-row flex-center"
               icon-size="12px"
@@ -30,8 +27,7 @@
               :name="item.id"
               @click="chooseCanteen(item.id)"
               style="width: 33%; margin: 10px 0"
-              >{{ item.name }}</van-radio
-            >
+            >{{ item.name }}</van-radio>
           </van-radio-group>
         </div>
       </div>
@@ -98,7 +94,7 @@ export default {
     //跳转微信授权页面获取code
     getCode() {
       window.location.href =
-        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=https%3A%2F%2Fcloudcanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
     },
     setTitle() {
       //设置当前标题
@@ -110,12 +106,32 @@ export default {
     }
   },
   watch: {
-    $route(now, old) {
+    async $route(now, old) {
       if (now.name == "index" || now.name == "entry") {
         this.isShow = false;
       } else {
         this.isShow = true;
       }
+      if(now.name == "entry") {
+        this.title = '绑定手机'
+      }
+      if(now.name == 'index') {
+     if (localStorage.getItem("user_token")) {
+        if (localStorage.getItem("phone") == 1) {
+          var canteens = new Array();
+          const result2 = await canChooseCant(); //返回用户可选饭堂
+          if (result2.errorCode == 0) {
+            result2.data.forEach((items, index) => {
+              items.canteens.forEach((item, key) => {
+                canteens.push(item.info);
+              });
+            });
+            this.$store.commit("user/setCanteenList", canteens);
+            this.radio = parseInt(this.canteen_id);
+            this.setTitle();
+          }
+        }
+      }}
     },
     canteen_id(val) {
       this.radio = parseInt(val);
@@ -133,7 +149,6 @@ export default {
     // localStorage.setItem("user_token", "e1541b80101d5fb327b60d7867fffef0");
     // localStorage.setItem("canteen_selected", 1);
     // localStorage.setItem("canteen_id", 130);
-
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
@@ -148,6 +163,8 @@ export default {
               });
             });
             this.$store.commit("user/setCanteenList", canteens);
+            this.radio = parseInt(this.canteen_id);
+            this.setTitle();
           }
         } else if (localStorage.getItem("phone") == 2) {
           this.$router.push({
@@ -156,7 +173,6 @@ export default {
         }
       }
     }
-
     this.radio = parseInt(this.canteen_id);
     this.setTitle();
   },

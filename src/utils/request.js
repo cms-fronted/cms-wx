@@ -11,7 +11,7 @@ import {
 // create an axios instance
 const service = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API, // api 的 base_url
-	// baseURL: 'http://canteen.tonglingok.com/api/', // api 的 base_url
+	// baseURL: 'https://tonglingok.com/canteen/api/', // api 的 base_url
 	// withCredentials: true, // 跨域请求时发送 cookies
 	timeout: 5000, // request timeout
 
@@ -56,7 +56,7 @@ service.interceptors.response.use(
 		 }
 		else if (res.errorCode == 10001) {
 			window.location.href =
-				"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=http%3A%2F%2Fyuncanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+				"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=https%3A%2F%2Fcloudcanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
 		}
 		else {
 			console.log('错误码：', res.errorCode);

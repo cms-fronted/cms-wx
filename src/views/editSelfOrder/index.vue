@@ -57,7 +57,7 @@
               <van-image
                 fix="contain"
                 width="45%"
-                :src="'http://canteen.tonglingok.com/'+item.img_url"
+                :src="'https://tonglingok.com/canteen/'+item.img_url"
               />
               <div class="flex-column" style="justify-content: center;width: 55%">
                 <div class="flex-row" style="justify-content: space-between;align-items: center;">

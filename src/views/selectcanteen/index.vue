@@ -46,7 +46,7 @@
 					this.$store.commit('user/setCanteen', e);
 					setTimeout(()=>{
 						this.$router.push('/');
-					}, 1000);
+					}, 500);
 				}
 			}
 		},
