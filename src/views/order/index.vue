@@ -384,7 +384,7 @@ export default {
       if (result2.errorCode == 0) {
         this.sTime = result2.data.url.time_begin;
         this.eTime = result2.data.url.time_end;
-        this.shopCode = "https://tonglingok.com/canteen/" + result2.data.url.url;
+        this.shopCode = "" + result2.data.url.url;
       }
       Toast.clear();
     },

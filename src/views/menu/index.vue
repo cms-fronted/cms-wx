@@ -52,10 +52,10 @@
             <div class="flex-row footDetail" style v-for="(item,key) in items.foods" :key="key">
               <van-image
                 width="40%"
-                :src="'https://tonglingok.com/canteen/'+item.img_url"
+                :src="''+item.img_url"
                 fit="contain"
               />
-              <!-- <img :src="'https://tonglingok.com/canteen/'+item.img_url" /> -->
+              <!-- <img :src="''+item.img_url" /> -->
               <div class="flex-column" style="justify-content: center;width: 60%;font-size: 12px;">
                 <div class="flex-row" style="justify-content: space-between;align-items: center;">
                   <p style="font-size: 13px;">{{item.name}}</p>

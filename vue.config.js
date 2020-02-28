@@ -13,7 +13,7 @@ module.exports = {
     historyApiFallback: true,
     proxy: {
       '/api': {
-        target: 'https://canteen.tonglingok.com/canteeen/api',
+        target: 'https://tonglingok.com/canteeen',
         ws: true,
         changeOrigin: true
       },
