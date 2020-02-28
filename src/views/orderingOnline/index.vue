@@ -797,8 +797,11 @@ export default {
                 moment(order_date).day() != 6 &&
                 !this.hasWeekend //不含周末
               ) {
-                return;
-              } else {
+                //当前日期非周 六 日 且 不含周末
+                console.log("周末");
+                return dateTime;
+              } else if (this.hasWeekend) {
+                console.log("全选");
                 return dateTime;
               }
             }
@@ -807,9 +810,11 @@ export default {
             moment(order_date).day() != 6 &&
             !this.hasWeekend
           ) {
+            console.log("周末2");
             return dateTime;
-          } else {
-            return;
+          } else if (this.hasWeekend) {
+            console.log("全选2");
+            return dateTime;
           }
         }
       } else if (type === "week") {
@@ -847,10 +852,13 @@ export default {
           if (
             moment(order_date).day() != 0 &&
             moment(order_date).day() != 6 &&
-            this.hasWeekend
+            !this.hasWeekend //不含周末
           ) {
+            //当前日期非周 六 日 且 不含周末
+            console.log("周末3");
             return dateTime;
-          } else {
+          } else if (this.hasWeekend) {
+            console.log("全选3");
             return dateTime;
           }
         } // 是否有提前
