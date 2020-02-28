@@ -53,15 +53,10 @@ service.interceptors.response.use(
 		if (res.errorCode === 0) {
 			Toast.clear();
 			return res;
-		 }
+		}
 		else if (res.errorCode == 10001) {
-<<<<<<< HEAD
 			window.location.href =
 				"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=https%3A%2F%2Fcloudcanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
-=======
-				window.location.href =
-					"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=https%3A%2F%2Fcloudcanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
->>>>>>> dev-http
 		}
 		else {
 			console.log('错误码：', res.errorCode);

@@ -114,7 +114,6 @@ export default {
       if (result.errorCode == 0) {
         localStorage.clear();
         location.reload();
-
       }
     }
   },
