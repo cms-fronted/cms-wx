@@ -24,7 +24,12 @@
       <!--TODO: 全选功能待添加-->
       <tr>
         <td>全选</td>
-        <td v-for="(item, index) in mealList" :data-d_id="item.id" :key="index">全{{ item.name }}</td>
+        <td
+          v-for="(item, index) in mealList"
+          :data-d_id="item.id"
+          :key="index"
+          @click="selectAll(item.id, $event)"
+        >全{{ item.name }}</td>
         <!-- <td>全午</td>
         <td>全晚</td>-->
       </tr>
@@ -86,6 +91,23 @@
         :max="maxCount"
       />
     </van-dialog>
+    <van-dialog
+      :overlay="true"
+      v-model="addAllShow"
+      title="全选订餐数量"
+      :before-close="(action, done) => confirmAddAll(action, done)"
+      :show-cancel-button="true"
+    >
+      <van-stepper
+        style="padding:10px 0"
+        input-width="40px"
+        button-size="32px"
+        v-model="addCount"
+        min="1"
+        :max="maxCount"
+      />
+      <van-checkbox v-model="selectWeekend" class="select_all_dialog">包括周末</van-checkbox>
+    </van-dialog>
   </div>
 </template>
 
@@ -121,7 +143,10 @@ export default {
       // 订单列表
       orderList: [],
       longPress: false,
-      isMove: false
+      isMove: false,
+      addAllShow: false,
+      e: "",
+      selectWeekend: false
     };
   },
   computed: {
@@ -155,11 +180,17 @@ export default {
       }
     });
     this.computeDate();
-    this.mealList = res1.data; //数据的 渲染必须同步， 同时生成mealList，orderList
-    this.orderList = this.computeOrderList(
-      res2.data.filter(item => item.ordering_type === "online")
-    );
-    this.orderCount = res2.data.length || 0;
+    if (res1.msg === "ok") {
+      this.mealList = res1.data; //数据的 渲染必须同步， 同时生成mealList，orderList
+    }
+    if (res2.msg === "ok") {
+      this.orderList = this.computeOrderList(
+        res2.data.filter(item => item.ordering_type === "online")
+      );
+      res2.data.forEach(item => {
+        this.orderCount += item.count;
+      });
+    }
     this.$bus.$on("updatePage", async () => {
       Toast.loading({
         forbidClick: true,
@@ -168,6 +199,8 @@ export default {
       });
       await this.selectCanteen();
     });
+    console.log("数据tableData:", this.tableData);
+    console.log("数据mealList:", this.mealList);
     Toast.clear();
   },
   methods: {
@@ -206,7 +239,7 @@ export default {
             create_time
           } = data[i];
           // 订餐数据条目不为今日则跳过这一条
-          if (date !== ordering_date) continue;
+          if (date != ordering_date) continue;
           // 如果 餐次信息与当前饭堂餐次信息不匹配则跳过这一条
           if (!order[dinner]) continue;
           // 这个根据dinner的中文名还是id，根据实际改变
@@ -242,11 +275,18 @@ export default {
         }
       });
       this.initDate(date);
-      this.mealList = res1.data;
-      this.orderList = this.computeOrderList(
-        res2.data.filter(item => item.ordering_type === "online")
-      );
-      this.orderCount = res2.data.count || 0;
+      if (res1.msg === "ok") {
+        this.mealList = res1.data;
+      }
+      if (res2.msg === "ok") {
+        this.orderCount = 0;
+        this.orderList = this.computeOrderList(
+          res2.data.filter(item => item.ordering_type === "online")
+        );
+        res2.data.forEach(item => {
+          this.orderCount += item.count;
+        });
+      }
       Toast.clear();
     },
     async timeConf(e) {
@@ -254,15 +294,29 @@ export default {
       this.timeShow = false;
       this.dateList = [];
       this.orderList = [];
-      // await this.getUserOrdered(e);
       const consumption_time = this.$moment(e).format("YYYY-MM");
       const res = await getUserOrder({
         consumption_time
       });
-      this.initDate(e);
-      this.orderList = this.computeOrderList(
-        res.data.filter(item => item.ordering_type === "online")
-      );
+      if (res.msg === "ok") {
+        this.initDate(e);
+        this.orderCount = 0;
+        this.orderList = this.computeOrderList(
+          res.data.filter(item => item.ordering_type === "online")
+        );
+        res.data.forEach(item => {
+          this.orderCount += item.count;
+        });
+      }
+      // if (res.data.length > 1) {
+      //   this.orderCount = res.data.reduce((prev, curr) => {
+      //     return prev.count + curr.count;
+      //   });
+      // } else if (res.data.length == 1) {
+      //   this.orderCount = res.data[0].count;
+      // } else {
+      //   this.orderCount = 0;
+      // }
     },
     //初始化事件数组
     initDate(date) {
@@ -270,6 +324,8 @@ export default {
       let dates = [];
       let year = this.$moment(date).year();
       let chooseMonth = date.getMonth() + 1; //保存选中的月份
+      chooseMonth =
+        chooseMonth.toString().length === 2 ? chooseMonth : "0" + chooseMonth;
       let nowMonth = new Date().getMonth() + 1; // 保存当前月份
       let isCurrentMonth = chooseMonth === nowMonth; // 判断所选中的月份是否为当前月份
       let startD, endD, restDay, _date;
@@ -286,9 +342,9 @@ export default {
       endD = Number(endD);
       // restDay = endD - startD;
       for (let i = startD; i < endD + 1; i++) {
+        let day = i.toString().length === 2 ? i : "0" + i;
         // 循环插入每一天的数据
-        _date = "" + year + "-" + chooseMonth + "-" + i;
-        _date = this.$moment(_date).format("YYYY-MM-DD");
+        _date = "" + year + "-" + chooseMonth + "-" + day;
         dates.push(_date);
       }
       this.dateList = dates;
@@ -310,11 +366,14 @@ export default {
         consumption_time
       });
       if (res.msg === "ok") {
+        this.orderCount = 0;
         const data = res.data;
         this.orderList = this.computeOrderList(
           data.filter(item => item.ordering_type === "online")
         );
-        this.orderCount = data.length;
+        data.forEach(item => {
+          this.orderCount += item.count;
+        });
       }
     },
     gotouchstart(e, row) {
@@ -437,7 +496,7 @@ export default {
           }).then(async () => {
             Dialog.close();
           });
-          await this.getUserOrdered(this.currentDate);
+          await this.getUserOrdered(ordering_date);
         } else {
           done();
         }
@@ -471,6 +530,7 @@ export default {
             .dataset;
           let { type, type_number, time } = dataset;
           const order_date = row.date; //选中的 订餐日期
+          console.log("选中日期：", order_date);
           const hour = moment(time, "HH:mm:ss").get("hour");
           const minute = moment(time, "HH:mm:ss").get("minute");
           const now = moment();
@@ -486,7 +546,6 @@ export default {
             date.set("hour", hour);
             date.set("minute", minute);
             date.add(type_number - 1, type); //  加上需提前的天数
-            console.log(date);
             if (!moment(order_date).isAfter(date) && now.isAfter(date)) {
               // 如果选中 订餐日期 符合 提前天数
               Dialog({
@@ -497,7 +556,28 @@ export default {
               return false;
             }
           } else if (type === "week") {
-            const prevDate = moment(order_date).day(-type_number); //选中日期 提前 一周的周 几，根据实际情况
+            let day;
+            switch (type_number) {
+              case 1:
+                day = 6;
+                break;
+              case 2:
+                day = 5;
+                break;
+              case 3:
+                day = 4;
+                break;
+              case 4:
+                day = 3;
+                break;
+              case 5:
+                day = 2;
+                break;
+              case 6:
+                day = 1;
+                break;
+            }
+            const prevDate = moment(order_date).day(-day); //选中日期 提前 一周的周 几，根据实际情况
             prevDate.set("hour", hour);
             prevDate.set("minute", minute);
             if (!moment(now).isBefore(prevDate) && now.isAfter(prevDate)) {
@@ -523,6 +603,252 @@ export default {
       clearTimeout(this.timeOutEvent); //清除定时器
       this.timeOutEvent = 0;
       this.isMove = true;
+    },
+    //全选编辑
+    async confirmAddAll(action, done) {
+      if (action == "confirm") {
+        //确认全选订餐
+        console.log(this.dinner_id);
+        if (this.dinner_id == undefined) {
+          //若按下为全选
+          // this.mealList.id 全选餐次id列表
+          //this.tableData.data 全选日期列表
+          //this.addCount //订餐数量
+
+          let detail = [];
+          let res2 = await request({
+            url: "https://tonglingok.com/canteen/api/v1/order/userOrdering",
+            method: "get",
+            params: {
+              consumption_time: moment(this.currentDate).format("YYYY-MM")
+            }
+          });
+          if (res2.errorCode == 0 && res2.data.length > 0) {
+            this.mealList.forEach((items, index) => {
+              let order = this.tableData.concat(); //复制数组
+              let ordering = []; //订餐日期及数量数组
+              //去除重复订餐信息
+              res2.data.forEach((item, i) => {
+                if (items.id == item.d_id) {
+                  order.forEach((j, k) => {
+                    if (j.date == item.ordering_date) {
+                      order.splice(k, 1);
+                    }
+                  });
+                }
+              });
+              //整理数据结构
+              order.forEach((a, b) => {
+                ordering.push({
+                  ordering_date: a.date,
+                  count: this.addCount
+                });
+              });
+              //整理数据结构
+              detail.push({
+                d_id: items.id,
+                ordering: ordering
+              });
+            });
+            console.log("提交数据：", detail);
+            await this.submitOrder(detail, done);
+          }
+        } else {
+          //按下对应餐次全选
+          let detail = [];
+          let order = this.tableData.concat();
+          let ordering = [];
+          //获取用户已订餐信息
+          let res2 = await request({
+            url: "https://tonglingok.com/canteen/api/v1/order/userOrdering",
+            method: "get",
+            params: {
+              consumption_time: moment(this.currentDate).format("YYYY-MM")
+            }
+          });
+          if (res2.errorCode == 0 && res2.data.length > 0) {
+            res2.data.forEach((items, index) => {
+              //过滤已订餐日期
+              if (items.d_id == this.dinner_id) {
+                order.forEach((i, j) => {
+                  if (i.date == items.ordering_date) {
+                    order.splice(j, 1);
+                  }
+                });
+              }
+            });
+            //过滤不可订餐日期
+            let order2 = [];
+            order.forEach((item, index) => {
+              let date = this.cleanDate(item.date);
+              if (date != undefined) {
+                order2.push({
+                  date: date
+                });
+              }
+            });
+            console.log("过滤不可订餐日期：", order);
+
+            order2.forEach((item, index) => {
+              ordering.push({
+                ordering_date: item.date,
+                count: this.addCount
+              });
+            });
+            detail.push({
+              d_id: this.dinner_id,
+              ordering: ordering
+            });
+            console.log("提交的数据：", detail);
+            await this.submitOrder(detail, done);
+          } else {
+            let order2 = [];
+            order.forEach((item, index) => {
+              let date = this.cleanDate(item.date);
+              if (date != undefined) {
+                order2.push({
+                  date: date
+                });
+              }
+            });
+            console.log("过滤不可订餐日期：", order);
+
+            order2.forEach((item, index) => {
+              ordering.push({
+                ordering_date: item.date,
+                count: this.addCount
+              });
+            });
+            detail.push({
+              d_id: this.dinner_id,
+              ordering: ordering
+            });
+            console.log("提交的数据：", detail);
+            await this.submitOrder(detail, done);
+          }
+        }
+        done();
+      } else {
+        this.dinner_id = "";
+        done();
+      }
+    },
+    selectAll(d_id, e) {
+      this.addAllShow = true;
+      console.log(
+        this.$refs.tableForm.rows[0].cells[e.target.cellIndex].dataset
+      );
+      this.e = this.$refs.tableForm.rows[0].cells[e.target.cellIndex].dataset;
+      this.dinner_id = d_id; //设置当前选中餐次
+    },
+    //发起订餐请求
+    async submitOrder(e, done) {
+      if(detail[0].ordering.length == 0) {
+         Dialog({
+          message: "当月无合法的订餐日期！"
+        }).then(async () => {
+          Dialog.close();
+        });
+        done()
+        return ;
+      }
+      let detail = JSON.stringify(e);
+      const data = {
+        detail
+      };
+      const res = await request({
+        url: "https://tonglingok.com/canteen/api/v1/order/online/save",
+        method: "post",
+        data: QS.stringify(data)
+      });
+      if (res.msg === "ok") {
+        done();
+        Dialog({
+          message: "操作成功！"
+        }).then(async () => {
+          Dialog.close();
+        });
+        await this.getUserOrdered(this.currentDate);
+      } else {
+        done();
+      }
+    },
+    //过滤不可订餐日期
+    cleanDate(dateTime) {
+      const dataset = this.e;
+      let { type, type_number, time } = dataset;
+      const order_date = moment(dateTime).format("YYYY-MM-DD HH:mm:ss"); //选中的 订餐日期
+      const hour = moment(time, "HH:mm:ss").get("hour");
+      const minute = moment(time, "HH:mm:ss").get("minute");
+      const now = moment(); //当前时间戳
+      const date = moment(); //创建 界限时间戳
+      if (type === "day") {
+        date.set("hour", hour);
+        date.set("minute", minute);
+        date.add(type_number, type); //  加上需提前的天数
+        if (moment(order_date).isAfter(date)) {
+          //订餐日期是否在界限之后
+          if (moment(order_date).diff(date, "second") < 216000) {
+            //是否离界限24小时
+            if (!now.isBefore(date.add(-type_number, type))) {
+              //判断当前时间是否超过订餐时间限制
+              if (
+                moment(order_date).day() != 0 &&
+                moment(order_date).day() != 6 &&
+                this.selectWeekend
+              ) {
+                return dateTime;
+              } else {
+                return dateTime;
+              }
+            }
+          } else {
+            return dateTime;
+          }
+        }
+      } else if (type === "week") {
+        /**
+         * 0 上周日
+         * -1上周六
+         * -2上周五
+         * -6上周一
+         */
+        let day;
+        switch (type_number) {
+          case 1:
+            day = 6;
+            break;
+          case 2:
+            day = 5;
+            break;
+          case 3:
+            day = 4;
+            break;
+          case 4:
+            day = 3;
+            break;
+          case 5:
+            day = 2;
+            break;
+          case 6:
+            day = 1;
+            break;
+        }
+        const prevDate = moment(order_date).day(-day); //选中日期 提前 一周的周 几，根据实际情况
+        prevDate.set("hour", hour);
+        prevDate.set("minute", minute);
+        if (now.isBefore(prevDate)) {
+          if (
+            moment(order_date).day() != 0 &&
+            moment(order_date).day() != 6 &&
+            this.selectWeekend
+          ) {
+            return dateTime;
+          } else {
+            return dateTime;
+          }
+        } // 是否有提前
+      }
     }
   },
   filters: {
@@ -548,5 +874,10 @@ td {
 }
 .weekend {
   background: rgba(128, 128, 128, 0.2);
+}
+.select_all_dialog {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 </style>
