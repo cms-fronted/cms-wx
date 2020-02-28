@@ -137,24 +137,23 @@ export default {
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
-      if (
-        localStorage.getItem("user_token") &&
-        localStorage.getItem("phone") == 1
-      ) {
-        var canteens = new Array();
-        const result2 = await canChooseCant(); //返回用户可选饭堂
-        if (result2.errorCode == 0) {
-          result2.data.forEach((items, index) => {
-            items.canteens.forEach((item, key) => {
-              canteens.push(item.info);
+      if (localStorage.getItem("user_token")) {
+        if (localStorage.getItem("phone") == 1) {
+          var canteens = new Array();
+          const result2 = await canChooseCant(); //返回用户可选饭堂
+          if (result2.errorCode == 0) {
+            result2.data.forEach((items, index) => {
+              items.canteens.forEach((item, key) => {
+                canteens.push(item.info);
+              });
             });
+            this.$store.commit("user/setCanteenList", canteens);
+          }
+        } else if (localStorage.getItem("phone") == 2) {
+          this.$router.push({
+            name: "entry"
           });
-          this.$store.commit("user/setCanteenList", canteens);
         }
-      } else if (localStorage.getItem("phone") == 2) {
-        this.$router.push({
-          name: "entry"
-        });
       }
     }
 
