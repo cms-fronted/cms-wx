@@ -106,7 +106,7 @@
         min="1"
         :max="maxCount"
       />
-      <van-checkbox v-model="hasWeekend" class="select_all_dialog">包括周末</van-checkbox>
+      <van-checkbox v-model="hasWeekend" icon-size="18px" class="select_all_dialog">  包括周末</van-checkbox>
     </van-dialog>
   </div>
 </template>
@@ -893,5 +893,6 @@ td {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  margin: 5px 0 8px 0;
 }
 </style>

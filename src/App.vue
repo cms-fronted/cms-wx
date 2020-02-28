@@ -5,6 +5,7 @@
       <div @click="back" slot="left" v-show="isShow">
         <mt-button icon="back">返回</mt-button>
       </div>
+      <p slot="right" style="margin-right:10px;" @click="logout">退出</p>
     </mt-header>
     <!-- 饭堂选择 -->
     <van-sticky>
@@ -45,11 +46,11 @@
 <script>
 import { mapGetters } from "vuex";
 import {
-  getUserToken,
   canChooseCant,
   bindCanteen,
   getModules,
-  getChooseDinner
+  getChooseDinner,
+  Logout
 } from "./api/user.js";
 import { Toast } from "vant";
 import store from "@/store";
@@ -105,6 +106,15 @@ export default {
           this.canteen_name = item.name;
         }
       });
+    },
+    // 退出登录
+    async logout() {
+      const result = await Logout();
+      if (result.errorCode == 0) {
+        localStorage.clear();
+        location.reload();
+
+      }
     }
   },
   watch: {
@@ -152,10 +162,10 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    localStorage.setItem("phone", 1);
-    localStorage.setItem("user_token", "8b186f9218f1f6db55348b79d586d3ef");
-    localStorage.setItem("canteen_selected", 1);
-    localStorage.setItem("canteen_id", 130);
+    // localStorage.setItem("phone", 1);
+    localStorage.setItem("user_token", "59fb5ff8941835f4e0bc4144dba41905");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 163);
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {

@@ -125,3 +125,10 @@ export function getUserPhone() {
 		method: 'get'
 	});
 };
+//用户退出登录
+export function Logout() {
+	return request({
+		url: '/api/v1/token/login/out',
+		method: 'get'
+	})
+}

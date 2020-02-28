@@ -31,6 +31,7 @@ export default {
         store.commit("user/setToken", res1.data.token);
         store.commit("user/setCanteenSelect", res1.data.canteen_selected);
         store.commit("user/setPhone", res1.data.phone);
+        localStorage.setItem("out_siders", res1.data.outsiders);
         if (this.isBindPhone == 2) {
           this.$router.push("entry");
           Toast.clear();

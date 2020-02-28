@@ -6,6 +6,7 @@ const state = {
 	canteen_selected: '',
 	phone: '',
 	token: localStorage["user_token"] ? localStorage["user_token"] : "",             //token
+	outsiders: localStorage["out_siders"] ? localStorage["out_siders"] : ""
 }
 
 const mutations = {
@@ -27,6 +28,10 @@ const mutations = {
 	setPhone(state, data) {
 		state.phone = data
 		localStorage.setItem('phone', data)
+	},
+	setOutSiders(state, data) {
+		state.outsiders = data
+		localStorage.setItem("out_siders", data)
 	}
 }
 

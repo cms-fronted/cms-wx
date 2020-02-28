@@ -20,6 +20,15 @@
     <p v-if="errorMsg" style=" width: 80%; color: red;text-align: left;">{{errorMsg}}</p>
     <p v-if="btntext != ''" style=" width: 80%; color: #CCCCCC;text-align: left;">{{btntext}}</p>
     <van-field v-model="smsCode" left-icon="qr" maxlength="5" center clearable placeholder="验证码" />
+    <van-radio-group
+      v-model="radio"
+      direction="horizontal"
+      class="flex-row"
+      style="margin-top:20px;width:80%;justify-content:space-around;"
+    >
+      <van-radio name="2">企业人员</van-radio>
+      <van-radio name="1">非企业人员</van-radio>
+    </van-radio-group>
     <van-button class="mButton" type="info" size="large" @click="login">确认</van-button>
   </div>
 </template>
@@ -27,7 +36,7 @@
 <script>
 import { getSmsCode, bindPhone } from "@/api/user.js";
 import { Toast } from "vant";
-import bgicon from "@/assets/u5178.png"
+import bgicon from "@/assets/u5178.png";
 export default {
   data() {
     return {
@@ -37,7 +46,8 @@ export default {
       check: false, //信息校验
       firstJump: false,
       btntext: "",
-      bg: bgicon
+      bg: bgicon,
+      radio: "2"
     };
   },
   methods: {
@@ -95,7 +105,8 @@ export default {
       //调用检查验证码接口
       const result = await bindPhone({
         phone: this.phone,
-        code: this.smsCode
+        code: this.smsCode,
+        type: this.radio
       });
       if (result.errorCode == 0) {
         localStorage.setItem("phone", 1);
@@ -106,36 +117,6 @@ export default {
           }
         });
       }
-      // this.$router.push({
-      // 	name: 'setting',
-      // 	params: {
-      // 		data: [{
-      // 				"id": 9,
-      // 				"company_parent_id": 2,
-      // 				"company_id": 3,
-      // 				"company": "企业A",
-      // 				"canteen_id": 6,
-      // 				"canteen": "饭堂1"
-      // 			},
-      // 			{
-      // 				"id": 10,
-      // 				"company_parent_id": 0,
-      // 				"company_id": 2,
-      // 				"company": "一级企业",
-      // 				"canteen_id": 1,
-      // 				"canteen": "大饭堂"
-      // 			},
-      // 			{
-      // 				"id": 21,
-      // 				"company_parent_id": 0,
-      // 				"company_id": 2,
-      // 				"company": "一级企业",
-      // 				"canteen_id": 1,
-      // 				"canteen": "大饭堂"
-      // 			}
-      // 		]
-      // 	}
-      // });
       Toast.clear();
     }
   }

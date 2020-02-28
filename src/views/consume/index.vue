@@ -10,22 +10,22 @@
       <p
         v-if="balance.hidden==2"
         class="btn"
-        style=" margin: auto; font-size: 20px;color: #EE0A24;"
+        style=" margin: auto; font-size: 14px;color: #EE0A24;"
       >实际余额：{{balance.effective_money}}元</p>
       <div
-        style="text-align: right;line-height: 40px; font-size: 20px;color: #EE0A24;margin: auto;"
+        style="text-align: right;line-height: 40px; font-size: 14px;color: #EE0A24;margin: auto;"
       >
         <p>月消费合计：{{totalAmount}}元</p>
       </div>
       <p
         v-if="balance.hidden==2"
         class="btn"
-        style=" margin: auto; font-size: 20px;color: #EE0A24;"
+        style=" margin: auto; font-size: 14px;color: #EE0A24;"
       >可用余额：{{balance.all_money}}元</p>
     </div>
     <!-- 消费记录表格 -->
     <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
-      <div class="flex-row flex-center" style="width: 100%;margin-top: 20px;">
+      <div class="flex-row flex-center" style="width: 100%;margin-top: 20px;font-size:14px;">
         <table style="width: 95%;height: auto;" border="1" cellpadding="0" cellspacing="0">
           <tr height="60px">
             <td width="5%">序号</td>
