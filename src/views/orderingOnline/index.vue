@@ -376,7 +376,7 @@ export default {
             message: "操作成功！"
           }).then(async () => {
             Dialog.close();
-            await this.getUserOrdered();
+            await this.getUserOrdered(this.currentDate);
           });
         } else {
           setTimeout(() => {
@@ -405,7 +405,7 @@ export default {
           }).then(async () => {
             Dialog.close();
           });
-          await this.getUserOrdered();
+          await this.getUserOrdered(this.currentDate);
         } else {
           done();
         }
@@ -445,7 +445,7 @@ export default {
           }).then(async () => {
             Dialog.close();
           });
-          await this.getUserOrdered();
+          await this.getUserOrdered(this.currentDate);
         } else {
           done();
         }
