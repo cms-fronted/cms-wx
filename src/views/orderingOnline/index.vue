@@ -106,7 +106,7 @@
         min="1"
         :max="maxCount"
       />
-      <!-- <van-checkbox v-model="selectWeekend" class="select_all_dialog">包括周末</van-checkbox> -->
+      <van-checkbox v-model="hasWeekend" class="select_all_dialog">包括周末</van-checkbox>
     </van-dialog>
   </div>
 </template>
@@ -146,7 +146,7 @@ export default {
       isMove: false,
       addAllShow: false,
       e: "",
-      selectWeekend: false
+      hasWeekend: false
     };
   },
   computed: {
@@ -743,6 +743,15 @@ export default {
     },
     //发起订餐请求
     async submitOrder(e, done) {
+      if (e[0].ordering.length === 0) {
+        Dialog({
+          message: "当前剩余日期无可订餐"
+        }).then(async () => {
+          Dialog.close();
+        });
+        done();
+        return;
+      }
       let detail = JSON.stringify(e);
       const data = {
         detail
@@ -786,14 +795,25 @@ export default {
               if (
                 moment(order_date).day() != 0 &&
                 moment(order_date).day() != 6 &&
-                this.selectWeekend
+                !this.hasWeekend //不含周末
               ) {
+                //当前日期非周 六 日 且 不含周末
+                console.log("周末");
                 return dateTime;
-              } else {
+              } else if (this.hasWeekend) {
+                console.log("全选");
                 return dateTime;
               }
             }
-          } else {
+          } else if (
+            moment(order_date).day() != 0 &&
+            moment(order_date).day() != 6 &&
+            !this.hasWeekend
+          ) {
+            console.log("周末2");
+            return dateTime;
+          } else if (this.hasWeekend) {
+            console.log("全选2");
             return dateTime;
           }
         }
@@ -832,10 +852,13 @@ export default {
           if (
             moment(order_date).day() != 0 &&
             moment(order_date).day() != 6 &&
-            this.selectWeekend
+            !this.hasWeekend //不含周末
           ) {
+            //当前日期非周 六 日 且 不含周末
+            console.log("周末3");
             return dateTime;
-          } else {
+          } else if (this.hasWeekend) {
+            console.log("全选3");
             return dateTime;
           }
         } // 是否有提前
