@@ -33,11 +33,30 @@ export default new Router({
 	routes: [{ //进入页面
 		path: '/entry',
 		name: 'entry',
-		component: Entry
+		component: Entry,
+		beforeLeave: (to, from, next) => {
+
+			if (localStorage.getItem('phone') == 1) {
+				next();
+			}
+		}
 	}, { //主页
 		path: '/',
 		name: 'index',
-		component: Index
+		component: Index,
+		beforeEnter: (to, from, next) => {
+			const params = new URLSearchParams(window.location.search.substring(1)); //查询url
+			const code = params.get("code"); //获取url中的code
+			if (!localStorage.getItem("user_token") && !code) {
+				next();
+			}
+			if (localStorage.getItem('user_token') && localStorage.getItem('phone') == 1) {
+				next();
+			}
+			if (localStorage.getItem('phone') == 2) {
+				next('/entry')
+			}
+		}
 	}, { //电子饭卡页
 		path: '/ecard',
 		name: 'ecard',

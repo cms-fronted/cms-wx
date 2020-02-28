@@ -12,7 +12,7 @@ import VConsole from 'vconsole';
 let vConsole = new VConsole();
 Vue.prototype.$moment = moment;
 
-
+Vue.use(vConsole)
 Vue.use(Vant);
 Vue.use(MintUI);
 

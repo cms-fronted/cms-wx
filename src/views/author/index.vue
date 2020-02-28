@@ -1,5 +1,5 @@
 <template>
-  <div>授权中。。。</div>
+  <div>授权中...</div>
 </template>
 
 <script>
