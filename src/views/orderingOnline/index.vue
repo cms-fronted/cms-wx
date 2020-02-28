@@ -106,7 +106,7 @@
         min="1"
         :max="maxCount"
       />
-      <van-checkbox v-model="selectWeekend" class="select_all_dialog">包括周末</van-checkbox>
+      <van-checkbox v-model="hasWeekend" class="select_all_dialog">包括周末</van-checkbox>
     </van-dialog>
   </div>
 </template>
@@ -146,7 +146,7 @@ export default {
       isMove: false,
       addAllShow: false,
       e: "",
-      selectWeekend: false
+      hasWeekend: false
     };
   },
   computed: {
@@ -795,15 +795,21 @@ export default {
               if (
                 moment(order_date).day() != 0 &&
                 moment(order_date).day() != 6 &&
-                this.selectWeekend
+                !this.hasWeekend //不含周末
               ) {
-                return dateTime;
+                return;
               } else {
                 return dateTime;
               }
             }
-          } else {
+          } else if (
+            moment(order_date).day() != 0 &&
+            moment(order_date).day() != 6 &&
+            !this.hasWeekend
+          ) {
             return dateTime;
+          } else {
+            return;
           }
         }
       } else if (type === "week") {
@@ -841,7 +847,7 @@ export default {
           if (
             moment(order_date).day() != 0 &&
             moment(order_date).day() != 6 &&
-            this.selectWeekend
+            this.hasWeekend
           ) {
             return dateTime;
           } else {
