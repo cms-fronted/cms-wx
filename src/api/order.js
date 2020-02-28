@@ -26,7 +26,7 @@ export function cancelOrder(data){
 //获取提货码
 export function deliveryCode(data){
 	return request({
-		url:'v1/shop/order/deliveryCode',
+		url:'https://tonglingok.com/canteen/api/v1/shop/order/deliveryCode',
 		method:'get',
 		params:data
 	});
