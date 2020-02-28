@@ -106,7 +106,7 @@
         min="1"
         :max="maxCount"
       />
-      <van-checkbox v-model="selectWeekend" class="select_all_dialog">包括周末</van-checkbox>
+      <!-- <van-checkbox v-model="selectWeekend" class="select_all_dialog">包括周末</van-checkbox> -->
     </van-dialog>
   </div>
 </template>
@@ -743,15 +743,6 @@ export default {
     },
     //发起订餐请求
     async submitOrder(e, done) {
-      if(detail[0].ordering.length == 0) {
-         Dialog({
-          message: "当月无合法的订餐日期！"
-        }).then(async () => {
-          Dialog.close();
-        });
-        done()
-        return ;
-      }
       let detail = JSON.stringify(e);
       const data = {
         detail
