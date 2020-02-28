@@ -99,7 +99,7 @@
           border="1"
           cellpadding="0"
           cellspacing="0"
-          v-if="orderDetail.foods"
+          v-if="ordering_type == 'personal_choice' && orderDetail.foods.length!=0"
         >
           <tr>
             <td>名称</td>
@@ -206,7 +206,8 @@ export default {
       per_page: 10,
       last_page: 0,
       loading: false,
-      finished: false
+      finished: false,
+      ordering_type: "" //订单类别
     };
   },
   methods: {
@@ -349,7 +350,6 @@ export default {
     },
     // 显示订单详情
     async showOrder(e) {
-      console.log(e);
       Toast.loading({
         message: "加载中...",
         forbidClick: true,
@@ -361,6 +361,7 @@ export default {
         id: e.id
       });
       if (result.errorCode == 0) {
+        this.ordering_type = result.data.ordering_type;
         this.orderDetail = Object.assign(result.data, {
           dinner: e.dinner
         });
@@ -380,7 +381,6 @@ export default {
       const result2 = await deliveryCode({
         id: this.orderDetail.id
       });
-      console.log(result2);
       if (result2.errorCode == 0) {
         this.sTime = result2.data.url.time_begin;
         this.eTime = result2.data.url.time_end;
@@ -442,31 +442,31 @@ export default {
       return "请选择类型";
     }
   },
-  watch: {
-    type(e) {
-      if (e == 3) {
-        //初始化地点选项
-        this.addressList = [];
-        this.place.forEach((item, index) => {
-          this.addressList[index] = {
-            name: this.place[index].company.name,
-            id: this.place[index].company.id
-          };
-        });
-      } else {
-        //初始化地点选项
-        this.addressList = [];
-        this.place.forEach((items, index) => {
-          items.canteens.forEach((item, key) => {
-            this.addressList[key] = {
-              name: item.info.name,
-              id: item.info.id
-            };
-          });
-        });
-      }
-    }
-  },
+  // watch: {
+  //   type(e) {
+  //     if (e == 3) {
+  //       //初始化地点选项
+  //       this.addressList = [];
+  //       this.place.forEach((item, index) => {
+  //         this.addressList[index] = {
+  //           name: this.place[index].company.name,
+  //           id: this.place[index].company.id
+  //         };
+  //       });
+  //     } else {
+  //       //初始化地点选项
+  //       this.addressList = [];
+  //       this.place.forEach((items, index) => {
+  //         items.canteens.forEach((item, key) => {
+  //           this.addressList[key] = {
+  //             name: item.info.name,
+  //             id: item.info.id
+  //           };
+  //         });
+  //       });
+  //     }
+  //   }
+  // },
   computed: {
     detailCount() {
       var sum = 0;
@@ -504,22 +504,35 @@ export default {
     if (result.errorCode == 0) {
       this.place = result.data;
     }
-    this.type = 1;
-    if (this.type == 3) {
-      this.addressId = this.place[0].company.id;
-      this.address = this.place[0].company.name;
-      this.place.forEach((item, index) => {
-        this.addressList[index] = this.place[index].company.name;
-      });
-    } else if (this.type == 1 || this.type == 2) {
-      this.addressId = this.place[0].canteens[0].info.id;
-      this.address = this.place[0].canteens[0].info.name;
-      this.place.forEach((items, index) => {
-        items.canteens.forEach((item, key) => {
-          this.addressList[key] = item.info.name;
+    this.place.forEach((items, index) => {
+      items.canteens.forEach((item, key) => {
+        // console.log(item);
+        this.addressList.push({
+          name: item.info.name,
+          id: item.info.id
         });
       });
-    }
+    });
+    this.type = 1; //默认就餐
+    this.addressId = this.addressList[0].id;
+    this.address = this.addressList[0].name
+    // if (this.type == 3) {
+    //   //若为小卖部
+    //   this.addressId = this.place[0].company.id;
+    //   this.address = this.place[0].company.name;
+    //   this.place.forEach((item, index) => {
+    //     this.addressList[index] = this.place[index].company.name;
+    //   });
+    // } else if (this.type == 1 || this.type == 2) {
+    //   //就餐或外卖
+    //   this.addressId = this.place[0].canteens[0].info.id;
+    //   this.address = this.place[0].canteens[0].info.name;
+    //   this.place.forEach((items, index) => {
+    //     items.canteens.forEach((item, key) => {
+    //       this.addressList[key] = item.info.name;
+    //     });
+    //   });
+    // }
     //初始化订单列表
     const result2 = await userOrderings({
       page: this.current_page,
@@ -533,6 +546,7 @@ export default {
       this.last_page = result2.data.last_page;
       this.current_page = result2.data.current_page;
     }
+    console.log('订单列表：',result2);
     Toast.clear();
   }
 };

@@ -21,7 +21,7 @@
             :title="item.info.name"
             style="border-bottom: 0.5px solid #F2F3F5;"
             clickable
-            @click="choiceCanteen(item)"
+            @click="choiceCanteen(item,items.company.id)"
           >
             <van-icon v-if="item.check" name="passed" color="#26A2FF" />
           </van-cell>
@@ -68,7 +68,7 @@ export default {
     Toast.clear();
   },
   methods: {
-    choiceCanteen(e) {
+    choiceCanteen(e,company_id) {
       this.$dialog
         .confirm({
           message: "是否选择" + e.info.name + "?"
@@ -85,7 +85,6 @@ export default {
             if (result.errorCode == 0) {
               Toast.success("选择成功！");
               this.$store.commit("user/setCanteen", e.canteen_id);
-              this.$store.commit("user/setCanteenSelect", 1);
               this.$router.push({
                 path: "/"
               });
