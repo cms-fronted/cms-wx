@@ -91,7 +91,6 @@ export default {
         Toast.success("成功进入饭堂!");
         this.$store.commit("user/setCanteen", e);
         this.$bus.$emit("updatePage"); //注册全局事件
-        // this.$router.push("/");
         this.$router.replace("/");
         location.reload();
       }
