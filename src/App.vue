@@ -163,10 +163,10 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    // localStorage.setItem("phone", 1);
-    localStorage.setItem("user_token", "59fb5ff8941835f4e0bc4144dba41905");
-    // localStorage.setItem("canteen_selected", 1);
-    // localStorage.setItem("canteen_id", 163);
+    localStorage.setItem("phone", 1);
+    localStorage.setItem("user_token", "5eb74dc39f2edf65a2af9d3015be88b9");
+    localStorage.setItem("canteen_selected",1);
+    // localStorage.setItem("canteen_id", 1);
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
