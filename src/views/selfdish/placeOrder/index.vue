@@ -252,7 +252,12 @@ import {
   updateUserAddress
 } from "@/api/user.js";
 import { addShopOrder } from "@/api/store.js";
-import { saveOrder, changeFoods, changeOrderAddress } from "@/api/selfDish.js";
+import {
+  saveOrder,
+  changeFoods,
+  changeOrderAddress,
+  personChoice
+} from "@/api/selfDish.js";
 import { Toast } from "vant";
 import area from "@/utils/area.js";
 
@@ -420,10 +425,13 @@ export default {
           //如果该用户还没地址
           Toast.fail("请选择地址！");
         }
-      } else if (this.orderType == 1) {
-        //个人选菜订单
+      } else if (
+        this.orderType == 1 &&
+        localStorage.getItem("out_siders" == 2)
+      ) {
+        //个人选菜订单--企业人员  
         this.selfDish.detail = JSON.stringify(this.selfDish.detail);
-        if (this.dining_mode == 2) {
+        if (this.dining_mode == 2) {  //外卖订餐
           const data = Object.assign(this.selfDish, {
             address_id: this.address_id,
             detail: this.selfDish.detail
@@ -435,12 +443,43 @@ export default {
               path: "/"
             });
           }
-        } else {
+        } else { //堂食
           const data = Object.assign(this.selfDish, {
             address_id: "",
             detail: this.selfDish.detail
           });
           const result2 = await saveOrder(data);
+          if (result2.errorCode == 0) {
+            Toast.success("下单成功！");
+            this.$router.push({
+              path: "/"
+            });
+          }
+        }
+      } else if (
+        this.orderType == 1 &&
+        localStorage.getItem("out_siders") == 1
+      ) {
+        // 个人选菜订单--外部人员订餐
+        this.selfDish.detail = JSON.stringify(this.selfDish.detail);
+        if (this.dining_mode == 2) {//外卖
+          const data = Object.assign(this.selfDish, {
+            address_id: this.address_id,
+            detail: this.selfDish.detail
+          });
+          const result2 = await personChoice(data);
+          if (result2.errorCode == 0) {
+            Toast.success("下单成功！");
+            this.$router.push({
+              path: "/"
+            });
+          }
+        } else {//堂食
+          const data = Object.assign(this.selfDish, {
+            address_id: "",
+            detail: this.selfDish.detail
+          });
+          const result2 = await personChoice(data);
           if (result2.errorCode == 0) {
             Toast.success("下单成功！");
             this.$router.push({
