@@ -49,14 +49,30 @@ export default {
         if (this.token) {
           this.$router.push({ path: "/" });
           var canteens = new Array();
+          let outSiders = localStorage.getItem("out_siders");
           const result2 = await canChooseCant();
-          if (result2.errorCode == 0) {
+          if (
+            result2.errorCode == 0 &&
+            outSiders == 2 &&
+            result2.data.length != 0
+          ) {
+            //企业人员饭堂信息
             result2.data.forEach((items, index) => {
               items.canteens.forEach((item, key) => {
                 canteens.push(item.info);
               });
             });
             store.commit("user/setCanteenList", canteens);
+          } else if (
+            // 外来人员接口数据处理
+            result2.errorCode == 0 &&
+            outSiders == 1 &&
+            result2.data.length != 0
+          ) {
+            result2.data.forEach((items, index) => {
+              canteens.push({ id: items.canteen_id, name: items.canteen });
+            });
+            this.$store.commit("user/setCanteenList", canteens);
           }
         }
       }

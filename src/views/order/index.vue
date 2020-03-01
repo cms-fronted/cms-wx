@@ -500,22 +500,32 @@ export default {
     });
     //调用用户可进入饭堂接口获取地点数据
     const result = await canChooseCant();
+    let outSiders = localStorage.getItem("out_siders");
     console.log("结果", result);
-    if (result.errorCode == 0) {
+    if (result.errorCode == 0 && outSiders == 2 && result2.data.length != 0) {
       this.place = result.data;
-    }
-    this.place.forEach((items, index) => {
-      items.canteens.forEach((item, key) => {
-        // console.log(item);
-        this.addressList.push({
-          name: item.info.name,
-          id: item.info.id
+      this.place.forEach((items, index) => {
+        items.canteens.forEach((item, key) => {
+          this.addressList.push({
+            name: item.info.name,
+            id: item.info.id
+          });
         });
       });
-    });
+    } else if (
+      // 外来人员接口数据处理
+      result.errorCode == 0 &&
+      outSiders == 1 &&
+      result.data.length != 0
+    ) {
+      result.data.forEach((items, index) => {
+        this.addressList.push({ id: items.canteen_id, name: items.canteen });
+      });
+      this.$store.commit("user/setCanteenList", canteens);
+    }
     this.type = 1; //默认就餐
     this.addressId = this.addressList[0].id;
-    this.address = this.addressList[0].name
+    this.address = this.addressList[0].name;
     // if (this.type == 3) {
     //   //若为小卖部
     //   this.addressId = this.place[0].company.id;
@@ -546,7 +556,7 @@ export default {
       this.last_page = result2.data.last_page;
       this.current_page = result2.data.current_page;
     }
-    console.log('订单列表：',result2);
+    console.log("订单列表：", result2);
     Toast.clear();
   }
 };
