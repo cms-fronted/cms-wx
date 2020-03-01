@@ -727,6 +727,9 @@ export default {
         tel: value.tel
       });
     });
+    if(localStorage.getItem('out_siders')==1){
+      this.dining_mode = 2;
+    }
     Toast.clear();
   },
   computed: {
