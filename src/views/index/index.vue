@@ -18,7 +18,7 @@
         </li>
       </ul>
     </div>
-    <router-link to="/ecard" v-if="outSiders==1">
+    <router-link to="/ecard" v-if="outSiders==2">
       <div class="m-foot flex-row flex-center">
         <img src="../../assets/code.png" />
         <p>电子饭卡</p>
