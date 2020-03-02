@@ -181,13 +181,13 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    localStorage.setItem("phone", 1);
+    // localStorage.setItem("phone", 1);
     // localStorage.setItem("user_token", "6a36e6c740f1ef2f6a2bd8d31ebadf97");
     // localStorage.setItem("user_token", "6936cb9cd7024ef735043cce04098b3f");
-    localStorage.setItem("user_token", "728fbb8b0306bf7cdfd460320e4ff041");
-    localStorage.setItem("canteen_selected", 1);
-    localStorage.setItem("canteen_id", 163);
-    localStorage.setItem("out_siders", 2); //2：为企业人员 1：外来人员
+    // localStorage.setItem("user_token", "728fbb8b0306bf7cdfd460320e4ff041");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 163);
+    // localStorage.setItem("out_siders", 2); //2：为企业人员 1：外来人员
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
