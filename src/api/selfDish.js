@@ -84,8 +84,22 @@ export function changeFoods(data) {
 //修改订单地址
 export function changeOrderAddress(data) {
 	return request({
+<<<<<<< HEAD
 		url:'https://tonglingok.com/canteen/api/v1/order/changeAddress',
 		method:'post',
+=======
+		url: '/api/v1/order/changeAddress',
+		method: 'post',
+		data
+	})
+}
+
+//外部人员新增订单
+export function personChoice(data) {
+	return request({
+		url: '/api/v1/order/personChoice/save',
+		method: 'post',
+>>>>>>> dev
 		data
 	})
 }

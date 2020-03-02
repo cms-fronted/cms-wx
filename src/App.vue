@@ -100,8 +100,8 @@ export default {
       window.location.href =
         "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx60311f2f47c86a3e&redirect_uri=https%3A%2F%2Fcloudcanteen3.51canteen.com%2Fcanteen3%2Fwxcms%2F%23%2Fauthor&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
     },
+    //设置当前标题
     setTitle() {
-      //设置当前标题
       this.canteenList.forEach((item, index) => {
         if (item.id == this.canteen_id) {
           this.canteen_name = item.name;
@@ -137,12 +137,29 @@ export default {
         if (localStorage.getItem("user_token")) {
           if (localStorage.getItem("phone") == 1) {
             var canteens = new Array();
+            let outSiders = localStorage.getItem("out_siders");
             const result2 = await canChooseCant(); //返回用户可选饭堂
-            if (result2.errorCode == 0) {
+            if (
+              result2.errorCode == 0 &&
+              outSiders == 2 &&
+              result2.data.length != 0
+            ) {
               result2.data.forEach((items, index) => {
                 items.canteens.forEach((item, key) => {
                   canteens.push(item.info);
                 });
+              });
+              this.$store.commit("user/setCanteenList", canteens);
+              this.radio = parseInt(this.canteen_id);
+              this.setTitle();
+            } else if (
+              // 外来人员接口数据处理
+              result2.errorCode == 0 &&
+              outSiders == 1 &&
+              result2.data.length != 0
+            ) {
+              result2.data.forEach((items, index) => {
+                canteens.push({ id: items.canteen_id, name: items.canteen });
               });
               this.$store.commit("user/setCanteenList", canteens);
               this.radio = parseInt(this.canteen_id);
@@ -164,10 +181,11 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    // localStorage.setItem("phone", 1);
-    // localStorage.setItem("user_token", "59fb5ff8941835f4e0bc4144dba41905");
-    // localStorage.setItem("canteen_selected", 1);
-    // localStorage.setItem("canteen_id", 163);
+    localStorage.setItem("phone", 1);
+    localStorage.setItem("user_token", "9c708ebb73736dc7944903d6d43c2fff");
+    localStorage.setItem("canteen_selected", 1);
+    localStorage.setItem("canteen_id", 130);
+    localStorage.setItem("out_siders", 1); //2：为企业人员 1：外来人员
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
@@ -175,11 +193,29 @@ export default {
         if (localStorage.getItem("phone") == 1) {
           var canteens = new Array();
           const result2 = await canChooseCant(); //返回用户可选饭堂
-          if (result2.errorCode == 0) {
+          let outSiders = localStorage.getItem("out_siders");
+          // 企业内部人员接口数据处理
+          if (
+            result2.errorCode == 0 &&
+            outSiders == 2 &&
+            result2.data.length != 0
+          ) {
             result2.data.forEach((items, index) => {
               items.canteens.forEach((item, key) => {
                 canteens.push(item.info);
               });
+            });
+            this.$store.commit("user/setCanteenList", canteens);
+            this.radio = parseInt(this.canteen_id);
+            this.setTitle();
+          } else if (
+            // 外来人员接口数据处理
+            result2.errorCode == 0 &&
+            outSiders == 1 &&
+            result2.data.length != 0
+          ) {
+            result2.data.forEach((items, index) => {
+              canteens.push({ id: items.canteen_id, name: items.canteen });
             });
             this.$store.commit("user/setCanteenList", canteens);
             this.radio = parseInt(this.canteen_id);

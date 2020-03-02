@@ -32,7 +32,7 @@
       style="justify-content: space-between;align-items:center;padding: 10px 20px 0 20px;"
       ref="mealType"
     >
-      <van-radio-group v-model="type">
+      <van-radio-group v-model="type" v-if="out_siders == 2">
         <van-radio v-if="dining_mode==1||dining_mode==3" style="margin: 10px 0;" :name="1">堂食</van-radio>
         <van-radio v-if="dining_mode==2|| dining_mode==3" :name="2">外卖</van-radio>
       </van-radio-group>
@@ -329,7 +329,8 @@ export default {
       current_page: 1, //当前页码
       per_page: 6, //一页显示多少条数据
       last_page: null, //最后的页码
-      showDate: false //展示日期
+      showDate: false, //展示日期
+      outsiders:localStorage.getItem('out_siders')
     };
   },
   methods: {
