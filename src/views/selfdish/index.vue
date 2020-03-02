@@ -32,7 +32,7 @@
       style="justify-content: space-between;align-items:center;padding: 10px 20px 0 20px;"
       ref="mealType"
     >
-      <van-radio-group v-model="type" v-if="out_siders == 2">
+      <van-radio-group v-model="type" v-if="outsiders == 2">
         <van-radio v-if="dining_mode==1||dining_mode==3" style="margin: 10px 0;" :name="1">堂食</van-radio>
         <van-radio v-if="dining_mode==2|| dining_mode==3" :name="2">外卖</van-radio>
       </van-radio-group>
@@ -330,7 +330,7 @@ export default {
       per_page: 6, //一页显示多少条数据
       last_page: null, //最后的页码
       showDate: false, //展示日期
-      outsiders:localStorage.getItem('out_siders')
+      outsiders: localStorage.getItem("out_siders")
     };
   },
   methods: {
@@ -436,7 +436,6 @@ export default {
 			 日期选择
 			 */
     chooseDate(index, title) {
-      this.date = this.currentDate[index];
       this.dayMap = new Map(this.copyDayMap);
       this.submitValidate = "";
       this.products = [];
@@ -447,6 +446,7 @@ export default {
     /* 去重 */
     unique(arr1) {
       let arr = JSON.parse(JSON.stringify(arr1));
+      // let arr = arr1.concat();
       for (var i = 0; i < arr.length; i++) {
         for (var j = i + 1; j < arr.length; j++) {
           if (arr[i].id == arr[j].id) {
@@ -985,6 +985,7 @@ export default {
           });
         });
         this.dayMap = dayMap;
+        this.copyDayMap = new Map(this.dayMap);
         //将日期放入数组中
         for (var [key, value] of dayMap) {
           this.currentDate.push(key);
