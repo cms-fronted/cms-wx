@@ -110,6 +110,11 @@ export default {
       });
       if (result.errorCode == 0) {
         localStorage.setItem("phone", 1);
+        if (this.radio == 1) {
+          localStorage.setItem("out_siders", 1);
+        } else {
+          localStorage.setItem("out_siders", 2);
+        }
         this.$router.push({
           name: "setting",
           params: {

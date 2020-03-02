@@ -127,6 +127,9 @@ export default {
       if (now.name == "entry") {
         this.title = "绑定手机";
       }
+      if (now.name == "setting") {
+        this.title = "切换饭堂";
+      }
       if (now.name == "index") {
         if (localStorage.getItem("phone") == 2) {
           this.$router.replace("/entry");
