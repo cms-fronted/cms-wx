@@ -181,11 +181,11 @@ export default {
     const params = new URLSearchParams(window.location.search.substring(1)); //查询url
     const code = params.get("code"); //获取url中的code
     const state = params.get("state");
-    localStorage.setItem("phone", 1);
-    localStorage.setItem("user_token", "9c708ebb73736dc7944903d6d43c2fff");
-    localStorage.setItem("canteen_selected", 1);
-    localStorage.setItem("canteen_id", 130);
-    localStorage.setItem("out_siders", 1); //2：为企业人员 1：外来人员
+    // localStorage.setItem("phone", 1);
+    // localStorage.setItem("user_token", "9c708ebb73736dc7944903d6d43c2fff");
+    // localStorage.setItem("canteen_selected", 1);
+    // localStorage.setItem("canteen_id", 130);
+    // localStorage.setItem("out_siders", 1); //2：为企业人员 1：外来人员
     if (!localStorage.getItem("user_token") && !code) {
       this.getCode();
     } else {
