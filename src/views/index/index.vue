@@ -17,17 +17,8 @@
           </router-link>
         </li>
       </ul>
-      <!-- <p style="line-height: 5px;">管理应用</p> -->
-      <!-- <ul style="margin-bottom: 60px;">
-        <li v-for="(item,index) in mGrid" :key="index">
-          <router-link :to="item.url" style="width: 100%;">
-            <img :src="item.icon" />
-            <p>{{item.name}}</p>
-          </router-link>
-        </li>
-      </ul>-->
     </div>
-    <router-link to="/ecard">
+    <router-link to="/ecard" v-if="outSiders==2">
       <div class="m-foot flex-row flex-center">
         <img src="../../assets/code.png" />
         <p>电子饭卡</p>
@@ -56,99 +47,9 @@ export default {
           imgSrc: img3
         }
       ],
-      grid: [
-        // {
-        //   category: "1",
-        //   name: "线上餐厅",
-        //   icon: require("../../assets/canting.png"),
-        //   url: "orderingOnline"
-        // },
-        // {
-        //   category: "2",
-        //   name: "个人选菜",
-        //   icon: require("../../assets/selfmenu.png"),
-        //   type: 0,
-        //   url: "selfdish"
-        // },
-        // {
-        //   category: "3",
-        //   name: "菜谱查看",
-        //   icon: require("../../assets/menu.png"),
-        //   type: 0,
-        //   url: "menu"
-        // },
-        // {
-        //   category: "4",
-        //   name: "订单查询",
-        //   icon: require("../../assets/order.png"),
-        //   type: 0,
-        //   url: "order"
-        // },
-        // {
-        //   category: "5",
-        //   name: "消费查询",
-        //   icon: require("../../assets/xiaofei.png"),
-        //   type: 0,
-        //   url: "consume"
-        // },
-        // {
-        //   category: "6",
-        //   name: "微信充值",
-        //   icon: require("../../assets/chongzhi.png"),
-        //   type: 0,
-        //   url: "recharge"
-        // },
-        // {
-        //   category: "7",
-        //   name: "通知",
-        //   icon: require("../../assets/tongzhi.png"),
-        //   type: 0,
-        //   url: "note"
-        // },
-        // {
-        //   category: "8",
-        //   name: "设置",
-        //   icon: require("../../assets/setting.png"),
-        //   type: 0,
-        //   url: "setting"
-        // },
-        // {
-        //   category: "9",
-        //   name: "小卖部",
-        //   icon: require("../../assets/canting.png"),
-        //   url: "Store"
-        // }
-      ],
-      mGrid: [
-        // {
-        //   category: "1",
-        //   name: "菜品管理(菜谱查询)",
-        //   icon: "img/release.4c279efa.png",
-        //   type: 0,
-        //   url: "mealMenage"
-        // },
-        // {
-        //   category: "2",
-        //   name: "菜品管理(个人选菜)",
-        //   icon: "/assets/manage.png",
-        //   type: 0,
-        //   url: "mealMenageSelf"
-        // },
-        // {
-        //   category: "3",
-        //   name: "总订餐查询",
-        //   icon: "/assets/search.png",
-        //   type: 0,
-        //   url: "totalorder"
-        // },
-        // {
-        //   category: "4",
-        //   name: "公告发布",
-        //   icon: require("../../assets/release.png"),
-        //   type: 0,
-        //   url: "notice"
-        // }
-      ]
+      grid: [],
+      mGrid: [],
+      outSiders: localStorage.getItem("out_siders")
     };
   },
   methods: {
@@ -160,11 +61,11 @@ export default {
     async setModule() {
       //设置当前可见模块
       const result = await getModules();
-      // console.log('......................',result)
       if (result.errorCode == 0) {
         this.mGrid = result.data;
         this.mGrid.forEach((item, index) => {
-          item.icon = "https://cloudcanteen3.51canteen.com/canteen3" + item.icon;
+          item.icon =
+            "https://cloudcanteen3.51canteen.com/canteen3" + item.icon;
         });
       }
       this.grid = this.mGrid;

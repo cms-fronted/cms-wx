@@ -429,9 +429,10 @@ export default {
         this.orderType == 1 &&
         localStorage.getItem("out_siders" == 2)
       ) {
-        //个人选菜订单--企业人员  
+        //个人选菜订单--企业人员
         this.selfDish.detail = JSON.stringify(this.selfDish.detail);
-        if (this.dining_mode == 2) {  //外卖订餐
+        if (this.dining_mode == 2) {
+          //外卖订餐
           const data = Object.assign(this.selfDish, {
             address_id: this.address_id,
             detail: this.selfDish.detail
@@ -439,11 +440,44 @@ export default {
           const result2 = await saveOrder(data);
           if (result2.errorCode == 0) {
             Toast.success("下单成功！");
-            this.$router.push({
-              path: "/"
+            Toast.loading({
+              forbidClick: true,
+              duration: 0
             });
+            // 调用微信接口支付
+            const result3 = await getPayInfo({
+              order_id: result.data.id
+            });
+            if (result3.errorCode == 0) {
+              const data = {
+                appId: result3.data.appid, //公众号名称，由商户传入
+                timeStamp: new Date()
+                  .getTime()
+                  .toString()
+                  .substr(0, 10), //时间戳
+                nonceStr: result3.data.nonce_str, //随机串
+                package: "prepay_id=" + result2.data.prepay_id, //预支付id
+                signType: "MD5", //微信签名方式
+                paySign: result3.data.sign //微信签名
+              };
+              data.paySign = md5
+                .hexMD5(
+                  "appId=" +
+                    data.appId +
+                    "&nonceStr=" +
+                    data.nonceStr +
+                    "&package=" +
+                    data.package +
+                    "&signType=MD5&timeStamp=" +
+                    data.timeStamp +
+                    "&key=1234567890qwertyuiopasdfghjklzxc"
+                )
+                .toUpperCase();
+              await this.onBridgeReady(data);
+            }
           }
-        } else { //堂食
+        } else {
+          //堂食
           const data = Object.assign(this.selfDish, {
             address_id: "",
             detail: this.selfDish.detail
@@ -462,7 +496,8 @@ export default {
       ) {
         // 个人选菜订单--外部人员订餐
         this.selfDish.detail = JSON.stringify(this.selfDish.detail);
-        if (this.dining_mode == 2) {//外卖
+        if (this.dining_mode == 2) {
+          //外卖
           const data = Object.assign(this.selfDish, {
             address_id: this.address_id,
             detail: this.selfDish.detail
@@ -474,7 +509,8 @@ export default {
               path: "/"
             });
           }
-        } else {//堂食
+        } else {
+          //堂食
           const data = Object.assign(this.selfDish, {
             address_id: "",
             detail: this.selfDish.detail
@@ -655,6 +691,34 @@ export default {
       this.value = value.name;
       this.address_id = value.id;
       this.showPicker = false;
+    },
+    //调用微信js api 支付
+    onBridgeReady(data) {
+      var vm = this;
+      WeixinJSBridge.invoke(
+        "getBrandWCPayRequest",
+        {
+          debug: true,
+          appId: data.appId, //公众号名称，由商户传入
+          timeStamp: data.timeStamp, //时间戳
+          nonceStr: data.nonceStr, //随机串
+          package: data.package, //预支付id
+          signType: data.signType, //微信签名方式
+          paySign: data.paySign //微信签名
+        },
+        function(res) {
+          console.log(res);
+          //debugger;
+          // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+          if (res.err_msg == "get_brand_wcpay_request:ok") {
+            Toast.success("支付成功！");
+            vm.$router.push({ name: "index" });
+          } else {
+            //alert("支付失败,请跳转页面"+res.err_msg);
+            Toast.fail("支付失败！请重新提交");
+          }
+        }
+      );
     }
   },
   filters: {
@@ -727,7 +791,7 @@ export default {
         tel: value.tel
       });
     });
-    if(localStorage.getItem('out_siders')==1){
+    if (localStorage.getItem("out_siders") == 1) {
       this.dining_mode = 2;
     }
     Toast.clear();
