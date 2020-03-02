@@ -127,6 +127,7 @@ export default {
             console.log(result);
             if (result.errorCode == 0) {
               Toast.success("选择成功！");
+              localStorage.setItem('canteen_selected',1)
               this.$store.commit("user/setCanteen", e.canteen_id);
               this.$router.push({
                 path: "/"
