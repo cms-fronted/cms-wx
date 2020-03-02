@@ -739,7 +739,7 @@ export default {
             if (
               items.menu_id == item.id &&
               items.count > item.count &&
-              item.status == 1
+              item.status == 1 //status为1，订餐菜品数量不可超过
             ) {
               Toast.fail(item.category + "不可超过" + item.count + "份");
               this.pass = true;
